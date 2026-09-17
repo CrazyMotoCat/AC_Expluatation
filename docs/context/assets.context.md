@@ -1,11 +1,15 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-17
 MODULE: Assets
 
 ## PURPOSE
 
 Assets — основной реестр оборудования и инженерных систем. Модуль хранит текущее состояние актива, его модель, состав, функциональные связи, ответственности, замены и бизнес-историю.
+
+## IMPLEMENTATION STATUS
+
+`TASK-00.03.02` реализует только базовый layer pattern модуля, технический `GetAssetsModuleInfoQuery` и регистрацию `AddAssetsModule()`. Business entities, DB schema, API, permissions, lifecycle и events из этой capsule остаются целевой моделью для последующих backlog tasks.
 
 ## OWNS
 
@@ -181,6 +185,7 @@ Responsibility имеет validity period.
 
 Полезные контракты:
 
+- `AssetsModuleInfo` — technical bootstrap contract, не содержит business data актива;
 - `AssetReference`
 - `AssetMaintenanceContext`
 - `AssetOperationalContext`

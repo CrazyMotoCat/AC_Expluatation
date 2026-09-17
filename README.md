@@ -6,7 +6,7 @@
 
 ## Текущее состояние
 
-Созданы минимальный repository skeleton, локальный Compose stack и ASP.NET Core API bootstrap. Frontend и доменные модули добавляются последующими задачами backlog.
+Созданы минимальный repository skeleton, локальный Compose stack, ASP.NET Core API bootstrap и базовый layer pattern модуля Assets. Frontend и бизнес-функции доменных модулей добавляются последующими задачами backlog.
 
 ## Сборка
 

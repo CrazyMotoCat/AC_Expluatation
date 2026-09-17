@@ -1,11 +1,15 @@
 # Module: Assets
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-17
 
 ## Purpose
 
 Assets — центральный реестр оборудования, инженерных систем, моделей, составных компонентов, связей, ответственности и lifecycle history.
+
+## Implementation status
+
+`TASK-00.03.02` создаёт только базовый layer pattern `Domain` / `Application` / `Infrastructure` / `Contracts`, технический query о модуле и стандартную регистрацию `AddAssetsModule()`. Описанные ниже business entities, persistence, API, permissions, lifecycle и events ещё не реализованы этой задачей.
 
 ## Owns
 
@@ -119,6 +123,7 @@ Replacement сохраняет old/new/reason/date/approval/link to work/change.
 
 ## Public contracts
 
+- AssetsModuleInfo (technical bootstrap contract; не содержит business data актива)
 - AssetReference
 - AssetMaintenanceContext
 - AssetOperationalContext
