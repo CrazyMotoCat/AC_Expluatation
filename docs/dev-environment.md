@@ -271,31 +271,25 @@ S3_FORCE_PATH_STYLE=true
 
 # 19. Startup workflow
 
-Целевой запуск:
+После создания локального `.env` поднимайте Compose stack и дожидайтесь healthchecks одной командой:
 
-```text
-docker compose up -d
-dotnet run
-pnpm dev
+```powershell
+./scripts/dev/dev-up.ps1
 ```
 
-Позже можно обернуть в одну команду.
+Скрипт проверяет `.env`, Compose configuration и active local Docker context, после чего выполняет `docker compose up --detach --wait`. Далее запускаются application processes (`dotnet run`, `pnpm dev`) по мере их появления в соответствующих задачах.
+
+Остановка local stack без удаления данных:
+
+```powershell
+./scripts/dev/dev-down.ps1
+```
 
 ---
 
 # 20. One-command developer setup
 
-Цель:
-
-```text
-./scripts/dev-up
-```
-
-или PowerShell:
-
-```text
-./scripts/dev-up.ps1
-```
+PowerShell scripts из `scripts/dev/` запускаются в PowerShell 7 на Windows и Linux. Они работают только с local Docker endpoint: Windows named pipe, Unix socket или loopback TCP. Remote Docker context не поддерживается для local DEV stack.
 
 ---
 
@@ -362,7 +356,7 @@ Script обязан проверять environment:
 Environment == Development
 ```
 
-и допустимый hostname.
+и local Docker endpoint. Для удаления named volumes `scripts/dev/dev-reset.ps1` требует также явный флаг `-ConfirmReset`; `-WhatIf` показывает operation без изменения Docker state. См. [runbook](runbooks/dev-reset.md).
 
 ---
 
