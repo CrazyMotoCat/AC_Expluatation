@@ -6,7 +6,7 @@
 
 ## Текущее состояние
 
-Создан минимальный repository skeleton и локальный Compose stack. Backend API, frontend и доменные модули добавляются последующими задачами backlog.
+Созданы минимальный repository skeleton, локальный Compose stack и ASP.NET Core API bootstrap. Frontend и доменные модули добавляются последующими задачами backlog.
 
 ## Сборка
 
@@ -15,6 +15,16 @@
 ```powershell
 dotnet build Exploitation.sln
 ```
+
+## API bootstrap
+
+Запустите API в Development:
+
+```powershell
+dotnet run --project src/backend/Exploitation.Api --environment Development
+```
+
+Проверочные endpoints: `/health/live` и `/health/ready`. В Development OpenAPI document доступен по `/openapi/v1.json`.
 
 ## Локальная инфраструктура
 

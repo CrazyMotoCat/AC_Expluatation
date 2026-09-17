@@ -653,9 +653,28 @@ Debug/Information
 
 ---
 
-# 52. Local OpenAPI
+# 52. Local API and OpenAPI
 
-Swagger/OpenAPI доступен в DEV.
+API bootstrap запускается в Development:
+
+```powershell
+dotnet run --project src/backend/Exploitation.Api --environment Development
+```
+
+Проверочные endpoints доступны вне `/api/v1`:
+
+```text
+/health/live
+/health/ready
+```
+
+OpenAPI document доступен только в Development по адресу:
+
+```text
+/openapi/v1.json
+```
+
+Каждый response содержит `X-Correlation-Id`. API выводит structured JSON logs в console и валидирует обязательную configuration section `Application` при startup.
 
 ---
 
