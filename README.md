@@ -16,6 +16,10 @@
 dotnet build Exploitation.sln
 ```
 
+## CI
+
+Единственный CI provider текущего этапа — GitHub Actions. Workflow [Build pipeline](.github/workflows/build.yml) воспроизводимо собирает и проверяет backend и frontend на чистом Linux runner, а логи jobs сохраняет как artifacts. Настройка обязательной проверки для private GitHub remote описана в [runbook](docs/runbooks/github-actions-build-pipeline.md).
+
 ## API bootstrap
 
 Запустите API в Development:

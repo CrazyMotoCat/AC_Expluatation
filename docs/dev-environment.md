@@ -132,7 +132,7 @@ Windows
 ├── docs/
 ├── deploy/
 ├── scripts/
-├── .github/ or .gitlab/
+├── .github/
 ├── docker-compose.yml
 ├── .env.example
 ├── Directory.Build.props

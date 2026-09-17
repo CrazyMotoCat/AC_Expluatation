@@ -1,0 +1,134 @@
+name: Build pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend build and tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore backend dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/logs
+          dotnet restore Exploitation.sln 2>&1 | tee artifacts/logs/backend-restore.log
+
+      - name: Build backend
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet build Exploitation.sln --configuration Release --no-restore 2>&1 | tee artifacts/logs/backend-build.log
+
+      - name: Run backend unit tests
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet test Exploitation.sln --configuration Release --no-build 2>&1 | tee artifacts/logs/backend-unit-tests.log
+
+      - name: Run architecture checks
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project tests/architecture/Exploitation.ArchitectureChecks/Exploitation.ArchitectureChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/architecture-checks.log
+
+      - name: Run infrastructure script checks
+        shell: bash
+        run: |
+          set -o pipefail
+          pwsh -NoProfile -File tests/infrastructure/DevScripts.Tests.ps1 2>&1 | tee artifacts/logs/dev-scripts-tests.log
+          pwsh -NoProfile -File tests/infrastructure/CiWorkflow.Tests.ps1 2>&1 | tee artifacts/logs/ci-workflow-tests.log
+
+      - name: Run API integration smoke tests
+        shell: bash
+        run: |
+          set -o pipefail
+          pwsh -NoProfile -File tests/e2e/ApiBootstrapSmoke.Tests.ps1 2>&1 | tee artifacts/logs/api-bootstrap-smoke.log
+
+      - name: Upload backend logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-logs
+          path: artifacts/logs
+          if-no-files-found: error
+
+  frontend:
+    name: Frontend build and tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: src/frontend/package.json
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p artifacts/logs
+          cd src/frontend
+          npm ci 2>&1 | tee ../../artifacts/logs/frontend-install.log
+
+      - name: Lint frontend
+        shell: bash
+        run: |
+          set -o pipefail
+          cd src/frontend
+          npm run lint 2>&1 | tee ../../artifacts/logs/frontend-lint.log
+
+      - name: Build frontend
+        shell: bash
+        run: |
+          set -o pipefail
+          cd src/frontend
+          npm run build 2>&1 | tee ../../artifacts/logs/frontend-build.log
+
+      - name: Run frontend unit tests
+        shell: bash
+        run: |
+          set -o pipefail
+          cd src/frontend
+          npm test 2>&1 | tee ../../artifacts/logs/frontend-unit-tests.log
+
+      - name: Upload frontend logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-logs
+          path: artifacts/logs
+          if-no-files-found: error
+
+  verify:
+    name: Verify required checks
+    if: always()
+    needs:
+      - backend
+      - frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful backend and frontend jobs
+        shell: bash
+        run: |
+          test "${{ needs.backend.result }}" = "success"
+          test "${{ needs.frontend.result }}" = "success"

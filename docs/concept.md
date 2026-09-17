@@ -732,7 +732,7 @@ Change
 - Queue: RabbitMQ;
 - Auth: Keycloak либо корпоративный Entra ID / AD;
 - Reverse proxy: Nginx / Traefik;
-- CI/CD: GitHub Actions / GitLab CI;
+- CI (текущий этап): GitHub Actions; CD определяется отдельным решением;
 - Metrics: Prometheus;
 - Dashboards: Grafana;
 - Logs: Loki / OpenSearch.

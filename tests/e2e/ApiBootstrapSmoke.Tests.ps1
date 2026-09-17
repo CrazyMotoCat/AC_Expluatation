@@ -8,10 +8,17 @@ $apiProcess = $null
 
 try {
     [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Process')
-    $apiProcess = Start-Process -FilePath dotnet `
-        -ArgumentList @('run', '--project', "`"$apiProject`"", '--configuration', 'Release', '--no-build', '--no-launch-profile', '--', '--urls', $baseUrl, '--environment', 'Development') `
-        -PassThru `
-        -WindowStyle Hidden
+    $startProcessArguments = @{
+        FilePath = 'dotnet'
+        ArgumentList = @('run', '--project', "`"$apiProject`"", '--configuration', 'Release', '--no-build', '--no-launch-profile', '--', '--urls', $baseUrl, '--environment', 'Development')
+        PassThru = $true
+    }
+
+    if ($IsWindows) {
+        $startProcessArguments.WindowStyle = 'Hidden'
+    }
+
+    $apiProcess = Start-Process @startProcessArguments
 
     $liveResponse = $null
     for ($attempt = 1; $attempt -le 80; $attempt++) {
