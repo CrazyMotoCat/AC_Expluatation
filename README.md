@@ -30,6 +30,22 @@ dotnet run --project src/backend/Exploitation.Api --environment Development
 
 Проверочные endpoints: `/health/live` и `/health/ready`. В Development OpenAPI document доступен по `/openapi/v1.json`.
 
+API является OIDC resource server. Development defaults ожидают Keycloak realm `exploitation` по адресу `http://127.0.0.1:8081` и access-token audience `exploitation-api`. Настройте realm/client в локальном Keycloak; application passwords и client secret API не нужны. Для другого provider задайте:
+
+```text
+Authentication__Oidc__Authority
+Authentication__Oidc__Audience
+Authentication__Oidc__RequireHttpsMetadata
+```
+
+После получения access token от IdP runtime identity доступна через `GET /api/v1/me` с `Authorization: Bearer <token>`.
+
+OIDC security checks:
+
+```powershell
+dotnet run --project tests/integration/Exploitation.AuthenticationChecks --configuration Release
+```
+
 ## Frontend bootstrap
 
 Установите зависимости и запустите Vite dev server:

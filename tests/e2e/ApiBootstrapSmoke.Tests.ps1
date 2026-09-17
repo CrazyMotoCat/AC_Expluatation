@@ -59,6 +59,10 @@ try {
         throw 'Development OpenAPI document is unavailable.'
     }
 
+    if (-not $openApiResponse.Content.Contains('/api/v1/me')) {
+        throw 'Development OpenAPI document does not include GET /api/v1/me.'
+    }
+
 }
 finally {
     if ($null -ne $apiProcess -and -not $apiProcess.HasExited) {

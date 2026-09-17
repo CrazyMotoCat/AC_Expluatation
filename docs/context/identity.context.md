@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-18
 MODULE: Identity
 
 ## PURPOSE
@@ -18,9 +18,9 @@ MODULE: Identity
 - authentication mapping to external subject
 - active working context
 
-## DB
+## DB (planned from TASK-01.01.02)
 
-Основные таблицы:
+Планируемые таблицы; `TASK-01.01.01` не создаёт persistence:
 
 - `identity.users`
 - `identity.roles`
@@ -103,9 +103,14 @@ Identity не должен знать все бизнес-правила дру�
 
 ## PUBLIC CONTRACTS
 
-Возможные публичные контракты:
+Реализованные runtime contracts:
 
 - `ICurrentUser`
+- `AuthenticatedUser`
+- `ExternalIdentityKey` (`issuer + subject`)
+
+Планируемые контракты последующих задач:
+
 - `IWorkingContext`
 - `IAuthorizationService`
 - `UserReference`
@@ -113,6 +118,8 @@ Identity не должен знать все бизнес-правила дру�
 - `WorkingContextReference`
 
 Другие модули не должны напрямую читать таблицы Identity ради бизнес-проверки доступа.
+
+`ClaimsPrincipal`, JWT и `HttpContext` остаются на API boundary. Runtime contract не является persistence entity; lookup/create `identity.users` относится к `TASK-01.01.02`.
 
 ## EVENTS
 
@@ -193,6 +200,9 @@ User
 
 ## TOP_TEST_RISKS
 
+- invalid token signature, issuer, audience or lifetime;
+- missing trusted issuer or subject;
+- accidental use of mutable email as identity key;
 - wrong region but correct role;
 - wrong site scope;
 - wrong working context;

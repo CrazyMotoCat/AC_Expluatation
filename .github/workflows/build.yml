@@ -71,6 +71,12 @@ jobs:
           set -o pipefail
           dotnet run --project tests/architecture/Exploitation.ArchitectureChecks/Exploitation.ArchitectureChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/architecture-checks.log
 
+      - name: Run OIDC authentication checks
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project tests/integration/Exploitation.AuthenticationChecks/Exploitation.AuthenticationChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/oidc-authentication-checks.log
+
       - name: Run infrastructure script checks
         shell: bash
         run: |

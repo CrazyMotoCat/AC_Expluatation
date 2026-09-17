@@ -1329,6 +1329,21 @@ Response:
 
 Не возвращать огромный permission graph без необходимости.
 
+Начальный контракт `TASK-01.01.01` возвращает только validated runtime identity:
+
+```json
+{
+  "identityKey": {
+    "issuer": "http://127.0.0.1:8081/realms/exploitation",
+    "subject": "external-subject"
+  },
+  "displayName": "Optional name",
+  "email": "optional@example.test"
+}
+```
+
+Durable local profile, roles, scopes, contexts and preferences добавляются последующими Identity tasks.
+
 ---
 
 # 82. Health endpoints

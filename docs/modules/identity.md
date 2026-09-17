@@ -1,7 +1,7 @@
 # Module: Identity
 
-STATUS: STABLE
-SOURCE_VERSION: 2026-09-16
+STATUS: IN DEVELOPMENT
+SOURCE_VERSION: 2026-09-18
 
 ## Purpose
 
@@ -27,7 +27,7 @@ Authentication выполняется внешним IdP по OIDC/OAuth2. Мо�
 - Business workflows других модулей
 - Password storage
 
-## Database
+## Database (planned from TASK-01.01.02)
 
 Schema:
 
@@ -35,7 +35,7 @@ Schema:
 identity
 ```
 
-Core tables:
+Planned core tables (not created by `TASK-01.01.01`):
 
 ```text
 users
@@ -65,7 +65,8 @@ Contractor request дополнительно проходит Contractors valid
 
 ## Public contracts
 
-- `ICurrentUser`
+- `ICurrentUser` exposes the validated runtime `AuthenticatedUser` for the current request.
+- `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `IWorkingContext`
 - `IAuthorizationService`
 - `UserReference`
@@ -100,10 +101,15 @@ POST /api/v1/admin/access-assignments
 
 Точные admin routes фиксируются при реализации.
 
+На этапе `TASK-01.01.01` реализован только `GET /api/v1/me`: он требует валидный bearer token и возвращает runtime identity текущего caller. Durable profile, roles, scopes and contexts расширят response в следующих Identity tasks.
+
 ## Security
 
 - no password storage;
 - no token logging;
+- JWT signature, issuer, audience and lifetime are validated by ASP.NET Core JWT Bearer;
+- `issuer + subject`, а не email, является стабильным external identity key;
+- missing display name/email не приводит к authentication failure;
 - context spoofing prevention;
 - contractor access validated through contract chain;
 - sensitive admin actions audited.
@@ -126,3 +132,4 @@ POST /api/v1/admin/access-assignments
 - global `admin.all` как повседневный permission;
 - direct DB checks из business modules вместо shared authorization contract;
 - frontend-only access control.
+- Identity persistence, provisioning and synchronization before `TASK-01.01.02`.

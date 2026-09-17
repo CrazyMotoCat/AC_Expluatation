@@ -355,7 +355,10 @@ Acceptance Criteria:
 - login работает;
 - backend validates issuer/audience;
 - passwords не хранятся в приложении;
-- authenticated user mapped to local profile.
+- authenticated user mapped to a non-persistent application runtime profile;
+- canonical external identity key is `issuer + subject`.
+
+Task boundary: durable `identity.users` persistence, provisioning and profile synchronization belong to `TASK-01.01.02`.
 
 ---
 

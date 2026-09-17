@@ -162,6 +162,18 @@ OIDC / OAuth2
 
 Backend не хранит пользовательские пароли.
 
+API работает как OAuth2 resource server и использует стандартный ASP.NET Core JWT Bearer handler. Обязательная token validation включает signature, issuer, audience, expiration и наличие `iss`/`sub`. Canonical external identity определяется парой `issuer + subject`; `name` и `email` являются optional profile attributes.
+
+Конфигурация задаётся через:
+
+```text
+Authentication__Oidc__Authority
+Authentication__Oidc__Audience
+Authentication__Oidc__RequireHttpsMetadata
+```
+
+API client secret не требуется и не должен добавляться для resource-server validation.
+
 ---
 
 # 7. MFA
