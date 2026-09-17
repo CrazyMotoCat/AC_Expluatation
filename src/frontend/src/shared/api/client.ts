@@ -1,4 +1,5 @@
 import { environment } from "../config/environment";
+import { createHttpApiError, createNetworkApiError } from "./errors";
 
 type FetchImplementation = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
@@ -26,18 +27,25 @@ export function createApiClient({
     return {
         async request<TResponse>(path: string, init?: RequestInit) {
             const headers = new Headers(init?.headers);
+            const requestUrl = buildRequestUrl(baseUrl, path);
 
             if (!headers.has("Accept")) {
                 headers.set("Accept", "application/json");
             }
 
-            const response = await fetchImplementation(buildRequestUrl(baseUrl, path), {
-                ...init,
-                headers,
-            });
+            let response: Response;
+
+            try {
+                response = await fetchImplementation(requestUrl, {
+                    ...init,
+                    headers,
+                });
+            } catch {
+                throw createNetworkApiError();
+            }
 
             if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}.`);
+                throw await createHttpApiError(response);
             }
 
             return (await response.json()) as TResponse;

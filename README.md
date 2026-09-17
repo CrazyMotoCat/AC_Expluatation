@@ -6,7 +6,7 @@
 
 ## Текущее состояние
 
-Созданы минимальный repository skeleton, локальный Compose stack, ASP.NET Core API bootstrap, базовый layer pattern модуля Assets и React/TypeScript frontend shell. Бизнес-функции доменных модулей добавляются последующими задачами backlog.
+Созданы минимальный repository skeleton, локальный Compose stack, ASP.NET Core API bootstrap, базовый layer pattern модуля Assets и React/TypeScript frontend shell с TanStack Query для server state. Бизнес-функции доменных модулей добавляются последующими задачами backlog.
 
 ## Сборка
 
