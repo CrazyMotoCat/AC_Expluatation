@@ -1,0 +1,4 @@
+interface:
+  display_name: "Efficient Orchestrator"
+  short_description: "Budget-aware multi-agent coding orchestration"
+  default_prompt: "Use $efficient-orchestrator in BALANCED mode to plan and execute this coding task with the best tradeoff between correctness, speed, and Codex usage."

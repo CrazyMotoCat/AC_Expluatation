@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repository State Guard"
+  short_description: "Git baseline, checkpoint, and recovery safety"
+  default_prompt: "Use $repository-state-guard to classify the current repository safety, protect unknown work, and establish or verify a recoverable baseline before substantial or multi-agent changes."
