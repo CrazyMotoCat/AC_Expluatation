@@ -13,6 +13,24 @@ jobs:
   backend:
     name: Backend build and tests
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_DB: exploitation_ci
+      POSTGRES_USER: exploitation_ci
+      POSTGRES_PASSWORD: migration_smoke_only
+    services:
+      postgres:
+        image: postgres:18.6-bookworm
+        env:
+          POSTGRES_DB: exploitation_ci
+          POSTGRES_USER: exploitation_ci
+          POSTGRES_PASSWORD: migration_smoke_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U exploitation_ci -d exploitation_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -21,6 +39,12 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
+
+      - name: Configure ephemeral PostgreSQL connection
+        shell: bash
+        run: |
+          printf 'ConnectionStrings__Database=Host=127.0.0.1;Port=5432;Database=%s;Username=%s;Password=%s\n' \
+            "$POSTGRES_DB" "$POSTGRES_USER" "$POSTGRES_PASSWORD" >> "$GITHUB_ENV"
 
       - name: Restore backend dependencies
         shell: bash
@@ -53,6 +77,13 @@ jobs:
           set -o pipefail
           pwsh -NoProfile -File tests/infrastructure/DevScripts.Tests.ps1 2>&1 | tee artifacts/logs/dev-scripts-tests.log
           pwsh -NoProfile -File tests/infrastructure/CiWorkflow.Tests.ps1 2>&1 | tee artifacts/logs/ci-workflow-tests.log
+          pwsh -NoProfile -File tests/infrastructure/DatabaseMigrator.Tests.ps1 2>&1 | tee artifacts/logs/database-migrator-tests.log
+
+      - name: Apply module migrations
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project src/backend/Exploitation.DatabaseMigrator/Exploitation.DatabaseMigrator.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/database-migration-smoke.log
 
       - name: Run API integration smoke tests
         shell: bash

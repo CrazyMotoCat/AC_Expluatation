@@ -25,6 +25,7 @@ Rejected
 | ADR-007 | RBAC + Scope/ABAC + Working Context | Accepted |
 | ADR-008 | Разделение Business History и Audit | Accepted |
 | ADR-009 | SeaweedFS как local development S3 provider | Accepted |
+| ADR-010 | Module-owned migrations с central technical execution | Accepted |
 
 ## Правило для Codex и разработчиков
 

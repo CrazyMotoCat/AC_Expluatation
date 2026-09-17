@@ -17,6 +17,10 @@ $requiredFragments = @(
     'dotnet restore Exploitation.sln',
     'dotnet build Exploitation.sln --configuration Release --no-restore',
     'dotnet test Exploitation.sln --configuration Release --no-build',
+    'image: postgres:18.6-bookworm',
+    'ConnectionStrings__Database=',
+    'Exploitation.DatabaseMigrator.csproj',
+    'DatabaseMigrator.Tests.ps1',
     'Exploitation.ArchitectureChecks.csproj',
     'ApiBootstrapSmoke.Tests.ps1',
     'actions/setup-node@',
@@ -38,6 +42,12 @@ foreach ($fragment in $requiredFragments) {
 
 if ($workflow -notmatch '(?ms)needs:\s*\r?\n\s*- backend\s*\r?\n\s*- frontend') {
     throw 'The required check does not depend on both backend and frontend jobs.'
+}
+
+$migrationStep = $workflow.IndexOf('name: Apply module migrations', [StringComparison]::Ordinal)
+$apiStep = $workflow.IndexOf('name: Run API integration smoke tests', [StringComparison]::Ordinal)
+if ($migrationStep -lt 0 -or $apiStep -lt 0 -or $migrationStep -ge $apiStep) {
+    throw 'The API smoke test must run after the module migration step.'
 }
 
 $forbiddenFragments = @(

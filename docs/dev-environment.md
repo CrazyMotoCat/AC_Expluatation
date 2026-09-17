@@ -313,13 +313,14 @@ PostgreSQL 18
 
 # 23. Local migrations
 
-Типовой flow:
+Все module migrations применяются через единый technical execution host. Connection string задаётся локальной environment configuration и не хранится в repository:
 
 ```text
-dotnet ef database update
+ConnectionStrings__Database=<local PostgreSQL connection string>
+dotnet run --project src/backend/Exploitation.DatabaseMigrator
 ```
 
-Но предпочтительно project wrapper script.
+Каждый module по-прежнему владеет своим `DbContext`, schema, migrations и design-time factory. `Exploitation.DatabaseMigrator` не содержит global `DbContext` и не владеет schemas. При отсутствии persistence modules результат `0 module contexts / 0 applied migrations` является корректным.
 
 ---
 

@@ -3799,6 +3799,8 @@ empty database
 → application starts
 ```
 
+`Exploitation.DatabaseMigrator` исполняет migrations всех зарегистрированных module-owned `DbContext` через `ConnectionStrings:Database`. Каждый module хранит migration history в своей schema. До появления первой business persistence состояние `0 module contexts / 0 applied migrations` является валидным PASS; fake schema или global `DbContext` не создаются. См. `ADR-010`.
+
 И желательно:
 
 ```text

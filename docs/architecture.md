@@ -1394,6 +1394,8 @@ deploy prod
 
 Критичные изменения выполняются expand/contract pattern.
 
+Business module владеет своим `DbContext`, PostgreSQL schema и migrations. Технический `Exploitation.DatabaseMigrator` только обнаруживает зарегистрированные module contexts и последовательно применяет их migrations; он не владеет schema или global `DbContext`. Единый connection contract: `ConnectionStrings:Database`. Решение зафиксировано в `ADR-010`.
+
 ---
 
 # 53. Backup

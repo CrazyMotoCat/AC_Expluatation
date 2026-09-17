@@ -2186,15 +2186,13 @@ Cross-module migration требует review.
 
 # 121. Shared database bootstrap
 
-Создание schemas/extensions может быть в отдельном:
+Migration ownership остаётся внутри module Infrastructure projects. Для исполнения используется отдельный technical host:
 
 ```text
-Exploitation.DatabaseBootstrap
+Exploitation.DatabaseMigrator
 ```
 
-или initial platform migration.
-
-Решение можно принять при создании solution skeleton.
+Он регистрирует modules, обнаруживает зарегистрированные `DbContext` и последовательно применяет их migrations. Host не содержит собственного `DbContext`, business entities, schemas или central migrations collection. Zero registered contexts является валидным состоянием. См. `ADR-010`.
 
 ---
 

@@ -8,7 +8,7 @@ The workflow uses the toolchain contracts already committed to the repository:
 - Node.js and npm contract from `src/frontend/package.json`;
 - reproducible frontend dependency installation through `npm ci`.
 
-It restores and builds the backend, runs backend unit tests, architecture checks, infrastructure script checks, and the API bootstrap integration smoke test. It also installs, lints, builds, and unit-tests the frontend. Backend and frontend logs are retained as GitHub Actions artifacts even when a job fails.
+It restores and builds the backend, runs backend unit tests, architecture checks, infrastructure script checks, and the API bootstrap integration smoke test. The backend job also starts an ephemeral PostgreSQL 18.6 service, passes its connection through `ConnectionStrings__Database`, executes `Exploitation.DatabaseMigrator`, and only then starts the API smoke test. Zero registered module contexts is currently a valid migration result. It also installs, lints, builds, and unit-tests the frontend. Backend and frontend logs are retained as GitHub Actions artifacts even when a job fails.
 
 ## Required merge check
 
