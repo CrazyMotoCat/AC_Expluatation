@@ -6,11 +6,11 @@
 
 ## Текущее состояние
 
-Созданы минимальный repository skeleton, локальный Compose stack, ASP.NET Core API bootstrap и базовый layer pattern модуля Assets. Frontend и бизнес-функции доменных модулей добавляются последующими задачами backlog.
+Созданы минимальный repository skeleton, локальный Compose stack, ASP.NET Core API bootstrap, базовый layer pattern модуля Assets и React/TypeScript frontend shell. Бизнес-функции доменных модулей добавляются последующими задачами backlog.
 
 ## Сборка
 
-Требуется .NET SDK 10.
+Требуются .NET SDK 10 и Node.js 20.19+.
 
 ```powershell
 dotnet build Exploitation.sln
@@ -25,6 +25,26 @@ dotnet run --project src/backend/Exploitation.Api --environment Development
 ```
 
 Проверочные endpoints: `/health/live` и `/health/ready`. В Development OpenAPI document доступен по `/openapi/v1.json`.
+
+## Frontend bootstrap
+
+Установите зависимости и запустите Vite dev server:
+
+```powershell
+Set-Location src/frontend
+npm ci
+npm run dev
+```
+
+Frontend использует `/api/v1` по умолчанию. Для другого API origin скопируйте `src/frontend/.env.example` в `src/frontend/.env.local` и задайте `VITE_API_URL`. Переменные `VITE_*` публичны в browser bundle и не должны содержать secrets.
+
+Проверки frontend:
+
+```powershell
+npm run lint
+npm run build
+npm test
+```
 
 ## Локальная инфраструктура
 

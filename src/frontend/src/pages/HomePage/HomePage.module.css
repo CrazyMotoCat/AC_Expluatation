@@ -1,0 +1,31 @@
+.hero {
+    max-width: 46rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid #d7e0dd;
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 1rem 3rem rgb(19 59 53 / 8%);
+}
+
+.hero h1 {
+    margin: 0 0 1rem;
+    color: #133b35;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    line-height: 1.05;
+}
+
+.hero p {
+    margin: 0;
+    color: #536863;
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+.hero .kicker {
+    margin-bottom: 0.75rem;
+    color: #1f6b5c;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}

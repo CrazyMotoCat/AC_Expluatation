@@ -45,7 +45,7 @@ SSD
 - Git;
 - .NET 10 SDK;
 - Node.js LTS;
-- npm/pnpm;
+- npm;
 - Docker Desktop;
 - WSL2;
 - PostgreSQL client tools;
@@ -176,7 +176,7 @@ global.json
 
 # 13. Node version
 
-Фиксировать через:
+Текущий frontend требует Node.js 20.19+; предпочтителен актуальный LTS. Требование фиксируется в `src/frontend/package.json`; при необходимости также можно использовать:
 
 - `.nvmrc`;
 - Volta;
@@ -186,19 +186,13 @@ global.json
 
 # 14. Package manager
 
-Выбрать один:
-
-```text
-pnpm
-```
-
-или:
+Для frontend выбран:
 
 ```text
 npm
 ```
 
-Не смешивать lockfiles.
+В repository коммитится `src/frontend/package-lock.json`. Не смешивать lockfiles.
 
 ---
 
@@ -277,7 +271,7 @@ S3_FORCE_PATH_STYLE=true
 ./scripts/dev/dev-up.ps1
 ```
 
-Скрипт проверяет `.env`, Compose configuration и active local Docker context, после чего выполняет `docker compose up --detach --wait`. Далее запускаются application processes (`dotnet run`, `pnpm dev`) по мере их появления в соответствующих задачах.
+Скрипт проверяет `.env`, Compose configuration и active local Docker context, после чего выполняет `docker compose up --detach --wait`. Application processes запускаются отдельно: `dotnet run` для API и `npm run dev` из `src/frontend` для frontend.
 
 Остановка local stack без удаления данных:
 
@@ -423,10 +417,10 @@ Auditor
 Пример:
 
 ```text
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_URL=/api/v1
 ```
 
-Не hardcode URL в source files.
+Локальное значение задаётся в `src/frontend/.env.local` на основе `src/frontend/.env.example`. Не hardcode URL в source files и не помещать secrets в `VITE_*`: эти значения попадают в browser bundle.
 
 ---
 
@@ -736,13 +730,14 @@ dotnet test
 Frontend:
 
 ```text
-pnpm test
+cd src/frontend
+npm test
 ```
 
-E2E:
+E2E (после добавления соответствующего script):
 
 ```text
-pnpm test:e2e
+npm run test:e2e
 ```
 
 ---
@@ -912,10 +907,8 @@ Lockfiles обязательны.
 Commit:
 
 ```text
-pnpm-lock.yaml
+src/frontend/package-lock.json
 ```
-
-или npm equivalent.
 
 ---
 
