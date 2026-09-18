@@ -391,6 +391,8 @@ Acceptance Criteria:
 - базовый seed системных permissions;
 - permission codes documented.
 
+Task boundary: authorization policies, user access assignments, scope, working contexts and administrative role-management API belong to subsequent Identity tasks.
+
 ---
 
 ### TASK-01.02.02. Authorization policies

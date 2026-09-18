@@ -20,17 +20,19 @@ MODULE: Identity
 
 ## DB
 
-Реализовано с `TASK-01.01.02`:
+Реализовано:
 
 - `identity.users`
-
-Module-owned `IdentityDbContext`, migrations и `identity.__ef_migrations_history` следуют ADR-010. Canonical unique index: `(external_issuer, external_subject)`.
-
-Планируется следующими задачами:
-
 - `identity.roles`
 - `identity.permissions`
 - `identity.role_permissions`
+
+Module-owned `IdentityDbContext`, migrations и `identity.__ef_migrations_history` следуют ADR-010. Canonical unique index: `(external_issuer, external_subject)`.
+
+Role/permission persistence добавлена `TASK-01.02.01`: unique codes, optimistic Role `row_version`, composite `(role_id, permission_id)`, restrictive FKs и migration-owned seed canonical permission catalog.
+
+Планируется следующими задачами:
+
 - `identity.access_assignments`
 - `identity.user_contexts`
 
@@ -87,6 +89,9 @@ Working context:
 - Делегирование всегда ограничено сроком и scope.
 - Административные права должны быть минимальными.
 - Audit должен сохранять user + working context для критичных действий.
+- Role только группирует permissions и не выдаёт доступ без assignment/scope/context/validity.
+- Canonical permission code уникален, имеет lowercase формат `<module>.<action>` и совпадает с `permissions-registry.md`.
+- Security-critical Role active state использует optimistic concurrency без silent overwrite.
 
 ## PERMISSIONS
 
@@ -223,5 +228,8 @@ User
 - contractor cross-contract leakage;
 - user switching to context they do not own;
 - admin privilege escalation;
+- duplicate or undocumented permission seed;
+- duplicate role-permission relationship;
+- destructive deletion of referenced roles/permissions;
 - inactive user with valid token;
 - authorization bypass by direct entity ID.

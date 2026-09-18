@@ -284,24 +284,27 @@ Canonical external identity и unique constraint:
 ## 5.2. identity.roles
 
 ```text
-id
-code
-name
-description
-is_system
-is_active
+id                  uuid PK, UUIDv7
+code                varchar(100) unique
+name                varchar(200)
+description         varchar(1000) nullable
+is_system           boolean
+is_active           boolean
+row_version         bigint optimistic concurrency
 ```
+
+Role code хранится как canonical exact value. `is_system` обозначает защищённую системную классификацию роли, но само наличие роли без access assignment, scope, working context и validity не даёт operational access. `row_version > 0` предотвращает silent overwrite security-critical role state.
 
 ---
 
 ## 5.3. identity.permissions
 
 ```text
-id
-code
-name
-module
-description
+id                  uuid PK, stable UUIDv7 for system seed
+code                varchar(200) unique
+name                varchar(300)
+module              varchar(100)
+description         varchar(1000) nullable
 ```
 
 Примеры:
@@ -316,13 +319,15 @@ inventory.execute
 incidents.manage
 ```
 
+Canonical permission codes определены в `permissions-registry.md`. Migration Identity seed-ит только canonical section этого реестра; provisional permissions не seed-ятся. Повторное применение migrations не создаёт дубликаты.
+
 ---
 
 ## 5.4. identity.role_permissions
 
 ```text
-role_id             FK roles
-permission_id       FK permissions
+role_id             uuid FK roles RESTRICT
+permission_id       uuid FK permissions RESTRICT
 ```
 
 PK:
@@ -330,6 +335,8 @@ PK:
 ```text
 (role_id, permission_id)
 ```
+
+Удаление Role или Permission, используемых в mapping, запрещено FK `RESTRICT`; связь не может быть продублирована благодаря composite PK.
 
 ---
 

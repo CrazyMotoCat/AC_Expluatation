@@ -1,7 +1,7 @@
 # Permissions Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-18
 
 ## 1. Назначение
 
@@ -16,6 +16,8 @@ SOURCE_VERSION: 2026-09-16
 - допустимые working contexts;
 - чувствительность операции;
 - дополнительные ограничения.
+
+С `TASK-01.02.01` все строки секции **Canonical permissions** seed-ятся module-owned Identity migration в `identity.permissions` со stable UUIDv7 IDs. Unique database constraint защищает `code`; строки секции **Provisional permissions** в seed не входят.
 
 Нельзя создавать новый permission с похожим смыслом, не проверив этот реестр.
 
