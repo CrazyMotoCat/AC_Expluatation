@@ -170,9 +170,12 @@ API работает как OAuth2 resource server и использует ст�
 Authentication__Oidc__Authority
 Authentication__Oidc__Audience
 Authentication__Oidc__RequireHttpsMetadata
+Authentication__Oidc__UserTypeClaim
 ```
 
 API client secret не требуется и не должен добавляться для resource-server validation.
+
+Local profile provisioning выполняется поверх validated principal. Canonical key остаётся `issuer + subject`; оба claim сохраняются как opaque exact values без trim/case normalization, а значение, не представимое в bounded persistence columns, fail closed до DB lookup. Новый профиль создаётся только при наличии configured trusted `user_type` claim с canonical значением `INTERNAL`, `CONTRACTOR` или `SYSTEM`; отсутствующее/невалидное значение fail closed. Этот тип классифицирует профиль, но сам по себе не выдаёт permission/scope. Последующая синхронизация token attributes может менять только optional display name/email и не может активировать пользователя или изменить его type. Oversized optional claims игнорируются и не стирают уже сохранённое значение. `INACTIVE` local profile блокируется даже при валидном token.
 
 ---
 

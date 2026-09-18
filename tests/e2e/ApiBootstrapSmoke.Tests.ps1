@@ -4,10 +4,18 @@ $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $apiProject = Join-Path $repositoryRoot 'src/backend/Exploitation.Api/Exploitation.Api.csproj'
 $baseUrl = 'http://127.0.0.1:5187'
 $previousEnvironment = [Environment]::GetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Process')
+$connectionVariable = 'ConnectionStrings__Database'
+$previousConnection = [Environment]::GetEnvironmentVariable($connectionVariable, 'Process')
 $apiProcess = $null
 
 try {
     [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Process')
+    if ([string]::IsNullOrWhiteSpace($previousConnection)) {
+        [Environment]::SetEnvironmentVariable(
+            $connectionVariable,
+            'Host=unused-for-api-bootstrap',
+            'Process')
+    }
     $startProcessArguments = @{
         FilePath = 'dotnet'
         ArgumentList = @('run', '--project', "`"$apiProject`"", '--configuration', 'Release', '--no-build', '--no-launch-profile', '--', '--urls', $baseUrl, '--environment', 'Development')
@@ -71,6 +79,7 @@ finally {
     }
 
     [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', $previousEnvironment, 'Process')
+    [Environment]::SetEnvironmentVariable($connectionVariable, $previousConnection, 'Process')
 }
 
 Write-Host 'API bootstrap smoke checks passed.'

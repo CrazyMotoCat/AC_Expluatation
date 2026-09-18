@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-18
 
 ## 1. Назначение
 
@@ -38,6 +38,7 @@ SOURCE_VERSION: 2026-09-16
 | Reference | Owner | Type | Initial values / examples | Extensible |
 |---|---|---|---|---|
 | UserType | Identity | SYSTEM_ENUM | INTERNAL, CONTRACTOR, SYSTEM | limited |
+| UserStatus | Identity | SYSTEM_ENUM | ACTIVE, INACTIVE | controlled |
 | WorkingContextType | Identity | SYSTEM_ENUM | INTERNAL, CONTRACT, PROJECT, DELEGATION, TEAM | code change |
 | SiteType | Sites | CONFIGURABLE_REFERENCE | retail office, admin building, warehouse, technical | yes |
 | SiteCriticality | Sites | CONFIGURABLE_REFERENCE/HYBRID | NORMAL, KVO3, KVO2, KVO1 | yes, with rank |

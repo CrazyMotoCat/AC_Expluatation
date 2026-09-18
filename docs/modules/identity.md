@@ -27,7 +27,7 @@ Authentication выполняется внешним IdP по OIDC/OAuth2. Мо�
 - Business workflows других модулей
 - Password storage
 
-## Database (planned from TASK-01.01.02)
+## Database
 
 Schema:
 
@@ -35,10 +35,17 @@ Schema:
 identity
 ```
 
-Planned core tables (not created by `TASK-01.01.01`):
+Implemented:
 
 ```text
 users
+```
+
+`identity.users` и его migration history принадлежат `IdentityDbContext`. Canonical unique key — `(external_issuer, external_subject)`. Профиль хранит UUIDv7 ID, optional display name/email, `UserType`, `UserStatus`, timestamps и optimistic `row_version`.
+
+Planned subsequent tables:
+
+```text
 roles
 permissions
 role_permissions
@@ -49,7 +56,9 @@ user_contexts
 ## Invariants
 
 - BR-IDN-001 … BR-IDN-008.
-- External subject unique.
+- Canonical external identity unique as exact opaque `issuer + subject` without trimming/case normalization; одинаковый subject от разных trusted issuers означает разные identities.
+- Новый профиль создаётся только при наличии trusted `user_type` claim со значением `INTERNAL`, `CONTRACTOR` или `SYSTEM`.
+- Синхронизация bounded optional display name/email не меняет сохранённые user type/status; oversized claim игнорируется и не затирает сохранённое значение.
 - Inactive user не получает operational access.
 - Context должен принадлежать пользователю.
 - Access validity проверяется на момент запроса.
@@ -67,6 +76,7 @@ Contractor request дополнительно проходит Contractors valid
 
 - `ICurrentUser` exposes the validated runtime `AuthenticatedUser` for the current request.
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
+- `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
 - `IWorkingContext`
 - `IAuthorizationService`
 - `UserReference`
@@ -101,7 +111,7 @@ POST /api/v1/admin/access-assignments
 
 Точные admin routes фиксируются при реализации.
 
-На этапе `TASK-01.01.01` реализован только `GET /api/v1/me`: он требует валидный bearer token и возвращает runtime identity текущего caller. Durable profile, roles, scopes and contexts расширят response в следующих Identity tasks.
+`GET /api/v1/me` требует валидный bearer token, безопасно создаёт или синхронизирует локальный профиль и возвращает `userId`, canonical identity key, optional display name/email, `userType` и `status`. Для первого создания обязателен configured trusted `user_type` claim. Missing/invalid provisioning type и inactive local profile возвращают 403; повторный concurrency conflict возвращает 409. Roles, scopes and contexts добавляются следующими Identity tasks.
 
 ## Security
 
@@ -110,6 +120,8 @@ POST /api/v1/admin/access-assignments
 - JWT signature, issuer, audience and lifetime are validated by ASP.NET Core JWT Bearer;
 - `issuer + subject`, а не email, является стабильным external identity key;
 - missing display name/email не приводит к authentication failure;
+- отсутствие trusted user type не ломает token authentication, но fail-closed запрещает создание нового local profile;
+- token profile synchronization не может изменить сохранённый user type/status;
 - context spoofing prevention;
 - contractor access validated through contract chain;
 - sensitive admin actions audited.
@@ -132,4 +144,3 @@ POST /api/v1/admin/access-assignments
 - global `admin.all` как повседневный permission;
 - direct DB checks из business modules вместо shared authorization contract;
 - frontend-only access control.
-- Identity persistence, provisioning and synchronization before `TASK-01.01.02`.

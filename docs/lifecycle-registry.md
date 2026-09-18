@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-18
 
 ## 1. Назначение
 
@@ -282,7 +282,31 @@ DRAFT/PREPARED → CANCELLED
 
 ---
 
-# 9. Contractor User Verification
+# 9. Identity Local User
+
+## States
+
+```text
+ACTIVE
+INACTIVE
+```
+
+## Core transitions
+
+```text
+ACTIVE ↔ INACTIVE
+```
+
+## Rules
+
+- safe provisioning создаёт `ACTIVE` profile только из validated identity и trusted canonical `user_type`;
+- `INACTIVE` profile не получает operational access даже при валидном OIDC token;
+- token attribute synchronization не изменяет `UserStatus`;
+- admin activation/deactivation use case, permission and audit реализуются отдельными Identity tasks.
+
+---
+
+# 10. Contractor User Verification
 
 ## States
 
@@ -308,7 +332,7 @@ ACTIVE ↔ SUSPENDED
 
 ---
 
-# 10. Contract
+# 11. Contract
 
 ## States
 
@@ -337,7 +361,7 @@ ACTIVE/SUSPENDED → CLOSED
 
 ---
 
-# 11. Document Version
+# 12. Document Version
 
 ## States
 
@@ -359,7 +383,7 @@ REJECTED
 
 ---
 
-# 12. Measurement
+# 13. Measurement
 
 Measurement не имеет сложного lifecycle.
 
@@ -379,7 +403,7 @@ Correction выполняется controlled operation, а не silent overwrite
 
 ---
 
-# 13. Provisional — Incident
+# 14. Provisional — Incident
 
 MATURITY: PROVISIONAL
 
@@ -403,7 +427,7 @@ CLOSED
 
 ---
 
-# 14. Provisional — Change
+# 15. Provisional — Change
 
 MATURITY: PROVISIONAL
 
@@ -431,7 +455,7 @@ ROLLED_BACK
 
 ---
 
-# 15. Правила изменения lifecycle
+# 16. Правила изменения lifecycle
 
 Любое изменение:
 
@@ -445,7 +469,7 @@ ROLLED_BACK
 
 ---
 
-# 16. Запрещено
+# 17. Запрещено
 
 - `PATCH {"status":"..."}` для сложного перехода;
 - UI-only lifecycle validation;

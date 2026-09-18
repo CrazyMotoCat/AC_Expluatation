@@ -1,7 +1,7 @@
 # Traceability Matrix — АС «Эксплуатация»
 
 STATUS: WORKING / OPTIONAL PERSISTENT TRACE
-SOURCE_VERSION: 2026-09-17
+SOURCE_VERSION: 2026-09-18
 
 ## Назначение
 
@@ -55,3 +55,12 @@ SOURCE_VERSION: 2026-09-17
 - documentation consistency.
 
 Persistent строки добавлять только если появляется долгоживущее архитектурное требование.
+
+## Identity
+
+| Task | AC | BR | Permission | Lifecycle | Event | Implementation | Tests | Docs | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| `TASK-01.01.02` | `AC-01 canonical issuer + subject unique` | N/A | N/A — own-profile bootstrap | N/A | N/A | `IdentityDbContext`, `UserConfiguration`, `UserProfileRepository` | `Exploitation.IdentityPersistenceChecks`: repeat provisioning and same subject with different issuers | `database.md`, `modules/identity.md`, `context/identity.context.md` | COVERED |
+| `TASK-01.01.02` | `AC-02 user type stored from trusted claim` | N/A | N/A — type grants no permission | N/A | N/A | `GetOrProvisionCurrentUserHandler`, `OidcAuthenticationOptions.UserTypeClaim` | `Exploitation.AuthenticationChecks`: missing/invalid type; `Exploitation.IdentityPersistenceChecks`: immutable stored type | `security.md`, `api-guidelines.md`, `reference-data-registry.md` | COVERED |
+| `TASK-01.01.02` | `AC-03 ACTIVE/INACTIVE stored and inactive blocked` | N/A | N/A — status is a deny gate | `Identity Local User` | N/A — admin transition out of scope | `UserStatus`, `UserConfiguration`, `GetOrProvisionCurrentUserHandler` | `Exploitation.IdentityDomainChecks`: transitions; `Exploitation.AuthenticationChecks`: inactive denial | `lifecycle-registry.md`, `modules/identity.md`, `security.md` | COVERED |
+| `TASK-01.01.02` | `AC-04 idempotent synchronization without silent overwrite` | N/A | N/A — own-profile bootstrap | `Identity Local User` | N/A | unique-key retry plus optimistic `row_version` concurrency | `Exploitation.IdentityPersistenceChecks`: concurrent provisioning and stale-write rejection; `Exploitation.AuthenticationChecks`: repeated conflict returns 409 | `database.md`, `modules/identity.md`, `context/identity.context.md` | COVERED |

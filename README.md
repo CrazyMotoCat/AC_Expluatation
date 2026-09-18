@@ -25,6 +25,8 @@ dotnet build Exploitation.sln
 Запустите API в Development:
 
 ```powershell
+$env:ConnectionStrings__Database = '<local PostgreSQL connection string>'
+dotnet run --project src/backend/Exploitation.DatabaseMigrator
 dotnet run --project src/backend/Exploitation.Api --environment Development
 ```
 
@@ -36,14 +38,16 @@ API является OIDC resource server. Development defaults ожидают K
 Authentication__Oidc__Authority
 Authentication__Oidc__Audience
 Authentication__Oidc__RequireHttpsMetadata
+Authentication__Oidc__UserTypeClaim
 ```
 
-После получения access token от IdP runtime identity доступна через `GET /api/v1/me` с `Authorization: Bearer <token>`.
+После получения access token от IdP local profile доступен через `GET /api/v1/me` с `Authorization: Bearer <token>`. Для первого безопасного provisioning token должен содержать configured `user_type` claim (`INTERNAL`, `CONTRACTOR` или `SYSTEM`); этот тип не предоставляет business permissions.
 
 OIDC security checks:
 
 ```powershell
 dotnet run --project tests/integration/Exploitation.AuthenticationChecks --configuration Release
+dotnet run --project tests/integration/Exploitation.IdentityPersistenceChecks --configuration Release
 ```
 
 ## Frontend bootstrap

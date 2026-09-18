@@ -23,6 +23,8 @@ $requiredFragments = @(
     'DatabaseMigrator.Tests.ps1',
     'Exploitation.ArchitectureChecks.csproj',
     'Exploitation.AuthenticationChecks.csproj',
+    'Exploitation.IdentityDomainChecks.csproj',
+    'Exploitation.IdentityPersistenceChecks.csproj',
     'ApiBootstrapSmoke.Tests.ps1',
     'actions/setup-node@',
     'node-version-file: src/frontend/package.json',

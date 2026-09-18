@@ -372,10 +372,10 @@ identity.users
 
 Acceptance Criteria:
 
-- external subject уникален;
-- user type хранится;
-- status хранится;
-- profile создаётся/синхронизируется безопасно.
+- canonical external identity (`issuer + subject`) уникальна;
+- user type хранится и для первого provisioning поступает только из configured trusted claim;
+- status (`ACTIVE` / `INACTIVE`) хранится; inactive profile блокируется;
+- profile создаётся/синхронизируется идемпотентно, optional attributes не меняют type/status, concurrent update не выполняет silent overwrite.
 
 ---
 

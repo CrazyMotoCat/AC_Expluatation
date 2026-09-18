@@ -1329,20 +1329,33 @@ Response:
 
 Не возвращать огромный permission graph без необходимости.
 
-Начальный контракт `TASK-01.01.01` возвращает только validated runtime identity:
+После `TASK-01.01.02` endpoint безопасно создаёт или синхронизирует local profile поверх validated runtime identity:
 
 ```json
 {
+  "userId": "019...",
   "identityKey": {
     "issuer": "http://127.0.0.1:8081/realms/exploitation",
     "subject": "external-subject"
   },
   "displayName": "Optional name",
-  "email": "optional@example.test"
+  "email": "optional@example.test",
+  "userType": "INTERNAL",
+  "status": "ACTIVE"
 }
 ```
 
-Durable local profile, roles, scopes, contexts and preferences добавляются последующими Identity tasks.
+Для первого provisioning нужен configured trusted `user_type` claim со значением `INTERNAL`, `CONTRACTOR` или `SYSTEM`. Missing/invalid claim, не представимый в persistence external identity и inactive local profile возвращают 403; повторный optimistic concurrency conflict возвращает 409. `issuer`/`subject` возвращаются и сохраняются как exact opaque values. Email/display name не являются identity key и не могут изменить сохранённые type/status; oversized optional claim игнорируется. Roles, scopes, contexts and preferences добавляются последующими Identity tasks.
+
+Stable error codes:
+
+```text
+LOCAL_USER_EXTERNAL_IDENTITY_INVALID
+LOCAL_USER_PROVISIONING_TYPE_REQUIRED
+LOCAL_USER_PROVISIONING_TYPE_INVALID
+LOCAL_USER_INACTIVE
+OPTIMISTIC_CONCURRENCY_CONFLICT
+```
 
 ---
 

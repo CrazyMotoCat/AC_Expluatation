@@ -23,30 +23,30 @@ try {
 
     [Environment]::SetEnvironmentVariable(
         $connectionVariable,
-        'Host=unused-for-zero-context',
+        'Host=unused-for-registration-check',
         'Process')
 
-    $zeroContextOutput = & dotnet run `
+    $registrationOutput = & dotnet run `
         --project $migratorProject `
         --configuration Release `
         --no-build 2>&1
-    $zeroContextExitCode = $LASTEXITCODE
-    $zeroContextText = $zeroContextOutput -join "`n"
+    $registrationExitCode = $LASTEXITCODE
+    $registrationText = $registrationOutput -join "`n"
 
-    if ($zeroContextExitCode -ne 0) {
-        throw "DatabaseMigrator failed the zero-context case: $zeroContextText"
+    if ($registrationExitCode -eq 0) {
+        throw 'DatabaseMigrator unexpectedly connected with the registration-check connection string.'
     }
 
-    if ($zeroContextText -notmatch 'REGISTERED_MODULE_CONTEXTS: 0') {
-        throw 'DatabaseMigrator did not report zero registered module contexts.'
+    if ($registrationText -notmatch 'REGISTERED_MODULE_CONTEXTS: 1') {
+        throw 'DatabaseMigrator did not discover the Identity module context.'
     }
 
-    if ($zeroContextText -notmatch 'MIGRATIONS_APPLIED: 0') {
-        throw 'DatabaseMigrator did not report zero applied migrations.'
+    if ($registrationText -notmatch 'DATABASE_MIGRATION_FAILED: .*IdentityDbContext') {
+        throw 'DatabaseMigrator did not attribute the expected connection failure to IdentityDbContext.'
     }
 }
 finally {
     [Environment]::SetEnvironmentVariable($connectionVariable, $previousConnection, 'Process')
 }
 
-Write-Host 'DatabaseMigrator zero-context checks passed.'
+Write-Host 'DatabaseMigrator configuration and module registration checks passed.'

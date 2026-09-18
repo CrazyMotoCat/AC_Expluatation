@@ -18,11 +18,16 @@ MODULE: Identity
 - authentication mapping to external subject
 - active working context
 
-## DB (planned from TASK-01.01.02)
+## DB
 
-Планируемые таблицы; `TASK-01.01.01` не создаёт persistence:
+Реализовано с `TASK-01.01.02`:
 
 - `identity.users`
+
+Module-owned `IdentityDbContext`, migrations и `identity.__ef_migrations_history` следуют ADR-010. Canonical unique index: `(external_issuer, external_subject)`.
+
+Планируется следующими задачами:
+
 - `identity.roles`
 - `identity.permissions`
 - `identity.role_permissions`
@@ -66,7 +71,10 @@ Working context:
 ## INVARIANTS
 
 - Пароли пользователей не хранятся в приложении.
-- External subject ID должен быть уникален.
+- External identity уникальна по composite exact opaque `issuer + subject` без trim/case normalization; email не является ключом.
+- Первый local profile требует trusted canonical `user_type`; отсутствие/невалидность fail closed.
+- Синхронизация меняет только bounded optional display name/email и не меняет type/status; oversized claim игнорируется.
+- `UserStatus`: `ACTIVE`, `INACTIVE`; inactive profile с валидным token получает deny.
 - Frontend permission check не является security boundary.
 - Любой backend endpoint проверяет permission и scope.
 - Наличие UUID сущности не даёт право на доступ.
@@ -108,6 +116,7 @@ Identity не должен знать все бизнес-правила дру�
 - `ICurrentUser`
 - `AuthenticatedUser`
 - `ExternalIdentityKey` (`issuer + subject`)
+- local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
 
 Планируемые контракты последующих задач:
 
@@ -119,7 +128,7 @@ Identity не должен знать все бизнес-правила дру�
 
 Другие модули не должны напрямую читать таблицы Identity ради бизнес-проверки доступа.
 
-`ClaimsPrincipal`, JWT и `HttpContext` остаются на API boundary. Runtime contract не является persistence entity; lookup/create `identity.users` относится к `TASK-01.01.02`.
+`ClaimsPrincipal`, JWT и `HttpContext` остаются на API boundary. Runtime contract не является persistence entity. API boundary извлекает configured trusted `user_type` claim в clean runtime input; Application/Domain не зависят от JWT, ASP.NET Core или Keycloak.
 
 ## EVENTS
 
@@ -203,6 +212,9 @@ User
 - invalid token signature, issuer, audience or lifetime;
 - missing trusted issuer or subject;
 - accidental use of mutable email as identity key;
+- missing/invalid trusted user type during first provisioning;
+- token sync overwriting stored user type/status;
+- concurrent first-login duplication or silent profile overwrite;
 - wrong region but correct role;
 - wrong site scope;
 - wrong working context;

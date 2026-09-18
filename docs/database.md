@@ -245,16 +245,15 @@ Authentication выполняется внешним IdP.
 
 ```text
 id                  uuid PK
-external_subject_id varchar(255)
-login               varchar(255)
+external_issuer     varchar(2048)
+external_subject    varchar(255)
 display_name        varchar(300)
 email               varchar(320)
 user_type           varchar(50)
 status              varchar(50)
-default_timezone    varchar(100)
-created_at
-updated_at
-row_version
+created_at          timestamptz
+updated_at          timestamptz
+row_version         bigint
 ```
 
 `user_type`:
@@ -265,11 +264,20 @@ CONTRACTOR
 SYSTEM
 ```
 
-Unique:
+`status`:
 
 ```text
-external_subject_id
+ACTIVE
+INACTIVE
 ```
+
+Canonical external identity и unique constraint:
+
+```text
+(external_issuer, external_subject)
+```
+
+`external_issuer` и `external_subject` сохраняются как opaque exact values без trim/case normalization. `display_name` и `email` синхронизируются из bounded optional claims validated token; oversized значения игнорируются. Они не являются identity key. Синхронизация не меняет сохранённые `user_type` и `status`; `row_version` защищает от silent overwrite. Поля `login` и `default_timezone` отложены до появления подтверждённых use cases.
 
 ---
 

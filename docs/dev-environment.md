@@ -320,7 +320,7 @@ ConnectionStrings__Database=<local PostgreSQL connection string>
 dotnet run --project src/backend/Exploitation.DatabaseMigrator
 ```
 
-Каждый module по-прежнему владеет своим `DbContext`, schema, migrations и design-time factory. `Exploitation.DatabaseMigrator` не содержит global `DbContext` и не владеет schemas. При отсутствии persistence modules результат `0 module contexts / 0 applied migrations` является корректным.
+Каждый module владеет своим `DbContext`, schema, migrations и design-time factory. `Exploitation.DatabaseMigrator` не содержит global `DbContext` и не владеет schemas. После `TASK-01.01.02` host обнаруживает `IdentityDbContext`, применяет migration `InitialIdentityUsers` и хранит history в `identity.__ef_migrations_history`.
 
 ---
 
@@ -653,6 +653,7 @@ Debug/Information
 API bootstrap запускается в Development:
 
 ```powershell
+$env:ConnectionStrings__Database = '<local PostgreSQL connection string>'
 dotnet run --project src/backend/Exploitation.Api --environment Development
 ```
 
@@ -669,7 +670,7 @@ OpenAPI document доступен только в Development по адресу:
 /openapi/v1.json
 ```
 
-Каждый response содержит `X-Correlation-Id`. API выводит structured JSON logs в console и валидирует обязательную configuration section `Application` при startup.
+Каждый response содержит `X-Correlation-Id`. API выводит structured JSON logs в console и валидирует обязательные `Application`, OIDC и `ConnectionStrings:Database` settings при startup.
 
 ---
 
