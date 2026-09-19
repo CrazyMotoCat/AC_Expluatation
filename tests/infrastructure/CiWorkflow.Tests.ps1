@@ -26,6 +26,7 @@ $requiredFragments = @(
     'Exploitation.IdentityDomainChecks.csproj',
     'Exploitation.IdentityPersistenceChecks.csproj',
     'ApiBootstrapSmoke.Tests.ps1',
+    'ApiBootstrapSmoke.Contract.Tests.ps1',
     'actions/setup-node@',
     'node-version-file: src/frontend/package.json',
     'npm ci',
@@ -51,6 +52,10 @@ $migrationStep = $workflow.IndexOf('name: Apply module migrations', [StringCompa
 $apiStep = $workflow.IndexOf('name: Run API integration smoke tests', [StringComparison]::Ordinal)
 if ($migrationStep -lt 0 -or $apiStep -lt 0 -or $migrationStep -ge $apiStep) {
     throw 'The API smoke test must run after the module migration step.'
+}
+
+if ($workflow -notmatch '(?ms)- name: Run API integration smoke tests\s*\r?\n\s*timeout-minutes: 5') {
+    throw 'The API smoke test must have a bounded five-minute GitHub Actions step timeout.'
 }
 
 $forbiddenFragments = @(

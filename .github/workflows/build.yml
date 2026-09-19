@@ -91,6 +91,7 @@ jobs:
           pwsh -NoProfile -File tests/infrastructure/DevScripts.Tests.ps1 2>&1 | tee artifacts/logs/dev-scripts-tests.log
           pwsh -NoProfile -File tests/infrastructure/CiWorkflow.Tests.ps1 2>&1 | tee artifacts/logs/ci-workflow-tests.log
           pwsh -NoProfile -File tests/infrastructure/DatabaseMigrator.Tests.ps1 2>&1 | tee artifacts/logs/database-migrator-tests.log
+          pwsh -NoProfile -File tests/e2e/ApiBootstrapSmoke.Contract.Tests.ps1 2>&1 | tee artifacts/logs/api-bootstrap-smoke-contract-tests.log
 
       - name: Apply module migrations
         shell: bash
@@ -99,6 +100,7 @@ jobs:
           dotnet run --project src/backend/Exploitation.DatabaseMigrator/Exploitation.DatabaseMigrator.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/database-migration-smoke.log
 
       - name: Run API integration smoke tests
+        timeout-minutes: 5
         shell: bash
         run: |
           set -o pipefail

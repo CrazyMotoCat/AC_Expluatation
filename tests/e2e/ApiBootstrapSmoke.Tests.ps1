@@ -1,14 +1,68 @@
 $ErrorActionPreference = 'Stop'
 
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$apiProject = Join-Path $repositoryRoot 'src/backend/Exploitation.Api/Exploitation.Api.csproj'
+$apiAssembly = Join-Path $repositoryRoot 'src/backend/Exploitation.Api/bin/Release/net10.0/Exploitation.Api.dll'
+$apiWorkingDirectory = Split-Path -Parent $apiAssembly
 $baseUrl = 'http://127.0.0.1:5187'
+$readinessTimeoutSeconds = 20
+$requestTimeoutSeconds = 2
+$shutdownTimeoutMilliseconds = 5000
 $previousEnvironment = [Environment]::GetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Process')
 $connectionVariable = 'ConnectionStrings__Database'
 $previousConnection = [Environment]::GetEnvironmentVariable($connectionVariable, 'Process')
 $apiProcess = $null
 
+function Test-ProcessExited {
+    param([System.Diagnostics.Process]$Process)
+
+    try {
+        $Process.Refresh()
+        return $Process.HasExited
+    }
+    catch [System.InvalidOperationException] {
+        return $true
+    }
+}
+
+function Stop-ApiProcess {
+    param([System.Diagnostics.Process]$Process)
+
+    if ($null -eq $Process -or (Test-ProcessExited -Process $Process)) {
+        return
+    }
+
+    try {
+        Stop-Process -Id $Process.Id -ErrorAction Stop
+    }
+    catch {
+        if (-not (Test-ProcessExited -Process $Process)) {
+            throw
+        }
+    }
+
+    if ($Process.WaitForExit($shutdownTimeoutMilliseconds)) {
+        return
+    }
+
+    try {
+        $Process.Kill($true)
+    }
+    catch {
+        if (-not (Test-ProcessExited -Process $Process)) {
+            throw "API process $($Process.Id) did not stop gracefully and could not be terminated: $($_.Exception.Message)"
+        }
+    }
+
+    if (-not $Process.WaitForExit($shutdownTimeoutMilliseconds)) {
+        throw "API process $($Process.Id) did not exit within $shutdownTimeoutMilliseconds ms after forced process-tree termination."
+    }
+}
+
 try {
+    if (-not (Test-Path -LiteralPath $apiAssembly -PathType Leaf)) {
+        throw "Built API assembly was not found: $apiAssembly"
+    }
+
     [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Process')
     if ([string]::IsNullOrWhiteSpace($previousConnection)) {
         [Environment]::SetEnvironmentVariable(
@@ -18,7 +72,8 @@ try {
     }
     $startProcessArguments = @{
         FilePath = 'dotnet'
-        ArgumentList = @('run', '--project', "`"$apiProject`"", '--configuration', 'Release', '--no-build', '--no-launch-profile', '--', '--urls', $baseUrl, '--environment', 'Development')
+        ArgumentList = @("`"$apiAssembly`"", '--urls', $baseUrl, '--environment', 'Development')
+        WorkingDirectory = $apiWorkingDirectory
         PassThru = $true
     }
 
@@ -29,13 +84,14 @@ try {
     $apiProcess = Start-Process @startProcessArguments
 
     $liveResponse = $null
-    for ($attempt = 1; $attempt -le 80; $attempt++) {
+    $readinessStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    while ($readinessStopwatch.Elapsed.TotalSeconds -lt $readinessTimeoutSeconds) {
         try {
-            $liveResponse = Invoke-WebRequest -Uri "$baseUrl/health/live" -UseBasicParsing
+            $liveResponse = Invoke-WebRequest -Uri "$baseUrl/health/live" -UseBasicParsing -TimeoutSec $requestTimeoutSeconds
             break
         }
         catch {
-            if ($apiProcess.HasExited) {
+            if (Test-ProcessExited -Process $apiProcess) {
                 throw "API process exited before becoming available (exit code $($apiProcess.ExitCode))."
             }
 
@@ -53,7 +109,7 @@ try {
     }
 
     $correlationId = [Guid]::NewGuid().ToString()
-    $readyResponse = Invoke-WebRequest -Uri "$baseUrl/health/ready" -Headers @{ 'X-Correlation-Id' = $correlationId } -UseBasicParsing
+    $readyResponse = Invoke-WebRequest -Uri "$baseUrl/health/ready" -Headers @{ 'X-Correlation-Id' = $correlationId } -UseBasicParsing -TimeoutSec $requestTimeoutSeconds
     if ($readyResponse.StatusCode -ne 200) {
         throw 'GET /health/ready did not return HTTP 200.'
     }
@@ -62,7 +118,7 @@ try {
         throw 'Correlation ID was not returned unchanged in the response header.'
     }
 
-    $openApiResponse = Invoke-WebRequest -Uri "$baseUrl/openapi/v1.json" -UseBasicParsing
+    $openApiResponse = Invoke-WebRequest -Uri "$baseUrl/openapi/v1.json" -UseBasicParsing -TimeoutSec $requestTimeoutSeconds
     if ($openApiResponse.StatusCode -ne 200 -or [string]::IsNullOrWhiteSpace($openApiResponse.Content)) {
         throw 'Development OpenAPI document is unavailable.'
     }
@@ -73,13 +129,20 @@ try {
 
 }
 finally {
-    if ($null -ne $apiProcess -and -not $apiProcess.HasExited) {
-        Stop-Process -Id $apiProcess.Id
-        $apiProcess.WaitForExit()
+    $cleanupException = $null
+    try {
+        Stop-ApiProcess -Process $apiProcess
+    }
+    catch {
+        $cleanupException = $_
     }
 
     [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', $previousEnvironment, 'Process')
     [Environment]::SetEnvironmentVariable($connectionVariable, $previousConnection, 'Process')
+
+    if ($null -ne $cleanupException) {
+        throw "API bootstrap smoke cleanup failed: $($cleanupException.Exception.Message)"
+    }
 }
 
 Write-Host 'API bootstrap smoke checks passed.'
