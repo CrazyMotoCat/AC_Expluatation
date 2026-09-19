@@ -345,21 +345,24 @@ PK:
 Ключевая таблица scope-based access.
 
 ```text
-id
-user_id
-role_id
-context_type
-context_id
-territorial_zone_id nullable
-region_id           nullable
-site_id             nullable
-functional_direction_id nullable
-asset_type_id       nullable
-valid_from
-valid_to
-is_active
-created_at
-created_by
+id                         uuid PK, UUIDv7
+user_id                    uuid FK identity.users RESTRICT
+role_id                    uuid FK identity.roles RESTRICT
+context_type               varchar(50)
+context_id                 uuid
+territorial_zone_id        uuid nullable
+region_id                  uuid nullable
+site_id                    uuid nullable
+functional_direction_id    uuid nullable
+asset_type_id              uuid nullable
+valid_from                 timestamptz
+valid_to                   timestamptz nullable
+is_active                  boolean
+created_at                 timestamptz
+created_by                 uuid FK identity.users RESTRICT
+revoked_at                 timestamptz nullable
+revoked_by                 uuid nullable FK identity.users RESTRICT
+row_version                bigint optimistic concurrency
 ```
 
 `context_type`:
@@ -372,7 +375,11 @@ DELEGATION
 TEAM
 ```
 
-Одна запись не обязана заполнять все scope fields.
+Одна запись не обязана заполнять все scope fields, но хотя бы одно измерение scope обязательно. Незаполненное измерение не ограничивает его, а заполненное требует точного соответствия атрибута целевой сущности. Иерархия объекта должна быть получена из authoritative данных; переданный клиентом ID сам по себе не доказывает принадлежность объекту или зоне.
+
+Validity действует на интервале `[valid_from, valid_to)`; `valid_to` может отсутствовать, кроме `DELEGATION`, для которого конечный срок обязателен. Отзыв переводит `is_active` в `false`, сохраняет `revoked_at` / `revoked_by`, не удаляет историческую запись и защищён `row_version`. PostgreSQL проверяет scope, validity, context type и согласованность полей отзыва; restrictive FK сохраняют ссылки на User/Role. Частичный unique index предотвращает точные дубликаты активных назначений с тем же user/role/context/scope/`valid_from`, трактуя nullable scope как равные (`NULLS NOT DISTINCT`). Перекрывающиеся интервалы с разным `valid_from` этим индексом не запрещены; семантика повторной выдачи и полного отзыва определяется в будущих use cases управления доступом.
+
+`context_id` пока является сохранённой ссылкой без проверки ownership. `identity.user_contexts` и его проверка относятся к `TASK-01.03.02`. Совпадение assignment по scope/validity — только eligibility, не operational grant: production permission source остаётся deny до полной проверки working context и ограничений подрядчика.
 
 ---
 

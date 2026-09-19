@@ -26,14 +26,16 @@ MODULE: Identity
 - `identity.roles`
 - `identity.permissions`
 - `identity.role_permissions`
+- `identity.access_assignments`
 
 Module-owned `IdentityDbContext`, migrations и `identity.__ef_migrations_history` следуют ADR-010. Canonical unique index: `(external_issuer, external_subject)`.
 
 Role/permission persistence добавлена `TASK-01.02.01`: unique codes, optimistic Role `row_version`, composite `(role_id, permission_id)`, restrictive FKs и migration-owned seed canonical permission catalog.
 
+`TASK-01.03.01` добавила assignment persistence: пять nullable scope dimensions (хотя бы одно обязательно), exact-match eligibility, validity `[valid_from, valid_to)`, обязательный конечный срок `DELEGATION`, отзыв без удаления с actor/time и optimistic `row_version`, restrictive FK и unique index для точных активных дубликатов при одинаковом `valid_from`.
+
 Планируется следующими задачами:
 
-- `identity.access_assignments`
 - `identity.user_contexts`
 
 ## CORE MODEL
@@ -81,6 +83,8 @@ Working context:
 - Любой backend endpoint проверяет permission и scope.
 - Наличие UUID сущности не даёт право на доступ.
 - Access assignment действует только в пределах `valid_from` / `valid_to`.
+- Assignment без scope не допускается; missing/wrong target dimension и чужой user/context не удовлетворяют assignment; target ancestry должен поступать из authoritative данных.
+- Delegation всегда имеет конечный `valid_to`; revoked assignment не восстанавливается неявно и сохраняется как история.
 - Пользователь может иметь несколько рабочих контекстов.
 - Активный контекст должен принадлежать пользователю.
 - Contractor access не определяется только типом пользователя.
@@ -93,7 +97,7 @@ Working context:
 - Canonical permission code уникален, имеет lowercase формат `<module>.<action>` и совпадает с `permissions-registry.md`.
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
-- До появления `access_assignments` production grant source всегда отказывает; permission-protected business endpoints не открываются без scope/context/validity evaluation.
+- После появления `access_assignments` production grant source всё ещё отказывает: assignment match не проверяет role-permission, owned working context, authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
 
 ## PERMISSIONS
 
@@ -132,7 +136,6 @@ Identity не должен знать все бизнес-правила дру�
 - `IWorkingContext`
 - `IAuthorizationService`
 - `UserReference`
-- `AccessScope`
 - `WorkingContextReference`
 
 Другие модули не должны напрямую читать таблицы Identity ради бизнес-проверки доступа.
@@ -228,6 +231,7 @@ User
 - wrong site scope;
 - wrong working context;
 - expired assignment;
+- unbounded delegation, missing scope dimension, duplicate active assignment, stale concurrent revocation;
 - expired contract;
 - contractor cross-contract leakage;
 - user switching to context they do not own;

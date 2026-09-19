@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-18
+SOURCE_VERSION: 2026-09-19
 
 ## 1. Назначение
 
@@ -303,6 +303,10 @@ ACTIVE ↔ INACTIVE
 - `INACTIVE` profile не получает operational access даже при валидном OIDC token;
 - token attribute synchronization не изменяет `UserStatus`;
 - admin activation/deactivation use case, permission and audit реализуются отдельными Identity tasks.
+
+## Access assignment state
+
+`identity.access_assignments.is_active` создаётся `true` и может перейти только в `false` при отзыве. Отзыв сохраняет запись, `revoked_at` / `revoked_by` и увеличивает `row_version`; повторный отзыв идемпотентен. Истечение `valid_to` само по себе не меняет `is_active`, но немедленно прекращает eligibility. Для `DELEGATION` `valid_to` обязателен. Управление выдачей/отзывом через API и полноценный audit относятся к последующим Identity tasks.
 
 ---
 
