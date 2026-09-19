@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-18
+SOURCE_VERSION: 2026-09-19
 
 ## Purpose
 
@@ -77,16 +77,18 @@ Identity + Role + Permission + Scope + Working Context + Validity
 
 Contractor request дополнительно проходит Contractors validation.
 
+`TASK-01.02.02` добавила permission policy boundary: endpoint может объявить canonical permission code через `RequirePermission`, а API регистрирует policies только для migration-seeded catalog. Policy требует authenticated principal, активный локальный профиль и явный grant для canonical permission ID; отсутствие любого условия возвращает 403 после authentication. Невалидный или отсутствующий bearer token возвращает 401. `UserType`, имя роли и claims токена не выдают права.
+
+Поскольку `access_assignments` и working contexts ещё не реализованы, production grant source всегда отказывает. Permission-protected business endpoints не открываются до реализации scope/context/validity checks в последующих задачах. `GET /api/v1/me` остаётся authenticated self-profile bootstrap и не требует business permission.
+
 ## Public contracts
 
 - `ICurrentUser` exposes the validated runtime `AuthenticatedUser` for the current request.
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
-- `IWorkingContext`
-- `IAuthorizationService`
-- `UserReference`
-- `AccessScope`
-- `WorkingContextReference`
+- `IPermissionGrantSource` принимает локальный user ID и canonical permission ID; текущая production реализация deny-by-default.
+
+Planned subsequent contracts: `IWorkingContext`, `IAuthorizationService`, `UserReference`, `AccessScope`, `WorkingContextReference`.
 
 ## Permissions owned
 
@@ -117,6 +119,8 @@ POST /api/v1/admin/access-assignments
 Точные admin routes фиксируются при реализации.
 
 `GET /api/v1/me` требует валидный bearer token, безопасно создаёт или синхронизирует локальный профиль и возвращает `userId`, canonical identity key, optional display name/email, `userType` и `status`. Для первого создания обязателен configured trusted `user_type` claim. Missing/invalid provisioning type и inactive local profile возвращают 403; повторный concurrency conflict возвращает 409. Permission catalog persistence не расширяет этот response; user assignments, scopes and contexts добавляются следующими Identity tasks.
+
+Permission-protected route в production пока не добавлен; `TASK-01.02.02` проверяет policy на изолированном integration test endpoint. При добавлении реального scoped endpoint одного permission policy недостаточно: потребуются context, scope, validity и contractor restrictions по ADR-007.
 
 ## Security
 

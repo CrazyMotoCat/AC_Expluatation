@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-18
+SOURCE_VERSION: 2026-09-19
 MODULE: Identity
 
 ## PURPOSE
@@ -92,6 +92,8 @@ Working context:
 - Role только группирует permissions и не выдаёт доступ без assignment/scope/context/validity.
 - Canonical permission code уникален, имеет lowercase формат `<module>.<action>` и совпадает с `permissions-registry.md`.
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
+- Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
+- До появления `access_assignments` production grant source всегда отказывает; permission-protected business endpoints не открываются без scope/context/validity evaluation.
 
 ## PERMISSIONS
 
@@ -122,6 +124,8 @@ Identity не должен знать все бизнес-правила дру�
 - `AuthenticatedUser`
 - `ExternalIdentityKey` (`issuer + subject`)
 - local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
+- `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
+- API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
 
 Планируемые контракты последующих задач:
 
