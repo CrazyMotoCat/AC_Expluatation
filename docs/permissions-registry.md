@@ -60,6 +60,8 @@ assets.update
 
 Permission сам по себе не даёт broad access. Backend дополнительно проверяет scope, working context и validity.
 
+`identity.contexts.read` сохраняется для будущего permission-controlled доступа к contexts. `GET /api/v1/me/contexts` и `POST /api/v1/me/context` в `TASK-01.03.02` являются отдельным own-context self-service bootstrap (validated principal + ACTIVE local user + ownership/availability), не operational grant и не обходом других Identity permissions.
+
 ## 4. Sensitivity
 
 - `NORMAL` — обычная рабочая операция.

@@ -436,11 +436,17 @@ Acceptance Criteria:
 - backend проверяет ownership;
 - context записывается в audit.
 
+Owner decision для этой Task ID: чтение и выбор только собственных доступных contexts являются узким authenticated + ACTIVE local user self-service boundary, а не operational permission grant. `identity.contexts.read` сохраняется для будущих permission-controlled сценариев. Selection не включает production grant source. Минимальный Audit-owned append-only `audit.events` foundation разрешён здесь как prerequisite для durable `WorkingContextSelected`; полный Audit foundation остаётся `TASK-01.04.01`.
+
+Уточнение owner decision: POST body создаёт ровно один `WorkingContextSelected` и игнорирует `X-Work-Context-Id`; на других `/api/v1` запросах header применяет context только к текущему request и требует durable `WorkingContextApplied` до endpoint. Оба действия остаются без permission grant.
+
 ---
 
 ## FEATURE-01.04. Audit foundation
 
 ### TASK-01.04.01. Создать audit.events
+
+Минимальная Audit-owned таблица и writer для `WorkingContextSelected` / `WorkingContextApplied` уже закладываются в `TASK-01.03.02`; эта задача расширяет foundation, не создавая второй audit mechanism.
 
 Acceptance Criteria:
 

@@ -25,6 +25,7 @@ $requiredFragments = @(
     'Exploitation.AuthenticationChecks.csproj',
     'Exploitation.IdentityDomainChecks.csproj',
     'Exploitation.IdentityPersistenceChecks.csproj',
+    'Exploitation.AuditPersistenceChecks.csproj',
     'ApiBootstrapSmoke.Tests.ps1',
     'ApiBootstrapSmoke.Contract.Tests.ps1',
     'actions/setup-node@',

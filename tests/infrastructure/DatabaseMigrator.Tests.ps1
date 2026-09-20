@@ -37,12 +37,12 @@ try {
         throw 'DatabaseMigrator unexpectedly connected with the registration-check connection string.'
     }
 
-    if ($registrationText -notmatch 'REGISTERED_MODULE_CONTEXTS: 1') {
-        throw 'DatabaseMigrator did not discover the Identity module context.'
+    if ($registrationText -notmatch 'REGISTERED_MODULE_CONTEXTS: 2') {
+        throw 'DatabaseMigrator did not discover the Audit and Identity module contexts.'
     }
 
-    if ($registrationText -notmatch 'DATABASE_MIGRATION_FAILED: .*IdentityDbContext') {
-        throw 'DatabaseMigrator did not attribute the expected connection failure to IdentityDbContext.'
+    if ($registrationText -notmatch 'DATABASE_MIGRATION_FAILED: .*AuditDbContext') {
+        throw 'DatabaseMigrator did not attribute the expected first connection failure to AuditDbContext.'
     }
 }
 finally {

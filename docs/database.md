@@ -379,7 +379,7 @@ TEAM
 
 Validity действует на интервале `[valid_from, valid_to)`; `valid_to` может отсутствовать, кроме `DELEGATION`, для которого конечный срок обязателен. Отзыв переводит `is_active` в `false`, сохраняет `revoked_at` / `revoked_by`, не удаляет историческую запись и защищён `row_version`. PostgreSQL проверяет scope, validity, context type и согласованность полей отзыва; restrictive FK сохраняют ссылки на User/Role. Частичный unique index предотвращает точные дубликаты активных назначений с тем же user/role/context/scope/`valid_from`, трактуя nullable scope как равные (`NULLS NOT DISTINCT`). Перекрывающиеся интервалы с разным `valid_from` этим индексом не запрещены; семантика повторной выдачи и полного отзыва определяется в будущих use cases управления доступом.
 
-`context_id` пока является сохранённой ссылкой без проверки ownership. `identity.user_contexts` и его проверка относятся к `TASK-01.03.02`. Совпадение assignment по scope/validity — только eligibility, не operational grant: production permission source остаётся deny до полной проверки working context и ограничений подрядчика.
+`context_id` пока является сохранённой ссылкой без FK к `identity.user_contexts`: связь assignment с owned working context и остальные dimensions ещё не составляют полный operational grant. Совпадение assignment по scope/validity — только eligibility; production permission source остаётся deny до полной проверки target scope и ограничений подрядчика.
 
 ---
 
@@ -389,14 +389,19 @@ Validity действует на интервале `[valid_from, valid_to)`; `v
 
 ```text
 id
-user_id
-context_type
-context_entity_id
-name
-valid_from
-valid_to
-is_active
+user_id             uuid FK identity.users RESTRICT
+context_type        varchar(50): INTERNAL/CONTRACT/PROJECT/DELEGATION/TEAM
+context_entity_id   uuid nullable, external entity reference only
+name                varchar(200)
+valid_from          timestamptz
+valid_to            timestamptz nullable
+is_active           boolean
+row_version         bigint optimistic concurrency
 ```
+
+`id` — UUIDv7 PK. PostgreSQL проверяет тип, непустое имя, интервал `[valid_from, valid_to)`, конечный `valid_to` для `DELEGATION` и положительную `row_version`. Index `(user_id, is_active, valid_from, valid_to)` поддерживает выборку собственных доступных contexts. `context_entity_id` пока не подтверждает membership/contract: соответствующие authoritative modules не реализованы. `is_active = false` или истёкший/будущий интервал запрещает выбор. Административное создание/отзыв и contractor-chain evaluation не входят в эту Task ID.
+
+Выбранный context не хранится как глобальный user grant или selected flag в БД. POST валидирует body context, записывает `WorkingContextSelected` и возвращает ID для последующих запросов. `X-Work-Context-Id` на обычном `/api/v1` request означает применение context только к этому запросу: backend перепроверяет owner/availability и записывает `WorkingContextApplied` до endpoint. На POST выбора заголовок игнорируется. Ни один вариант не выдаёт permission.
 
 ---
 
@@ -2625,7 +2630,7 @@ error_message
 
 ## 65.1. audit.events
 
-Append-only.
+Минимальный Audit-owned append-only foundation добавлен как prerequisite `TASK-01.03.02` для durable `WorkingContextSelected`. `AuditDbContext`, `audit` schema, migrations и `audit.__ef_migrations_history` принадлежат Audit module; Identity пишет через Audit contract, не в чужую schema напрямую.
 
 ```text
 id
@@ -2643,11 +2648,7 @@ ip_address           nullable
 user_agent           nullable
 ```
 
-Partition by:
-
-```text
-occurred_at
-```
+Initial foundation не partitioned: объёмный retention/partitioning design остаётся `TASK-01.04.01`. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE `audit.events`; runtime writer выполняет только INSERT, а migration `Down` запрещает автоматический destructive rollback без отдельного retention/archival плана. `WorkingContextSelected` создаётся только POST body, `WorkingContextApplied` — только при применении валидного header на обычном request. В обоих событиях `user_id` — actor, `acting_context_id`/`entity_id` — context, `after_json` — context ID, `correlation_id` — request correlation. `before_json` допускает previous context, если он достоверно известен; в текущем request-scoped API он отсутствует. JWT, secrets и лишние claims не сохраняются.
 
 Indexes:
 

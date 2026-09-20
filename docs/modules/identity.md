@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-19
+SOURCE_VERSION: 2026-09-20
 
 ## Purpose
 
@@ -43,17 +43,14 @@ roles
 permissions
 role_permissions
 access_assignments
+user_contexts
 ```
 
 `identity.users` и его migration history принадлежат `IdentityDbContext`. Canonical unique key — `(external_issuer, external_subject)`. Профиль хранит UUIDv7 ID, optional display name/email, `UserType`, `UserStatus`, timestamps и optimistic `row_version`.
 
 `identity.roles` хранит UUIDv7 ID, unique role code, name/description, system/active flags и optimistic `row_version`. `identity.permissions` хранит immutable canonical permission catalog с unique code и module owner. `identity.role_permissions` использует composite PK и restrictive foreign keys. Canonical permissions из `permissions-registry.md` seed-ятся module-owned migration; provisional codes не seed-ятся.
 
-Planned subsequent table:
-
-```text
-user_contexts
-```
+`identity.user_contexts` добавлена в `TASK-01.03.02`: owned local context, type/entity reference, display name, `[valid_from, valid_to)`, active flag и optimistic `row_version`. PostgreSQL проверяет validity, конечный срок delegation и restrictive FK к user. `context_entity_id` пока не является доказательством membership/contract; административного API создания/отзыва нет.
 
 `identity.access_assignments` добавлена `TASK-01.03.01` в module-owned migration. Она связывает локального User с Role, контекстной ссылкой и scope по territorial zone / region / site / functional direction / asset type. Требуется хотя бы одно ограничение scope; constrained dimension сравнивается с authoritative target attribute без автоматического вывода иерархии. Validity — `[valid_from, valid_to)`; для `DELEGATION` конечный `valid_to` обязателен. Отзыв сохраняет запись и actor/time, блокирует дальнейшую eligibility и защищён optimistic `row_version`. PostgreSQL обеспечивает restrictive FK, проверки scope/validity/revocation и уникальность точных активных назначений с одинаковым `valid_from` (nullable scope считается равным). Семантика перекрывающихся интервалов/полного отзыва при будущей выдаче доступа ещё не определена.
 
@@ -65,6 +62,8 @@ user_contexts
 - Синхронизация bounded optional display name/email не меняет сохранённые user type/status; oversized claim игнорируется и не затирает сохранённое значение.
 - Inactive user не получает operational access.
 - Context должен принадлежать пользователю.
+- Self-service list/select допускается только для authenticated + ACTIVE local user и только для собственных активных и действующих contexts; это не permission grant.
+- Context request-scoped; header `X-Work-Context-Id` на обычном `/api/v1` запросе перепроверяется и аудируется как применение до endpoint. Ни выбор, ни применение не расширяют доступные contexts или effective permissions.
 - Access validity проверяется на момент запроса.
 - Assignment без scope не создаётся; missing или неверный target dimension не удовлетворяет ограничению assignment.
 - Expired, not-yet-valid и revoked assignment не подходят для доступа; delegation не может быть бессрочным.
@@ -83,7 +82,9 @@ Contractor request дополнительно проходит Contractors valid
 
 `TASK-01.02.02` добавила permission policy boundary: endpoint может объявить canonical permission code через `RequirePermission`, а API регистрирует policies только для migration-seeded catalog. Policy требует authenticated principal, активный локальный профиль и явный grant для canonical permission ID; отсутствие любого условия возвращает 403 после authentication. Невалидный или отсутствующий bearer token возвращает 401. `UserType`, имя роли и claims токена не выдают права.
 
-`access_assignments` теперь хранятся и проверяются на matching scope/validity как кандидаты. Но working-context ownership, authoritative target ancestry и contractor chain ещё не реализованы. Поэтому production grant source продолжает всегда отказывать; запись assignment и даже role-permission mapping сами по себе не открывают permission-protected endpoint. `GET /api/v1/me` остаётся authenticated self-profile bootstrap и не требует business permission.
+`access_assignments` хранятся и проверяются на matching scope/validity как кандидаты. Self-service context ownership/availability реализованы, но не подключены к operational grant evaluation: authoritative target ancestry и contractor chain остаются будущими dependencies. Поэтому production grant source продолжает всегда отказывать; assignment, role-permission mapping и выбранный context сами по себе не открывают permission-protected endpoint.
+
+`GET /api/v1/me/contexts` и `POST /api/v1/me/context` — узкий own-context bootstrap alongside `GET /api/v1/me`: authenticated + ACTIVE local profile + strict owner/availability. `identity.contexts.read` не требуется в этих self-service маршрутах из-за bootstrap circular dependency; canonical permission сохранён для будущего permission-controlled доступа к contexts. Исключение не применяется к admin/other Identity endpoints.
 
 `AccessAssignment.IsApplicableTo` — только Identity Domain eligibility по exact user/context, пяти scope dimensions и validity; это не межмодульный authorization contract и не grant source.
 
@@ -93,6 +94,7 @@ Contractor request дополнительно проходит Contractors valid
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
 - `IPermissionGrantSource` принимает локальный user ID и canonical permission ID; текущая production реализация deny-by-default.
+- `IWorkingContextAuditWriter` — Audit-owned cross-module contract для durable `WorkingContextSelected` и `WorkingContextApplied`; Identity не пишет в Audit schema напрямую.
 
 Planned subsequent contracts: `IWorkingContext`, `IAuthorizationService`, `UserReference`, `WorkingContextReference`. Текущий Domain `AccessScope` не является публичным контрактом для business modules.
 
@@ -110,21 +112,30 @@ Planned subsequent contracts: `IWorkingContext`, `IAuthorizationService`, `UserR
 - UserDeactivated
 - AccessAssignmentCreated
 
+`WorkingContextSelected` и `WorkingContextApplied` в текущей Task ID — Audit actions, не integration events/outbox messages.
+
 ## API surface
 
-Примеры:
+Реализовано:
 
 ```text
 GET /api/v1/me
 GET /api/v1/me/contexts
 POST /api/v1/me/context
+```
+
+Планируемые admin routes:
+
+```text
 GET /api/v1/admin/users
 POST /api/v1/admin/access-assignments
 ```
 
 Точные admin routes фиксируются при реализации.
 
-`GET /api/v1/me` требует валидный bearer token, безопасно создаёт или синхронизирует локальный профиль и возвращает `userId`, canonical identity key, optional display name/email, `userType` и `status`. Для первого создания обязателен configured trusted `user_type` claim. Missing/invalid provisioning type и inactive local profile возвращают 403; повторный concurrency conflict возвращает 409. Permission catalog и assignment persistence не расширяют этот response; выбор working context добавляется отдельной Identity task.
+`GET /api/v1/me` требует валидный bearer token, безопасно создаёт или синхронизирует локальный профиль и возвращает `userId`, canonical identity key, optional display name/email, `userType` и `status`. Для первого создания обязателен configured trusted `user_type` claim. Missing/invalid provisioning type и inactive local profile возвращают 403; повторный concurrency conflict возвращает 409. Permission catalog и assignment persistence не расширяют этот response.
+
+`GET /api/v1/me/contexts` возвращает только собственные доступные contexts и optional `appliedContextId` из валидированного и аудированного request header. `POST /api/v1/me/context` принимает body `contextId`, проверяет owner/availability, пишет ровно один durable `WorkingContextSelected` до 200 и возвращает ID в body и `X-Work-Context-Id`; header в POST игнорируется. Клиент передаёт header в последующих `/api/v1` запросах; backend перепроверяет его и записывает `WorkingContextApplied` до endpoint, даже если предшествующего POST не было. Нет server-global selected flag/session и нет permission grant. Unknown/inactive local user, чужой/неизвестный/недоступный context и неверный header обычного запроса fail closed. Неуспешный audit write возвращает 503 без выполнения endpoint.
 
 Permission-protected route в production пока не добавлен; `TASK-01.02.02` проверяет policy на изолированном integration test endpoint. При добавлении реального scoped endpoint одного permission policy недостаточно: потребуются context, scope, validity и contractor restrictions по ADR-007.
 
@@ -140,6 +151,8 @@ Permission-protected route в production пока не добавлен; `TASK-0
 - отсутствие trusted user type не ломает token authentication, но fail-closed запрещает создание нового local profile;
 - token profile synchronization не может изменить сохранённый user type/status;
 - context spoofing prevention;
+- self-service не использует `identity.contexts.read` как operational grant и не открывает другие Identity endpoints;
+- successful context selection requires durable Audit before success; failed selection creates no success audit;
 - contractor access требует contract chain; до её реализации production grant source остаётся deny;
 - sensitive admin actions audited.
 
@@ -161,6 +174,8 @@ Permission-protected route в production пока не добавлен; `TASK-0
 - assignment без scope, wrong/missing target dimension, wrong user/context, future/expired/revoked validity;
 - бессрочное delegation, duplicate active assignment, FK integrity и concurrent revocation;
 - role-permission plus persisted assignment не открывают production permission source без working context.
+- own-context list/select 401/403/400 negative cases, cross-user IDOR, inactive/expired/future contexts, audit failure and unchanged production deny;
+- Identity/Audit PostgreSQL migrations and append-only audit event persistence.
 
 ## Forbidden
 

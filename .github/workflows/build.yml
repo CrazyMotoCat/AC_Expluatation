@@ -84,6 +84,12 @@ jobs:
           set -o pipefail
           dotnet run --project tests/integration/Exploitation.IdentityPersistenceChecks/Exploitation.IdentityPersistenceChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/identity-persistence-checks.log
 
+      - name: Run Audit PostgreSQL persistence checks
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project tests/integration/Exploitation.AuditPersistenceChecks/Exploitation.AuditPersistenceChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/audit-persistence-checks.log
+
       - name: Run infrastructure script checks
         shell: bash
         run: |

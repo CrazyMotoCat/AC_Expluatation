@@ -530,6 +530,8 @@ X-Work-Context-Id
 
 Backend обязан проверить принадлежность контекста пользователю.
 
+С `TASK-01.03.02` context request-scoped: `X-Work-Context-Id` означает применение context только к текущему `/api/v1` request. Backend проверяет ACTIVE local user, ownership и availability, затем записывает durable `WorkingContextApplied` до передачи управления endpoint. Предшествующий POST не требуется. На `POST /api/v1/me/context` заголовок игнорируется: body определяет выбор и создаёт ровно один `WorkingContextSelected`. Ни выбор, ни применение не выдаёт permission и не заменяет future contractor/scope authorization.
+
 ---
 
 # 28. Context audit
@@ -1299,12 +1301,16 @@ POST /master-data/model-proposals
 
 # 80. Work context switching
 
-Frontend может:
+Self-service для собственного context:
 
 ```text
-GET /me/contexts
-POST /me/context
+GET /api/v1/me/contexts
+POST /api/v1/me/context { "contextId": "..." }
 ```
+
+Требуются validated bearer token, ACTIVE local profile и owner/active/validity check; отсутствующий local profile не создаётся этим endpoint. `GET` возвращает только доступные собственные contexts и `appliedContextId` из валидированного и аудированного request header, если он передан. `POST` записывает ровно один durable `WorkingContextSelected` в Audit до ответа, возвращает выбранный ID в body и `X-Work-Context-Id`; заголовок в POST игнорируется. При ошибке обязательного audit — 503 без успешного действия. Неверный UUID заголовка на обычном request — 400; неизвестный/чужой/недоступный context — 403 без раскрытия владельца.
+
+Own-context self-service не требует operational `identity.contexts.read` и не расширяет исключение на admin/other Identity endpoints. Canonical permission остаётся для будущих permission-controlled сценариев. Выбор не создаёт server-global session и не предоставляет grant.
 
 Но сервер не должен полагаться только на состояние UI.
 
@@ -1345,7 +1351,7 @@ Response:
 }
 ```
 
-Для первого provisioning нужен configured trusted `user_type` claim со значением `INTERNAL`, `CONTRACTOR` или `SYSTEM`. Missing/invalid claim, не представимый в persistence external identity и inactive local profile возвращают 403; повторный optimistic concurrency conflict возвращает 409. `issuer`/`subject` возвращаются и сохраняются как exact opaque values. Email/display name не являются identity key и не могут изменить сохранённые type/status; oversized optional claim игнорируется. Roles, scopes, contexts and preferences добавляются последующими Identity tasks.
+Для первого provisioning нужен configured trusted `user_type` claim со значением `INTERNAL`, `CONTRACTOR` или `SYSTEM`. Missing/invalid claim, не представимый в persistence external identity и inactive local profile возвращают 403; повторный optimistic concurrency conflict возвращает 409. `issuer`/`subject` возвращаются и сохраняются как exact opaque values. Email/display name не являются identity key и не могут изменить сохранённые type/status; oversized optional claim игнорируется. `GET /api/v1/me` остаётся self-profile bootstrap без active-context field; собственные contexts и request-scoped selection доступны через отдельные маршруты выше. Roles/scopes/preferences добавляются последующими Identity tasks.
 
 Stable error codes:
 

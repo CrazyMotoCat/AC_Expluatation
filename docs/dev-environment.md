@@ -320,7 +320,7 @@ ConnectionStrings__Database=<local PostgreSQL connection string>
 dotnet run --project src/backend/Exploitation.DatabaseMigrator
 ```
 
-Каждый module владеет своим `DbContext`, schema, migrations и design-time factory. `Exploitation.DatabaseMigrator` не содержит global `DbContext` и не владеет schemas. После `TASK-01.01.02` host обнаруживает `IdentityDbContext`, применяет migration `InitialIdentityUsers` и хранит history в `identity.__ef_migrations_history`.
+Каждый module владеет своим `DbContext`, schema, migrations и design-time factory. `Exploitation.DatabaseMigrator` не содержит global `DbContext` и не владеет schemas. Сейчас host применяет module-owned migrations `IdentityDbContext` и `AuditDbContext` (включая `identity.user_contexts` и `audit.events`); истории хранятся раздельно в `identity.__ef_migrations_history` и `audit.__ef_migrations_history`.
 
 ---
 

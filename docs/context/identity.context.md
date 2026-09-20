@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-19
+SOURCE_VERSION: 2026-09-20
 MODULE: Identity
 
 ## PURPOSE
@@ -27,6 +27,7 @@ MODULE: Identity
 - `identity.permissions`
 - `identity.role_permissions`
 - `identity.access_assignments`
+- `identity.user_contexts`
 
 Module-owned `IdentityDbContext`, migrations и `identity.__ef_migrations_history` следуют ADR-010. Canonical unique index: `(external_issuer, external_subject)`.
 
@@ -34,9 +35,7 @@ Role/permission persistence добавлена `TASK-01.02.01`: unique codes, op
 
 `TASK-01.03.01` добавила assignment persistence: пять nullable scope dimensions (хотя бы одно обязательно), exact-match eligibility, validity `[valid_from, valid_to)`, обязательный конечный срок `DELEGATION`, отзыв без удаления с actor/time и optimistic `row_version`, restrictive FK и unique index для точных активных дубликатов при одинаковом `valid_from`.
 
-Планируется следующими задачами:
-
-- `identity.user_contexts`
+`TASK-01.03.02` добавила owned `user_contexts` с `[valid_from, valid_to)`, active flag, finite delegation, restrictive User FK и optimistic `row_version`. Выбор context request-scoped, не persisted grant/selected flag.
 
 ## CORE MODEL
 
@@ -87,6 +86,8 @@ Working context:
 - Delegation всегда имеет конечный `valid_to`; revoked assignment не восстанавливается неявно и сохраняется как история.
 - Пользователь может иметь несколько рабочих контекстов.
 - Активный контекст должен принадлежать пользователю.
+- Own-context list/select — отдельный self-service bootstrap для authenticated + ACTIVE local user; canonical `identity.contexts.read` остаётся для будущих permission-controlled сценариев.
+- POST выбора подтверждается durable Audit-owned `WorkingContextSelected` по body и игнорирует header. На других `/api/v1` запросах `X-Work-Context-Id` перепроверяется и аудируется как `WorkingContextApplied` до endpoint. Оба действия не выдают permission.
 - Contractor access не определяется только типом пользователя.
 - Contractor access должен учитывать organization, contract, assignment, scope и validity.
 - Expired contract/assignment не даёт operational access.
@@ -97,7 +98,7 @@ Working context:
 - Canonical permission code уникален, имеет lowercase формат `<module>.<action>` и совпадает с `permissions-registry.md`.
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
-- После появления `access_assignments` production grant source всё ещё отказывает: assignment match не проверяет role-permission, owned working context, authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
+- Production grant source всё ещё отказывает: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
 
 ## PERMISSIONS
 
@@ -130,10 +131,12 @@ Identity не должен знать все бизнес-правила дру�
 - local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
 - `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
 - API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
+- `GET /api/v1/me/contexts`, `POST /api/v1/me/context` для собственных available contexts; request header `X-Work-Context-Id` validated by API
+- `IWorkingContextAuditWriter` из Audit.Contracts для durable selection audit
 
 Планируемые контракты последующих задач:
 
-- `IWorkingContext`
+- `IWorkingContext` для будущего operational consumer (текущая request selection не является grant)
 - `IAuthorizationService`
 - `UserReference`
 - `WorkingContextReference`
@@ -155,6 +158,8 @@ Identity не должен знать все бизнес-правила дру�
 - `AccessAssignmentExpired`
 
 События добавляются только при реальной необходимости межмодульной реакции.
+
+`WorkingContextSelected` и `WorkingContextApplied` в текущем срезе — Audit actions, не integration events.
 
 ## DEPENDS_ON
 
@@ -214,6 +219,8 @@ User
 - проверять доступ только по role;
 - давать contractor broad access по `user_type`;
 - доверять context ID без проверки ownership;
+- требовать operational grant для own-context bootstrap или распространять self-service exception на admin endpoints;
+- считать selected context permission grant;
 - использовать frontend как единственную проверку;
 - физически удалять критичную историю access assignment;
 - создавать скрытый `AllowAllAuth`;
@@ -235,6 +242,7 @@ User
 - expired contract;
 - contractor cross-contract leakage;
 - user switching to context they do not own;
+- malformed/unknown/expired/inactive context header or selection, audit write failure and cross-user IDOR;
 - admin privilege escalation;
 - duplicate or undocumented permission seed;
 - duplicate role-permission relationship;

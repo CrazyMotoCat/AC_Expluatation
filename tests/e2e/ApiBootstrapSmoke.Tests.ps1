@@ -127,6 +127,13 @@ try {
         throw 'Development OpenAPI document does not include GET /api/v1/me.'
     }
 
+    $openApiPaths = ($openApiResponse.Content | ConvertFrom-Json).paths.PSObject.Properties.Name
+    foreach ($path in @('/api/v1/me/contexts', '/api/v1/me/context')) {
+        if ($openApiPaths -notcontains $path) {
+            throw "Development OpenAPI document does not include $path."
+        }
+    }
+
 }
 finally {
     $cleanupException = $null

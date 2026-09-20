@@ -308,6 +308,10 @@ ACTIVE ↔ INACTIVE
 
 `identity.access_assignments.is_active` создаётся `true` и может перейти только в `false` при отзыве. Отзыв сохраняет запись, `revoked_at` / `revoked_by` и увеличивает `row_version`; повторный отзыв идемпотентен. Истечение `valid_to` само по себе не меняет `is_active`, но немедленно прекращает eligibility. Для `DELEGATION` `valid_to` обязателен. Управление выдачей/отзывом через API и полноценный audit относятся к последующим Identity tasks.
 
+## Working context availability
+
+`identity.user_contexts.is_active` создаётся `true` и может стать `false`; повторная деактивация идемпотентна, переход защищён optimistic `row_version`. Интервал `[valid_from, valid_to)` проверяется на момент request, expiry не является отдельным status. Только owned, active и currently valid context доступен для self-service выбора. Для `DELEGATION` конечный `valid_to` обязателен. Административный lifecycle выдачи/отзыва contexts не входит в `TASK-01.03.02`; выбор не меняет `is_active` и не создаёт permission grant.
+
 ---
 
 # 10. Contractor User Verification
