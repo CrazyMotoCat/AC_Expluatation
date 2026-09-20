@@ -453,6 +453,10 @@ Audit trail должен быть append-only.
 - IP;
 - user agent where relevant.
 
+Все state-changing critical commands, реализованные в repository, используют единый Audit-owned generic append contract. Для текущего `POST /api/v1/me/context` обязательны local user ID, request correlation, canonical entity/action и durable INSERT до успешного ответа; сбой audit приводит к fail closed. `WorkingContextApplied` остаётся security-sensitive audit event, но не command.
+
+Action/entity identifiers не принимаются как произвольные persistent strings: они проходят Audit-owned catalog validation. Before/after payloads optional, structured, allowlisted, ограничены 64 KiB UTF-8 и не содержат JWT, tokens, passwords или secrets.
+
 ---
 
 # 24. Audit protection

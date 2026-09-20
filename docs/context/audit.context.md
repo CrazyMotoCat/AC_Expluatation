@@ -1,17 +1,18 @@
 # Audit Context Capsule
 
-SOURCE_VERSION: 2026-09-20
+SOURCE_VERSION: 2026-09-20 (TASK-01.04.01)
 MODULE: Audit
 
 ## PURPOSE
 
-Audit хранит append-only технические факты действий отдельно от business history. Текущий minimal foundation обслуживает `WorkingContextSelected` и `WorkingContextApplied` для `TASK-01.03.02`.
+Audit хранит append-only технические факты действий отдельно от business history. Foundation из `TASK-01.03.02` расширен единым generic append contract для текущего critical command.
 
 ## OWNS
 
 - AuditEvent persistence
 - AuditDbContext и module-owned migrations
-- `IWorkingContextAuditWriter` contract/implementation
+- `IAuditWriter`, `AuditEventDraft`, canonical `AuditAction`/`AuditEntityType`
+- `IWorkingContextAuditWriter` typed adapters/implementation
 
 ## DB
 
@@ -25,12 +26,15 @@ Audit хранит append-only технические факты действи�
 - Успешный выбор context невозможен без durable audit INSERT.
 - Обычный запрос с валидным `X-Work-Context-Id` записывает `WorkingContextApplied` до endpoint; предыдущий POST не обязателен. POST выбора игнорирует header и записывает ровно один `WorkingContextSelected` по body.
 - Actor — local user ID; selected context и request correlation обязательны.
+- Current critical command requires user ID, correlation ID, entity/action and entity ID; acting context follows request-scoped semantics and remains optional in the generic draft.
+- Actions and entity types are Audit-owned canonical identifiers; unknown identifiers are rejected.
+- before/after are optional structured JSON, limited to 64 KiB UTF-8 and never silently truncated.
 - Нет JWT, passwords, secrets и лишних OIDC claims в событии.
 - Audit не заменяет business history и не принадлежит Identity.
 
 ## LIFECYCLE
 
-Audit event после вставки неизменяем. Retention/partitioning deferred to `TASK-01.04.01`.
+Audit event после вставки неизменяем. Retention, partitioning, query/admin API and system actor model are deferred extension points.
 
 ## PERMISSIONS
 
@@ -38,11 +42,13 @@ Audit event после вставки неизменяем. Retention/partitioni
 
 ## PUBLIC CONTRACTS
 
-- `IWorkingContextAuditWriter.WriteSelectedAsync` / `WriteAppliedAsync` — narrow cross-module writer для Identity.
+- `IAuditWriter.AppendAsync` — единый generic Audit-owned append contract.
+- `IWorkingContextAuditWriter.WriteSelectedAsync` / `WriteAppliedAsync` — typed adapters для Identity поверх generic writer.
 
 ## EVENTS
 
 - `WorkingContextSelected` и `WorkingContextApplied` — Audit actions, не integration events.
+- `POST /api/v1/me/context` — текущий critical command, обязательная durable audit запись до success.
 
 ## DEPENDENCIES
 

@@ -544,6 +544,8 @@ Backend обязан проверить принадлежность конте�
 - contract;
 - role/scope where required.
 
+Для текущего critical command `POST /api/v1/me/context` durable `WorkingContextSelected` записывается через canonical Audit contract до успешного ответа. `WorkingContextApplied` на обычном request остаётся отдельным security-sensitive audit event; оба события используют Audit-owned action/entity identifiers.
+
 ---
 
 # 29. Idempotency

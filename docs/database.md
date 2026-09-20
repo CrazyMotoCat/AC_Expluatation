@@ -2630,7 +2630,7 @@ error_message
 
 ## 65.1. audit.events
 
-Минимальный Audit-owned append-only foundation добавлен как prerequisite `TASK-01.03.02` для durable `WorkingContextSelected`. `AuditDbContext`, `audit` schema, migrations и `audit.__ef_migrations_history` принадлежат Audit module; Identity пишет через Audit contract, не в чужую schema напрямую.
+Минимальный Audit-owned append-only foundation добавлен как prerequisite `TASK-01.03.02` для durable `WorkingContextSelected`. `TASK-01.04.01` расширяет его единым generic `IAuditWriter.AppendAsync` contract; второй mechanism не создаётся. `AuditDbContext`, `audit` schema, migrations и `audit.__ef_migrations_history` принадлежат Audit module; Identity пишет через Audit contract, не в чужую schema напрямую.
 
 ```text
 id
@@ -2648,7 +2648,7 @@ ip_address           nullable
 user_agent           nullable
 ```
 
-Initial foundation не partitioned: объёмный retention/partitioning design остаётся `TASK-01.04.01`. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE `audit.events`; runtime writer выполняет только INSERT, а migration `Down` запрещает автоматический destructive rollback без отдельного retention/archival плана. `WorkingContextSelected` создаётся только POST body, `WorkingContextApplied` — только при применении валидного header на обычном request. В обоих событиях `user_id` — actor, `acting_context_id`/`entity_id` — context, `after_json` — context ID, `correlation_id` — request correlation. `before_json` допускает previous context, если он достоверно известен; в текущем request-scoped API он отсутствует. JWT, secrets и лишние claims не сохраняются.
+Foundation не partitioned; retention, partitioning, query/admin API и system actor model остаются deferred extension points. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE `audit.events`; runtime writer выполняет только INSERT, а migration `Down` запрещает автоматический destructive rollback без отдельного retention/archival плана. Canonical action/entity identifiers принадлежат Audit и не выводятся из CLR names. Generic writer требует actor/correlation/action/entity metadata, проверяет registered identifiers и принимает только structured before/after JSON до 64 KiB UTF-8 без silent truncation. `WorkingContextSelected` создаётся только POST body, `WorkingContextApplied` — только при применении валидного header на обычном request. Для текущего critical command успешный response невозможен до durable Audit INSERT; cross-module transaction infrastructure не вводится. JWT, secrets и лишние claims не сохраняются. Schema contract уже удовлетворяет текущей Task, поэтому новая migration не создана.
 
 Indexes:
 

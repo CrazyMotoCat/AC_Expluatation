@@ -1,23 +1,29 @@
 # Module: Audit
 
-STATUS: MINIMAL FOUNDATION
-SOURCE_VERSION: 2026-09-20
+STATUS: FOUNDATION EXTENDED
+SOURCE_VERSION: 2026-09-20 (TASK-01.04.01)
 
 ## Purpose
 
-Audit хранит доказуемые технические факты действий пользователя отдельно от business history (ADR-008). Минимальный foundation добавлен в `TASK-01.03.02` для durable выбора и применения рабочего контекста; полный `TASK-01.04.01` расширит этот же механизм.
+Audit хранит доказуемые технические факты действий пользователя отдельно от business history (ADR-008). Минимальный foundation добавлен в `TASK-01.03.02`; `TASK-01.04.01` расширяет тот же механизм единым generic append contract.
 
 ## Ownership and database
 
-Audit владеет `audit.events`, `AuditDbContext`, собственной migration и `audit.__ef_migrations_history` по ADR-010. Identity использует `IWorkingContextAuditWriter` из Audit.Contracts, не обращаясь к Audit DbContext/schema напрямую.
+Audit владеет `audit.events`, `AuditDbContext`, собственной migration и `audit.__ef_migrations_history` по ADR-010. Audit.Contracts владеет `IAuditWriter`, `AuditEventDraft`, а также canonical `AuditAction` и `AuditEntityType`; Identity использует typed adapter, не обращаясь к Audit DbContext/schema напрямую.
 
-`audit.events` содержит event ID UUIDv7, timestamp, actor user ID, acting context ID, correlation ID, action, entity type/ID и optional before/after JSON, reason, IP/user agent. Текущий writer поддерживает только `WorkingContextSelected` и `WorkingContextApplied`; JWT и secrets не записываются. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE; EF context также отвергает tracked update/delete. Migration `Down` запрещает автоматическое удаление истории без отдельного retention/archival плана. Текущий foundation не partitioned, retention/partitioning и расширенный audit model остаются `TASK-01.04.01`.
+`audit.events` содержит event ID UUIDv7, timestamp, actor user ID, acting context ID, correlation ID, action, entity type/ID и optional before/after JSON, reason, IP/user agent. Persistent action/entity identifiers принадлежат Audit, case-sensitive и не выводятся из CLR names; текущий каталог сохраняет `WorkingContextSelected`, `WorkingContextApplied` и `UserContext`. `IAuditWriter.AppendAsync` проверяет actor, correlation, каталог и structured JSON payload до INSERT; before/after ограничены 64 KiB UTF-8 без silent truncation. JWT, tokens, passwords и secrets не записываются. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE; EF context также отвергает tracked update/delete. Migration `Down` запрещает автоматическое удаление истории без отдельного retention/archival плана. Schema evolution не потребовалась, новая migration не создана.
 
 ## Current writer contract
 
-`IWorkingContextAuditWriter.WriteSelectedAsync` создаёт append-only `WorkingContextSelected` для POST body. `WriteAppliedAsync` создаёт `WorkingContextApplied` для валидного request header. Оба содержат actor local user ID, `acting_context_id`/`entity_id`, occurred_at, `after_json` с context ID и request correlation; previous context в текущем API не известен, `before_json` отсутствует.
+`IAuditWriter.AppendAsync(AuditEventDraft, CancellationToken)` — единый Audit-owned durable append contract. Draft требует local user ID, correlation ID, canonical action/entity и entity ID для текущих entity-bound actions; acting context остаётся optional по существующей semantics. Before/after optional, но для текущего `UserContext` должны быть object JSON только с allowlisted `contextId`, соответствующим snapshot semantics, и не превышать 64 KiB UTF-8.
+
+`IWorkingContextAuditWriter.WriteSelectedAsync` и `WriteAppliedAsync` сохранены как typed adapters и используют только `IAuditWriter`. `WorkingContextSelected` создаётся для POST body, `WorkingContextApplied` — для валидного request header. Оба содержат actor local user ID, `acting_context_id`/`entity_id`, occurred_at, after JSON с context ID и request correlation.
 
 Контекст request-scoped, Identity selection state не мутирует. POST игнорирует header и аудирует выбор body ровно один раз. Другой запрос с `X-Work-Context-Id` аудирует применение до endpoint, включая первый запрос без POST. Контекст предоставляется endpoint только после `AuditDbContext.SaveChangesAsync`; при сбое Audit endpoint не выполняется. Cross-module transaction не требуется, поскольку в Identity нет изменяемого selection state.
+
+## Critical command coverage
+
+Текущий реализованный critical command — `POST /api/v1/me/context`; он проходит через canonical `IAuditWriter` и не возвращает success при ошибке durable audit. `WorkingContextApplied` остаётся security-sensitive audit event, но не command. Будущие state-changing critical commands должны подключаться к этому contract в своих backlog tasks. Generic writer не обещает cross-module atomicity; для первого command с durable business mutation atomicity определяется в его собственной Task.
 
 ## Tests
 
@@ -28,7 +34,10 @@ Audit владеет `audit.events`, `AuditDbContext`, собственной mi
 - Identity self-service selection → реальный Audit event;
 - first-use header → `WorkingContextApplied` до endpoint; POST → ровно один `WorkingContextSelected`;
 - HTTP audit failure → 503, без успешного выбора.
+- generic valid append with optional acting context;
+- required metadata, unknown catalog identifiers, malformed/oversized JSON rejection;
+- adapter payload contains only allowlisted context fields.
 
-## Out of scope until TASK-01.04.01
+## Deferred extension points
 
-Audit query/admin API, UI, exports, retention subsystem, partitioning, reporting, analytics и общий writer для других действий. Application logs и business history не заменяют `audit.events`.
+Retention, partitioning, query/admin API, UI, exports, reporting, analytics, search и system actor model остаются deferred. Application logs и business history не заменяют `audit.events`.

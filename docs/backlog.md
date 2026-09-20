@@ -457,6 +457,8 @@ Acceptance Criteria:
 - entity/action;
 - critical commands создают audit event.
 
+Owner decision для этой Task ID: существующий `POST /api/v1/me/context` является текущим critical command и обязан использовать единый canonical Audit append contract; `WorkingContextApplied` остаётся обязательным security-sensitive event, но не command. Другие state-changing critical commands интегрируются в Audit в своих backlog tasks. Retention, partitioning, query/admin API, system actor model и cross-module durable-command atomicity остаются deferred extension points.
+
 ---
 
 # EPIC-02. Organization & Sites
