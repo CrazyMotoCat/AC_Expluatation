@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-23 (TASK-02.01.01 Phase C3R)
 MODULE: Sites
 
 ## PURPOSE
@@ -10,6 +10,7 @@ MODULE: Sites
 ## OWNS
 
 - Site
+- TerritorialZone
 - SiteType
 - SiteCriticalityClass
 - Location
@@ -17,7 +18,7 @@ MODULE: Sites
 - future SiteOperatingSchedule
 - future SiteServiceWindow
 
-Географические Territory/Region сущности тесно связаны с Organization, но Site является владельцем объектовой структуры.
+Territorial Zone в текущем backlog contract принадлежит Sites; Region и Site строятся поверх этой иерархии. Organization остаётся отдельной границей для будущих организационных связей.
 
 ## DB
 
@@ -26,10 +27,18 @@ MODULE: Sites
 - `sites.site_types`
 - `sites.site_criticality_classes`
 - `sites.sites`
+- `sites.territorial_zones`
+- `sites.audit_obligations`
 - `sites.location_types`
 - `sites.locations`
 - future `sites.site_operating_schedules`
 - future `sites.site_service_windows`
+
+TerritorialZone IDs and Sites audit event IDs are UUIDv7. Zone command persistence derives the canonical action and allowlisted before/after payload from the operation; audit obligation binding is `territorial_zone_id` → `sites.territorial_zones.id`.
+
+Phase C1 implements read/list/create/rename/activate/deactivate use cases and an unpersisted query DTO. All successful writes atomically leave exactly one matching `PENDING` obligation. The technical hosted dispatcher adds restart-safe at-least-once delivery: Sites persistence claims bounded batches with `FOR UPDATE SKIP LOCKED`, persists `claim_token`/bounded `lease_until`, commits before canonical Audit append, and uses token-checked completion/failure updates. A lease-expired claim is reclaimable; failed delivery persists bounded `next_attempt_at` backoff so poison rows do not starve newer obligations. Canonical Audit append preserves the stored payload/EventId, and only append success/idempotent success permits `PROCESSED`.
+
+Failed delivery stays `PENDING`; `attempt_count` counts failed canonical append attempts and `last_error` is a bounded diagnostic code without exception messages, tokens or connection strings. PostgreSQL remains the durable source of truth; RabbitMQ is not in this correctness path.
 
 ## HIERARCHY
 
@@ -87,6 +96,8 @@ PLATFORM
 - Location tree не должен содержать циклы.
 - Inactive location нельзя использовать для новых placements без специального процесса.
 - Inactive/closed Site нельзя использовать для новых Assets/Work Orders.
+- Territorial Zone creation starts `ACTIVE`; lifecycle removal is deactivation, not hard delete.
+- Territorial Zone code is trimmed, invariant-uppercase, unique and immutable; name is trimmed, non-empty, maximum 200 and mutable.
 - Перемещение Location не должно разрушать историю размещения Asset.
 - Критичность объекта влияет на maintenance frequency/risk, но не должна дублироваться в каждом модуле как свободный текст.
 - Working/service windows архитектурно поддерживаются, но не являются обязательным P0 функционалом.
@@ -102,6 +113,8 @@ PLATFORM
 - `sites.change_criticality`
 
 Изменение criticality должно быть более ограничено, чем обычное редактирование карточки.
+
+Territorial Zone API maps permissions exactly: list/get → `sites.read`, create → `sites.create`, rename/activate/deactivate → `sites.change`. Production grant evaluation remains deny-by-default; UserType, role name, JWT claims and working context do not grant permission. A validated request context may be copied only to obligation `acting_context_id` metadata. Mutations require explicit `expectedRowVersion`; stale writes fail with the standard 409 concurrency contract.
 
 ## PUBLIC CONTRACTS
 

@@ -19,7 +19,32 @@ SOURCE_VERSION: 2026-09-19
 
 ---
 
-# 2. Asset
+# 2. Territorial Zone
+
+## States
+
+```text
+ACTIVE
+INACTIVE
+```
+
+## Core transitions
+
+```text
+ACTIVE → INACTIVE
+INACTIVE → ACTIVE
+```
+
+## Rules
+
+- Creation starts in `ACTIVE`.
+- Deactivation is the removal semantics; hard delete is forbidden.
+- `code` is immutable after creation; `name` is mutable.
+- Activate/deactivate commands use optimistic concurrency and preserve business history through the durable Audit obligation.
+
+---
+
+# 3. Asset
 
 ## States
 

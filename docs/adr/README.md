@@ -26,6 +26,7 @@ Rejected
 | ADR-008 | Разделение Business History и Audit | Accepted |
 | ADR-009 | SeaweedFS как local development S3 provider | Accepted |
 | ADR-010 | Module-owned migrations с central technical execution | Accepted |
+| ADR-011 | Durable audit obligation for module-owned business mutations | Accepted |
 
 ## Правило для Codex и разработчиков
 

@@ -1385,6 +1385,8 @@ STAGE и PROD не должны расходиться вручную.
 - validation;
 - startup failure при критичном отсутствии.
 
+Sites audit delivery использует валидируемую секцию `Sites:AuditDelivery` (environment prefix form `Sites__AuditDelivery__*`): `Enabled`, `PollIntervalSeconds`, `BatchSize`, `MaxAttemptsPerObligationPerCycle`, `RetryDelayMilliseconds`, `LeaseDurationSeconds`, `InitialBackoffSeconds`, `MaximumBackoffSeconds`. Version-controlled Development-safe defaults находятся в API `appsettings.json`; secrets и connection strings в этой секции запрещены. Claim transaction is short and commits `claim_token`/`lease_until` before Audit calls; stale claims recover after lease expiry, and failures persist bounded `next_attempt_at` backoff. Dispatcher не блокирует startup ожиданием delivery и при временной недоступности БД оставляет PostgreSQL obligations retryable.
+
 ---
 
 # 105. Logging level

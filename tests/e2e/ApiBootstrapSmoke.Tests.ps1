@@ -128,7 +128,13 @@ try {
     }
 
     $openApiPaths = ($openApiResponse.Content | ConvertFrom-Json).paths.PSObject.Properties.Name
-    foreach ($path in @('/api/v1/me/contexts', '/api/v1/me/context')) {
+    foreach ($path in @(
+        '/api/v1/me/contexts',
+        '/api/v1/me/context',
+        '/api/v1/territorial-zones',
+        '/api/v1/territorial-zones/{id}',
+        '/api/v1/territorial-zones/{id}/activate',
+        '/api/v1/territorial-zones/{id}/deactivate')) {
         if ($openApiPaths -notcontains $path) {
             throw "Development OpenAPI document does not include $path."
         }

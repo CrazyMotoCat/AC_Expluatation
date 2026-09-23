@@ -418,15 +418,10 @@ status
 
 ---
 
-## 6.2. organization.territorial_zones
+## 6.2. Territorial Zone ownership
 
-```text
-id
-company_id
-code
-name
-status
-```
+Territorial Zone is owned by the Sites module. Its canonical table is
+`sites.territorial_zones`; the Organization schema does not own this table.
 
 ---
 
@@ -545,6 +540,55 @@ status
 ---
 
 # 7. Sites schema
+
+## 7.0. sites.territorial_zones
+
+Territorial Zone является Sites-owned частью географической иерархии.
+
+```text
+id                  uuid PK, UUIDv7
+code                varchar(50) unique, canonical uppercase
+name                varchar(200)
+status              varchar(20): ACTIVE/INACTIVE
+created_at          timestamptz
+updated_at          timestamptz
+row_version         bigint optimistic concurrency
+```
+
+Code нормализуется как `trim` + invariant uppercase, PostgreSQL независимо проверяет ASCII syntax/canonical form, и code immutable после создания. Hard delete запрещён; удаление из lifecycle моделируется деактивацией.
+
+Indexes:
+
+```text
+ux_territorial_zones_code
+```
+
+## 7.0.1. sites.audit_obligations
+
+Sites-owned durable obligation для обязательного Audit. Запись создаётся в той же транзакции, что и business mutation, и не является вторым audit trail.
+
+```text
+id                  uuid PK, UUIDv7
+audit_event_id      uuid unique, UUIDv7, stable retry identity
+action              varchar(200)
+entity_type         varchar(200)
+entity_id           uuid
+territorial_zone_id uuid FK sites.territorial_zones(id)
+actor_user_id       uuid
+acting_context_id   uuid nullable
+occurred_at         timestamptz
+correlation_id      varchar(128)
+before_json         jsonb nullable
+after_json          jsonb nullable
+reason              varchar(1000) nullable
+delivery_status     varchar(20): PENDING/PROCESSED
+attempt_count       integer, failed canonical append attempts
+last_error          varchar(2000) nullable, bounded sanitized diagnostic
+created_at          timestamptz
+processed_at        timestamptz nullable
+```
+
+`entity_type = TerritorialZone` and `entity_id = territorial_zone_id` are enforced for this current Sites obligation. Payload columns are immutable after insert; delivery metadata follows `PENDING` → `PROCESSED`, with `processed_at` coherence. The Sites-owned delivery adapter claims bounded ordered batches under `FOR UPDATE SKIP LOCKED`, persists `claim_token` and bounded `lease_until`, commits that short claim transaction, and releases row locks before canonical Audit append or retry delay. Completion/failure updates require the current claim token. Lease expiry makes a crashed claim eligible again. Failed delivery increments `attempt_count`, stores a bounded diagnostic, clears the claim and persists `next_attempt_at` using bounded exponential backoff, so poison obligations cannot monopolize newer work. Audit append success or identical same-ID content permits `PROCESSED`; failure or conflicting content stays `PENDING`. This is at-least-once delivery: a crash after Audit commit but before the Sites commit is recovered by the same stable EventId. `last_error` stores diagnostic codes only, not raw exception text, tokens or connection strings. `audit.events` visibility is not required before command SUCCESS.
 
 ## 7.1. sites.site_types
 
@@ -2648,7 +2692,7 @@ ip_address           nullable
 user_agent           nullable
 ```
 
-Foundation не partitioned; retention, partitioning, query/admin API и system actor model остаются deferred extension points. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE `audit.events`; runtime writer выполняет только INSERT, а migration `Down` запрещает автоматический destructive rollback без отдельного retention/archival плана. Canonical action/entity identifiers принадлежат Audit и не выводятся из CLR names. Generic writer требует actor/correlation/action/entity metadata, проверяет registered identifiers и принимает только structured before/after JSON до 64 KiB UTF-8 без silent truncation. `WorkingContextSelected` создаётся только POST body, `WorkingContextApplied` — только при применении валидного header на обычном request. Для текущего critical command успешный response невозможен до durable Audit INSERT; cross-module transaction infrastructure не вводится. JWT, secrets и лишние claims не сохраняются. Schema contract уже удовлетворяет текущей Task, поэтому новая migration не создана.
+Foundation не partitioned; retention, partitioning, query/admin API и system actor model остаются deferred extension points. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE `audit.events`; runtime writer выполняет только INSERT, а migration `Down` запрещает автоматический destructive rollback без отдельного retention/archival плана. Canonical action/entity identifiers принадлежат Audit и не выводятся из CLR names. Generic writer требует actor/correlation/action/entity metadata, проверяет registered identifiers и принимает только structured before/after JSON до 64 KiB UTF-8 без silent truncation. `WorkingContextSelected` создаётся только POST body, `WorkingContextApplied` — только при применении валидного header на обычном request. Для новых критичных business mutations ADR-011 требует durable module-owned audit obligation before SUCCESS; синхронная запись в `audit.events` не обязательна. JWT, secrets и лишние claims не сохраняются.
 
 Indexes:
 
@@ -3872,7 +3916,7 @@ identity.permissions
 identity.role_permissions
 identity.access_assignments
 
-organization.territorial_zones
+sites.territorial_zones
 organization.regions
 organization.functional_directions
 organization.teams

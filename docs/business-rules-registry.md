@@ -70,6 +70,15 @@ Location hierarchy не допускает циклов.
 ### BR-SIT-005
 Timezone объекта является частью operational context.
 
+### BR-SIT-006
+Territorial Zone code is trimmed, invariant-uppercase, unique and immutable.
+
+### BR-SIT-007
+Territorial Zone name is trimmed, non-empty and mutable; lifecycle removal is deactivation, not hard delete.
+
+### BR-SIT-008
+Territorial Zone mutations require optimistic concurrency and preserve a durable Audit obligation in the same Sites transaction.
+
 ---
 
 # 4. Assets

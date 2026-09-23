@@ -1,6 +1,6 @@
 # Audit Context Capsule
 
-SOURCE_VERSION: 2026-09-20 (TASK-01.04.01)
+SOURCE_VERSION: 2026-09-23 (TASK-02.01.01 Phase C2)
 MODULE: Audit
 
 ## PURPOSE
@@ -13,6 +13,7 @@ Audit хранит append-only технические факты действи�
 - AuditDbContext и module-owned migrations
 - `IAuditWriter`, `AuditEventDraft`, canonical `AuditAction`/`AuditEntityType`
 - `IWorkingContextAuditWriter` typed adapters/implementation
+- canonical `TerritorialZone` entity and lifecycle action identifiers
 
 ## DB
 
@@ -26,9 +27,10 @@ Audit хранит append-only технические факты действи�
 - Успешный выбор context невозможен без durable audit INSERT.
 - Обычный запрос с валидным `X-Work-Context-Id` записывает `WorkingContextApplied` до endpoint; предыдущий POST не обязателен. POST выбора игнорирует header и записывает ровно один `WorkingContextSelected` по body.
 - Actor — local user ID; selected context и request correlation обязательны.
-- Current critical command requires user ID, correlation ID, entity/action and entity ID; acting context follows request-scoped semantics and remains optional in the generic draft.
+- Current critical command requires UUIDv7 event ID, user ID, correlation ID, entity/action and entity ID; acting context follows request-scoped semantics and remains optional in the generic draft. Same event ID plus identical immutable content is an idempotent no-op; conflicting content fails closed.
+- For durable business mutations, ADR-011 requires the owning module to commit a durable audit obligation atomically with its business state; `audit.events` materialization is at-least-once and eventual. Territorial Zone delivery is implemented by the technical `Exploitation.AuditDelivery` component through the Sites Application port and canonical `IAuditWriter`.
 - Actions and entity types are Audit-owned canonical identifiers; unknown identifiers are rejected.
-- before/after are optional structured JSON, limited to 64 KiB UTF-8 and never silently truncated.
+- before/after are optional structured JSON, limited to 64 KiB UTF-8 and never silently truncated; UserContext and TerritorialZone payloads use canonical allowlists.
 - Нет JWT, passwords, secrets и лишних OIDC claims в событии.
 - Audit не заменяет business history и не принадлежит Identity.
 
@@ -44,6 +46,7 @@ Audit event после вставки неизменяем. Retention, partition
 
 - `IAuditWriter.AppendAsync` — единый generic Audit-owned append contract.
 - `IWorkingContextAuditWriter.WriteSelectedAsync` / `WriteAppliedAsync` — typed adapters для Identity поверх generic writer.
+- `Exploitation.AuditDelivery` — technical orchestrator/hosted service consumer of `IAuditWriter`; it does not own Audit persistence or define another writer.
 
 ## EVENTS
 
