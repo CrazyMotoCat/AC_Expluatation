@@ -160,3 +160,28 @@ IMPLEMENTATION_COMMIT: 3bac91c (feat(sites): add regions)
 REPOSITORY_STATE_GUARD: SAFE_PENDING_POST_COMMIT_CHECK
 GIT_STATE: CLEAN_BASELINE_PENDING_PUSH
 NEXT_ACTION: POST_COMMIT_GUARD_THEN_PUSH_ORIGIN_MAIN
+
+## Phase C4R — hosted CI remediation
+TASK: TASK-02.01.02
+STATUS: HOSTED_CI_REMEDIATION_VERIFIED
+PHASE: C4R
+ORIGINAL_FAILED_SHA: 744cb2a975b5ca4b0f77d88d2a610cf6c75a108e
+ROOT_CAUSE: TASK-02.01.02 changed the canonical permissions registry description and scope columns for sites.change, while the approved Identity system permission seed/catalog and historical migration retained the prior tuple. The registry parser therefore produced a tuple mismatch for sites.change; no permission code, module, grant source, or authorization rule changed.
+MISMATCH_DETAILS: sites.change code matched; module Sites matched; registry name/scope were "Изменение карточки объекта, региона и территориальной зоны" / "region/site" while the seeded catalog was "Изменение карточки объекта" / "site". The other 73 permissions matched exactly.
+REMEDIATION: Restored docs/permissions-registry.md sites.change tuple to the approved seeded catalog. Region endpoints continue to reuse sites.read/sites.create/sites.change as frozen.
+PERMISSION_CODES_CHANGED: NO
+AUTHORIZATION_SEMANTICS_CHANGED: NO
+REGION_PERMISSION_MAPPING: UNCHANGED — sites.read/sites.create/sites.change
+PRODUCTION_GRANT_SOURCE: DENY — no role/UserType/JWT/working-context implicit grants introduced.
+LOCAL_CI_EQUIVALENT: PASS — exact backend unit-test CI commands.
+IDENTITY_DOMAIN_CHECKS: PASS
+BACKEND_UNIT_CI_EQUIVALENT: PASS
+ARCHITECTURE: PASS
+AUTHORIZATION_REGRESSION: PASS
+RELEASE_BUILD: PASS
+FORMAT_DIFF: PASS — git diff --check
+DOCUMENTATION_SYNC: PASS — canonical registry now matches seeded catalog; no additional module/API/database documentation change required.
+FILES_CHANGED: docs/permissions-registry.md; .agent/tasks/TASK-02.01.02/state.md
+LAST_SAFE_COMMIT: 744cb2a975b5ca4b0f77d88d2a610cf6c75a108e
+NEXT_ACTION: CREATE_FOLLOWUP_FIX_COMMIT
+DO_NOT_REPEAT: Do not amend 744cb2a; do not add Region permission keys; do not alter authorization; do not start the next backlog task.

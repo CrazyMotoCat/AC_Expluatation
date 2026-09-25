@@ -82,7 +82,7 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `identity.delegations.manage` | Identity | Управление делегированием | assigned scope | INTERNAL | CRITICAL |
 | `sites.read` | Sites | Просмотр объектов | zone/region/site | INTERNAL/CONTRACT | NORMAL |
 | `sites.create` | Sites | Создание объекта | zone/region | INTERNAL | CRITICAL |
-| `sites.change` | Sites | Изменение карточки объекта, региона и территориальной зоны | region/site | INTERNAL | SENSITIVE |
+| `sites.change` | Sites | Изменение карточки объекта | site | INTERNAL | SENSITIVE |
 | `sites.manage_locations` | Sites | Управление location tree | site | INTERNAL | SENSITIVE |
 | `sites.change_criticality` | Sites | Изменение класса критичности | site | INTERNAL | CRITICAL |
 | `assets.read` | Assets | Просмотр активов | region/site/asset_type | INTERNAL/CONTRACT | NORMAL |
