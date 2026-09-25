@@ -497,6 +497,9 @@ commissioned_at
 
 Не hardcode.
 
+These are conceptual examples, not the approved initial seed. The exact
+SiteType seed and display names are recorded in `reference-data-registry.md`.
+
 ## 10.3. SiteCriticality
 
 Справочник:

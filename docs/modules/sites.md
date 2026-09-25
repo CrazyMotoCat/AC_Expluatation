@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-25 (TASK-02.01.02 Phase C1)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
 
 ## Purpose
 
@@ -70,6 +70,20 @@ Region API routes are `GET /api/v1/regions`, `GET /api/v1/regions/{id}`, `POST /
 The C1 HTTP response is a transport DTO containing only `id`, `territorialZoneId`, `code`, `name`, `timezone`, `status`, `createdAt`, `updatedAt`, and `rowVersion`; no DELETE route is exposed. Stale update and lifecycle writes return `OPTIMISTIC_CONCURRENCY_CONFLICT`.
 
 Region mutations create exactly one Sites-owned durable audit obligation atomically with the business change. The canonical Audit entity is `Region`; actions are `RegionCreated`, `RegionUpdated`, `RegionActivated`, and `RegionDeactivated`. The existing obligation/delivery mechanism is generalized additively with entity/action/payload allowlists and a Region binding; no second outbox or direct write to `audit.events` is introduced.
+
+SiteType is a Sites-owned configurable reference in `sites.site_types`, separate
+from SiteCriticality. The additive migration seeds exactly the four approved
+codes and Russian names in `reference-data-registry.md` with stable UUIDv7
+IDs. The values are an initial set, not an enum. Code is immutable and
+globally unique; `ACTIVE`/`INACTIVE` replaces the earlier provisional
+`is_active` column. Creation starts ACTIVE, hard delete is blocked by the
+database, and inactive rows remain readable for historical references.
+`GET /api/v1/reference/site-types` requires `sites.read`, returns all types
+ordered by code, and exposes only id, code, name, description and status.
+No SiteType mutation API, additional permission or audit obligation exists in
+this task. Full administration is deferred to a separate future task; the
+new-Site eligibility rule for inactive types is deferred to `TASK-02.03.03`
+or a separate owner decision.
 
 ## Permissions
 

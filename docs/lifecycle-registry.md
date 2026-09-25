@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
 
 ## 1. Назначение
 
@@ -68,7 +68,15 @@ INACTIVE → ACTIVE
 
 ---
 
-# 2.2. Organizational Unit
+# 2.2. SiteType
+
+States: `ACTIVE`, `INACTIVE`. Creation starts `ACTIVE`; later management may
+transition `ACTIVE → INACTIVE` or `INACTIVE → ACTIVE`. Hard delete is
+forbidden. Inactive values remain readable and valid for existing historical
+references. `TASK-02.03.01` has no mutation API; the new-Site selection rule
+is deferred to `TASK-02.03.03` or a separate owner decision.
+
+# 2.3. Organizational Unit
 
 ## States
 

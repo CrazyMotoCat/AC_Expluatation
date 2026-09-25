@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType contract)
 
 ## 1. Назначение
 
@@ -40,7 +40,7 @@ SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
 | UserType | Identity | SYSTEM_ENUM | INTERNAL, CONTRACTOR, SYSTEM | limited |
 | UserStatus | Identity | SYSTEM_ENUM | ACTIVE, INACTIVE | controlled |
 | WorkingContextType | Identity | SYSTEM_ENUM | INTERNAL, CONTRACT, PROJECT, DELEGATION, TEAM | code change |
-| SiteType | Sites | CONFIGURABLE_REFERENCE | retail office, admin building, warehouse, technical | yes |
+| SiteType | Sites | CONFIGURABLE_REFERENCE | RETAIL_OFFICE, ADMIN_BUILDING, WAREHOUSE, TECHNICAL_SITE | yes |
 | SiteCriticality | Sites | CONFIGURABLE_REFERENCE/HYBRID | NORMAL, KVO3, KVO2, KVO1 | yes, with rank |
 | LocationType | Sites | CONFIGURABLE_REFERENCE | BUILDING, FLOOR, ROOM, RACK, AREA | yes |
 | OrganizationalUnitType | Organization | CONFIGURABLE_REFERENCE | DEPARTMENT, DIVISION, DIRECTION, SECTION, FRONT_OFFICE, BACK_OFFICE, MANAGEMENT | yes |
@@ -127,6 +127,32 @@ MANAGEMENT
 The Phase B1 migration seeds exactly these codes with stable UUIDv7 IDs.
 Until separate display labels are approved, each initial `name` equals its
 canonical registry code; future names remain mutable reference data.
+
+## 4.2. Site Types
+
+Owner: Sites. `SiteType` is a database-backed configurable reference, separate
+from `SiteCriticality`. The initial seed is exactly:
+
+| Code | Name |
+|---|---|
+| RETAIL_OFFICE | Торговый офис |
+| ADMIN_BUILDING | Административное здание |
+| WAREHOUSE | Склад |
+| TECHNICAL_SITE | Технический объект |
+
+`CUSTOM` and any other values are not part of the initial seed. These four
+codes are not an exhaustive enum; business logic must not branch on them as
+the complete set. New values can be stored in the same Sites-owned reference
+model. UUIDv7 `id`, immutable globally unique canonical `code`, mutable
+`name`, and `ACTIVE`/`INACTIVE` status follow the existing reference pattern.
+Creation starts `ACTIVE`; hard delete is forbidden. `INACTIVE` values remain
+readable and valid for existing historical references. Eligibility of an
+inactive type for a new Site is deferred to `TASK-02.03.03` or a separate owner
+decision.
+
+`TASK-02.03.01` supplies persistence, deterministic seed and a read endpoint
+under `sites.read`. A management API, mutation permissions and audit
+obligations for SiteType are deferred to a separate future task.
 
 ## 5. Units of Measure
 

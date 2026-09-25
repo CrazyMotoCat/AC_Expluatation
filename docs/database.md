@@ -747,10 +747,13 @@ id
 code
 name
 description
-is_active
+status
+created_at
+updated_at
 ```
 
-Примеры:
+Initial seed (exactly these four rows; names are recorded in
+`reference-data-registry.md`):
 
 ```text
 RETAIL_OFFICE
@@ -758,6 +761,15 @@ ADMIN_BUILDING
 WAREHOUSE
 TECHNICAL_SITE
 ```
+
+Sites owns this table and its additive migration. `id` is UUIDv7. `code` is
+immutable, unique globally, normalized with trim and invariant uppercase,
+and matches `^[A-Z0-9][A-Z0-9_-]{0,49}$`. `name` is trimmed, non-empty and at
+most 200 characters. `description` is optional. `status` is `ACTIVE` or
+`INACTIVE`; creation starts `ACTIVE`. Inactive rows remain readable and
+referenceable. A database trigger forbids hard delete and changes to `id` or
+`code`. The four seed rows have stable UUIDv7 IDs and do not constrain future
+reference values. Site criticality has its own table in `TASK-02.03.02`.
 
 ---
 

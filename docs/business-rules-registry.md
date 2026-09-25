@@ -1,7 +1,7 @@
 # Business Rules Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
 
 ## 1. Назначение
 
@@ -93,6 +93,13 @@ Inactive Regions remain queryable and valid for existing references, but cannot 
 
 ### BR-SIT-013
 Region mutations require optimistic concurrency and create one matching durable Audit obligation atomically in the Sites transaction.
+
+### BR-SIT-014
+SiteType is a Sites-owned configurable reference, separate from SiteCriticality.
+Its initial seed is not an exhaustive enum. A SiteType starts ACTIVE; hard
+delete is forbidden, and inactive types remain readable and valid for existing
+historical references. Eligibility for a new Site is deferred to
+`TASK-02.03.03` or a separate owner decision.
 
 ---
 

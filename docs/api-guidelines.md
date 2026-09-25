@@ -1279,6 +1279,12 @@ GET /reference/units
 
 Или module-owned resource endpoints.
 
+`TASK-02.03.01` implements the module-owned read route
+`GET /api/v1/reference/site-types`. It requires `sites.read` and returns an
+array ordered by canonical code. Each row exposes `id`, `code`, `name`,
+`description` and `status`; inactive rows remain visible for historical
+references. No SiteType mutation route is included in this task.
+
 ---
 
 # 79. Master data mutation

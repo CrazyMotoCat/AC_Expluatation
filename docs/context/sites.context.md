@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-25 (TASK-02.01.02 Phase C1)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
 MODULE: Sites
 
 ## PURPOSE
@@ -69,7 +69,7 @@ PLATFORM
 
 ## SITE TYPES
 
-Примеры:
+Approved initial seed:
 
 - RETAIL_OFFICE
 - ADMIN_BUILDING
@@ -77,6 +77,17 @@ PLATFORM
 - TECHNICAL_SITE
 
 Тип объекта не определяет его критичность.
+
+SiteType is a Sites-owned configurable database reference, not a closed enum.
+The four codes above have the exact Russian names in `reference-data-registry.md`.
+Its UUIDv7 ID and canonical immutable code identify the type; name is mutable.
+`ACTIVE`/`INACTIVE` replaces the earlier provisional `is_active` column;
+creation starts ACTIVE, hard delete is forbidden, and inactive rows remain
+readable for history. The current API is only
+`GET /api/v1/reference/site-types` under `sites.read`, ordered by code.
+Mutation API, mutation permissions and audit obligations are deferred to a
+separate management task. Eligibility of an inactive type for a new Site is
+not decided by `TASK-02.03.01`.
 
 ## CRITICALITY
 
