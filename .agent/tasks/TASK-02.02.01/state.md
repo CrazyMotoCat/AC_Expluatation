@@ -3,7 +3,8 @@
 TASK: TASK-02.02.01
 TITLE: Organizational units
 PHASE: C4
-STATUS: C4_INCOMPLETE_HOSTED_CI_UNVERIFIED
+TASK_STATUS: DONE
+STATUS: DONE
 CHECKPOINT_STATUS: SAFE
 IMPLEMENTATION_STARTED: YES
 PHASE_A: DONE
@@ -26,10 +27,11 @@ WRITE_OUTBOX_INTEGRATION: PASS (Organization-owned durable obligations)
 AUDIT_DELIVERY: PASS
 PHASE_C2: DONE
 PHASE_C3: DONE
-PHASE_C4: LOCAL_GATES_PASS_HOSTED_CI_PENDING
+PHASE_C4: DONE
 TRACEABILITY: PASS
 LOCAL_FINAL_GATES: PASS
-HOSTED_CI: UNVERIFIED_REPOSITORY_ACTIONS_404
+HOSTED_CI: PASS
+HOSTED_CI_VERIFIED_COMMIT: 59f4d69829115b38868ec639eb0837dde2bbe02a
 OPEN_CRITICAL: 0
 OPEN_HIGH: 0
 OPEN_MEDIUM: 0
@@ -75,9 +77,9 @@ ORGANIZATION_AUDIT_OBLIGATIONS: PASS
 ATOMICITY: PASS
 IMPLEMENTATION_COMMIT: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb
 
-LAST_SAFE_COMMIT: f56732f1901cd6c3983797c604d38feb2671e07c
+LAST_SAFE_COMMIT: 59f4d69829115b38868ec639eb0837dde2bbe02a
 BRANCH: main
-ORIGIN_MAIN: f56732f1901cd6c3983797c604d38feb2671e07c
+ORIGIN_MAIN: 59f4d69829115b38868ec639eb0837dde2bbe02a
 REPOSITORY_STATE_GUARD: SAFE
 GIT_STATE: CLEAN_BASELINE
 WORKTREE_STATE: CLEAN_BASELINE (implementation and checkpoint finalization commits pushed)
@@ -317,8 +319,7 @@ DECISIONS:
   migration to keep the verified foundation boundary.
 
 PENDING:
-- Create the single task commit, push, verify all hosted CI jobs, then record
-  final checkpoint state and synchronize it using the repository convention.
+- None. Task complete; do not start another Task ID.
 
 BLOCKERS:
 - None for C2. The prior B1_BLOCKED_COMPANY_CONTRACT was resolved by the
@@ -339,12 +340,14 @@ FILES_CHANGED:
   No user-facing functional scope was added.
 
 C4_REPOSITORY_RECOVERY:
-- RESUME_SAFE: YES.
-- CHECKPOINT_MATCHES_GIT: YES; task commit 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb is pushed to main.
-- LOCAL_FINAL_GATES: PASS; HOSTED_CI: UNVERIFIED (Actions/API 404 in signed-out session; gh CLI unavailable).
+- RESUME_SAFE: YES; implementation and checkpoint are in Git.
+- TASK_COMMIT: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb; pushed to main.
+- HOSTED_CI: PASS; Build pipeline #15, verified commit 59f4d69829115b38868ec639eb0837dde2bbe02a.
+- Backend build and tests, Frontend build and tests, Verify required checks: PASS.
+- Ubuntu-latest migration annotations: informational only.
 - OPEN_CRITICAL/HIGH/MEDIUM: 0.
-- STATUS: C4 incomplete until hosted CI evidence is available.
-- NEXT_ACTION: verify required hosted checks for the implementation commit when Actions access is available.
+- Deferred LOW and NOTE retained per owner instruction.
+- NEXT_ACTION: final checkpoint synchronization only; do not start another Task ID.
 
 C3_REPOSITORY_RECOVERY:
 - RESUME_SAFE: YES.
@@ -426,8 +429,7 @@ PROPOSED_IMPLEMENTATION_PHASES:
 DOCUMENTATION_SYNC: PASS
 
 NEXT_ACTION:
-Inspect the full staged task diff, create the one task commit, push main, and
-verify hosted CI. Do not start another Task ID.
+Stop. Do not start another Task ID.
 
 DO_NOT_REPEAT:
 - Do not repeat C1 API/Identity migration or authorization implementation.
@@ -442,10 +444,14 @@ DO_NOT_REPEAT:
 
 
 C4_FINALIZATION_CURRENT:
-- Implementation task commit: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb; pushed to main.
-- Remote main matches HEAD at the implementation commit; worktree was clean before this checkpoint/doc synchronization update.
-- Local final gates, traceability and documentation sync PASS; open CRITICAL/HIGH/MEDIUM findings: 0.
-- Hosted CI is UNVERIFIED: GitHub Actions page and unauthenticated API returned 404; browser session is signed out; gh CLI unavailable. Do not record PASS without run evidence.
-- Deferred LOW: permission middleware 401/403 response body/OpenAPI schema consistency (per owner instruction, do not change middleware).
-- Deferred NOTE: historical Sites:AuditDelivery config section name (per owner instruction, do not rename).
-- NEXT_ACTION: verify required hosted CI for the pushed implementation commit when repository Actions access is available; update this checkpoint and reach CLEAN_BASELINE. Do not begin another Task ID.
+- TASK_STATUS: DONE; PHASE_C4: DONE.
+- Task implementation commit: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb; pushed to main.
+- Hosted CI Build pipeline #15: SUCCESS on commit 59f4d69829115b38868ec639eb0837dde2bbe02a.
+- Backend build and tests, Frontend build and tests, Verify required checks: PASS.
+- Ubuntu-latest migration annotations were informational only.
+- Local final gates, documentation sync, and traceability: PASS.
+- OPEN_CRITICAL/HIGH/MEDIUM: 0.
+- Deferred LOW: permission middleware 401/403 response body vs OpenAPI schema consistency.
+- Deferred NOTE: historical Sites:AuditDelivery configuration section name.
+- Finalization commit changes only state.md. No production code, tests, or migrations changed.
+- NEXT_ACTION: stop; do not start another Task ID.
