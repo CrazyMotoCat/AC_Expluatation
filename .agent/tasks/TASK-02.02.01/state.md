@@ -3,7 +3,7 @@
 TASK: TASK-02.02.01
 TITLE: Organizational units
 PHASE: C4
-STATUS: PHASE_C4_LOCAL_GATES_PASS_AWAITING_TASK_COMMIT
+STATUS: C4_INCOMPLETE_HOSTED_CI_UNVERIFIED
 CHECKPOINT_STATUS: SAFE
 IMPLEMENTATION_STARTED: YES
 PHASE_A: DONE
@@ -26,10 +26,10 @@ WRITE_OUTBOX_INTEGRATION: PASS (Organization-owned durable obligations)
 AUDIT_DELIVERY: PASS
 PHASE_C2: DONE
 PHASE_C3: DONE
-PHASE_C4: LOCAL_GATES_PASS
+PHASE_C4: LOCAL_GATES_PASS_HOSTED_CI_PENDING
 TRACEABILITY: PASS
 LOCAL_FINAL_GATES: PASS
-HOSTED_CI: PENDING
+HOSTED_CI: UNVERIFIED_REPOSITORY_ACTIONS_404
 OPEN_CRITICAL: 0
 OPEN_HIGH: 0
 OPEN_MEDIUM: 0
@@ -73,14 +73,14 @@ UNIT_TYPE_ELIGIBILITY: PASS
 OPTIMISTIC_CONCURRENCY: PASS
 ORGANIZATION_AUDIT_OBLIGATIONS: PASS
 ATOMICITY: PASS
-IMPLEMENTATION_COMMIT: NOT_CREATED
+IMPLEMENTATION_COMMIT: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb
 
-LAST_SAFE_COMMIT: 1d3b694f41b49491e3d96645ad58dd7ecd169d4f
+LAST_SAFE_COMMIT: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb
 BRANCH: main
-ORIGIN_MAIN: 1d3b694f41b49491e3d96645ad58dd7ecd169d4f
-REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT
-GIT_STATE: DIRTY_EXPECTED
-WORKTREE_STATE: DIRTY_EXPECTED (Phase A/B1/B2/C1 task-owned implementation, tests, docs and checkpoint)
+ORIGIN_MAIN: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT_PENDING_HOSTED_CI
+GIT_STATE: CHECKPOINT_UPDATE_PENDING
+WORKTREE_STATE: CHECKPOINT_UPDATE_PENDING (implementation committed and pushed; hosted CI unresolved)
 
 COMPLETED:
 - Repository state guard completed; HEAD and origin/main match the expected baseline.
@@ -340,14 +340,11 @@ FILES_CHANGED:
 
 C4_REPOSITORY_RECOVERY:
 - RESUME_SAFE: YES.
-- CHECKPOINT_MATCHES_GIT: YES; all current dirty paths are task-owned.
-- GIT_STATE: DIRTY_EXPECTED; HEAD and origin/main are both
-  1d3b694f41b49491e3d96645ad58dd7ecd169d4f on main.
-- REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT.
-- TASK_COMMIT: NOT_CREATED; PUSH: NOT_ATTEMPTED.
-- LOCAL_FINAL_GATES: PASS; HOSTED_CI: PENDING.
-- NEXT_ACTION: inspect and stage the explicit task-owned file set, create the
-  single task commit, push main, then verify hosted required checks.
+- CHECKPOINT_MATCHES_GIT: YES; task commit 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb is pushed to main.
+- LOCAL_FINAL_GATES: PASS; HOSTED_CI: UNVERIFIED (Actions/API 404 in signed-out session; gh CLI unavailable).
+- OPEN_CRITICAL/HIGH/MEDIUM: 0.
+- STATUS: C4 incomplete until hosted CI evidence is available.
+- NEXT_ACTION: verify required hosted checks for the implementation commit when Actions access is available.
 
 C3_REPOSITORY_RECOVERY:
 - RESUME_SAFE: YES.
@@ -442,3 +439,13 @@ DO_NOT_REPEAT:
 - Do not begin C3 from this checkpoint automatically.
 - Do not update Identity production permission seed during B1.
 - Do not create task implementation commit or push.
+
+
+C4_FINALIZATION_CURRENT:
+- Implementation task commit: 2f8ba4e15f65d7cc6ce79bbd41f5778c23e329bb; pushed to main.
+- Remote main matches HEAD at the implementation commit; worktree was clean before this checkpoint/doc synchronization update.
+- Local final gates, traceability and documentation sync PASS; open CRITICAL/HIGH/MEDIUM findings: 0.
+- Hosted CI is UNVERIFIED: GitHub Actions page and unauthenticated API returned 404; browser session is signed out; gh CLI unavailable. Do not record PASS without run evidence.
+- Deferred LOW: permission middleware 401/403 response body/OpenAPI schema consistency (per owner instruction, do not change middleware).
+- Deferred NOTE: historical Sites:AuditDelivery config section name (per owner instruction, do not rename).
+- NEXT_ACTION: verify required hosted CI for the pushed implementation commit when repository Actions access is available; update this checkpoint and reach CLEAN_BASELINE. Do not begin another Task ID.

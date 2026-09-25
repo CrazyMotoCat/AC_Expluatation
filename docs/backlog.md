@@ -569,6 +569,9 @@ obligations. Phase C1 adds Application handlers, seven HTTP routes,
 `organization.*` permission gates and the synchronized Identity permission
 seed. Phase C2 adds Organization-owned delivery through the technical host
 and canonical Audit writer, with independent bounded Sites/Organization polls.
+Phase C3 review and C4 traceability/documentation plus local final gates passed;
+hosted CI verification is pending because repository Actions status is not
+accessible in the current session.
 
 Proposed implementation split after Phase A:
 
@@ -582,10 +585,10 @@ Proposed implementation split after Phase A:
   `organization.*` permission policies.
 - **Phase C2:** generalized AuditDelivery adapters for Organization-owned
   obligations through the existing `IAuditWriter`.
-- **Phase C3:** focused PostgreSQL, authorization, audit, concurrency and
-  architecture review.
-- **Phase C4:** final documentation/gates and task commit within the later
-  implementation phase.
+- **Phase C3:** DONE — independent security, concurrency, audit-delivery,
+  module-boundary and test-quality review; no open Critical/High/Medium findings.
+- **Phase C4:** local documentation and final gates DONE; implementation commit
+  pushed to `main`; hosted CI verification pending repository access.
 
 ---
 
