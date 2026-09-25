@@ -37,8 +37,8 @@ try {
         throw 'DatabaseMigrator unexpectedly connected with the registration-check connection string.'
     }
 
-    if ($registrationText -notmatch 'REGISTERED_MODULE_CONTEXTS: 3') {
-        throw 'DatabaseMigrator did not discover the Audit, Identity, and Sites module contexts.'
+    if ($registrationText -notmatch 'REGISTERED_MODULE_CONTEXTS: 4') {
+        throw 'DatabaseMigrator did not discover the Audit, Identity, Organization, and Sites module contexts.'
     }
 
     if ($registrationText -notmatch 'DATABASE_MIGRATION_FAILED: .*AuditDbContext') {

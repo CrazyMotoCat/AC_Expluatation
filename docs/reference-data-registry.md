@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-18
+SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
 
 ## 1. Назначение
 
@@ -43,6 +43,7 @@ SOURCE_VERSION: 2026-09-18
 | SiteType | Sites | CONFIGURABLE_REFERENCE | retail office, admin building, warehouse, technical | yes |
 | SiteCriticality | Sites | CONFIGURABLE_REFERENCE/HYBRID | NORMAL, KVO3, KVO2, KVO1 | yes, with rank |
 | LocationType | Sites | CONFIGURABLE_REFERENCE | BUILDING, FLOOR, ROOM, RACK, AREA | yes |
+| OrganizationalUnitType | Organization | CONFIGURABLE_REFERENCE | DEPARTMENT, DIVISION, DIRECTION, SECTION, FRONT_OFFICE, BACK_OFFICE, MANAGEMENT | yes |
 | AssetType | Assets | CONFIGURABLE_REFERENCE | UPS, DGU, AC, panel, server, switch, fire detector | yes |
 | Manufacturer | Assets | CONFIGURABLE_REFERENCE | vendor names | yes |
 | AssetModel | Assets | CONFIGURABLE_REFERENCE | model catalog | yes |
@@ -97,6 +98,35 @@ Initial examples:
 - RETAIL
 
 Не hardcode в authorization/business logic.
+
+## 4.1. Organizational Unit Types
+
+Owner: Organization
+
+Type:
+
+```text
+CONFIGURABLE_REFERENCE
+```
+
+The reference uses UUIDv7 `id`, immutable canonical uppercase `code`, mutable
+`name` and `ACTIVE`/`INACTIVE` lifecycle. Inactive values remain available for
+history but cannot be selected for new OrganizationalUnits and are never
+hard-deleted. Initial controlled values are:
+
+```text
+DEPARTMENT
+DIVISION
+DIRECTION
+SECTION
+FRONT_OFFICE
+BACK_OFFICE
+MANAGEMENT
+```
+
+The Phase B1 migration seeds exactly these codes with stable UUIDv7 IDs.
+Until separate display labels are approved, each initial `name` equals its
+canonical registry code; future names remain mutable reference data.
 
 ## 5. Units of Measure
 

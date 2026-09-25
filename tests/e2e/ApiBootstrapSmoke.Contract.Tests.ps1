@@ -11,6 +11,19 @@ if ($parseErrors.Count -gt 0) {
 }
 
 $smokeScript = Get-Content -LiteralPath $smokeScriptPath -Raw
+$requiredPaths = @(
+    '/api/v1/organizational-units',
+    '/api/v1/organizational-units/{id}',
+    '/api/v1/organizational-units/{id}/activate',
+    '/api/v1/organizational-units/{id}/deactivate',
+    '/api/v1/organizational-units/{id}/reparent'
+)
+foreach ($path in $requiredPaths) {
+    if (-not $smokeScript.Contains($path, [StringComparison]::Ordinal)) {
+        throw "API bootstrap smoke is missing Organization route: $path"
+    }
+}
+
 $requiredFragments = @(
     '$apiAssembly =',
     'ArgumentList = @("`"$apiAssembly`""',

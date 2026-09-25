@@ -1,7 +1,7 @@
 # Permissions Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-18
+SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
 
 ## 1. Назначение
 
@@ -146,8 +146,23 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `qualifications.verify` | Qualifications | Верификация сертификата | org/team | INTERNAL | CRITICAL |
 | `reports.read` | Reports | Просмотр доступных отчётов | inherited | INTERNAL/CONTRACT* | NORMAL |
 | `reports.export` | Reports | Экспорт | inherited + export policy | INTERNAL/CONTRACT* | SENSITIVE |
+| `organization.read` | Organization | Просмотр организационных подразделений | company/organizational-unit (deferred) | INTERNAL | NORMAL |
+| `organization.create` | Organization | Создание организационного подразделения | company/organizational-unit (deferred) | INTERNAL | CRITICAL |
+| `organization.change` | Organization | Изменение, reparent и lifecycle подразделения | company/organizational-unit (deferred) | INTERNAL | SENSITIVE |
 
 `CONTRACT*` означает: разрешение возможно только при явном contract scope.
+
+## 5.1. Organization scope boundary for TASK-02.02.01
+
+The three accepted Organization permissions are active catalog entries in
+section 5 and are seeded by the additive Identity migration for C1.
+
+`access_assignments` does not yet carry Company/OrganizationalUnit dimensions.
+Production grant evaluation remains deny-by-default until the dedicated
+authorization-scope task. The Identity permission schema does not persist
+scope metadata; the deferred Company/OrganizationalUnit scope description above
+is documentation only and grants no access.
+UserType, role name, JWT claims, working context and entity ID are not grants.
 
 ## 6. Provisional permissions
 

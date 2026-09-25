@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-20
+SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase C1 Organization permission seed)
 
 ## Purpose
 
@@ -49,6 +49,16 @@ user_contexts
 `identity.users` и его migration history принадлежат `IdentityDbContext`. Canonical unique key — `(external_issuer, external_subject)`. Профиль хранит UUIDv7 ID, optional display name/email, `UserType`, `UserStatus`, timestamps и optimistic `row_version`.
 
 `identity.roles` хранит UUIDv7 ID, unique role code, name/description, system/active flags и optimistic `row_version`. `identity.permissions` хранит immutable canonical permission catalog с unique code и module owner. `identity.role_permissions` использует composite PK и restrictive foreign keys. Canonical permissions из `permissions-registry.md` seed-ятся module-owned migration; provisional codes не seed-ятся.
+
+`TASK-02.02.01` Phase C1 seeds the three frozen Organization permissions:
+`organization.read`, `organization.create` and `organization.change`. The
+previous 74 catalog entries retain their IDs and metadata. Scope dimensions
+remain deferred; the production grant source denies Organization routes.
+Registry and Identity seed must be changed together with exact equality of
+code, module, name and scope metadata. The implementation seed is deferred to
+the Organization implementation/authorization phase; current production grant
+evaluation remains deny-by-default and `access_assignments` has no new
+Company/OrganizationalUnit dimensions.
 
 `identity.user_contexts` добавлена в `TASK-01.03.02`: owned local context, type/entity reference, display name, `[valid_from, valid_to)`, active flag и optimistic `row_version`. PostgreSQL проверяет validity, конечный срок delegation и restrictive FK к user. `context_entity_id` пока не является доказательством membership/contract; административного API создания/отзыва нет.
 
@@ -137,7 +147,7 @@ POST /api/v1/admin/access-assignments
 
 `GET /api/v1/me/contexts` возвращает только собственные доступные contexts и optional `appliedContextId` из валидированного и аудированного request header. `POST /api/v1/me/context` принимает body `contextId`, проверяет owner/availability, пишет ровно один durable `WorkingContextSelected` до 200 и возвращает ID в body и `X-Work-Context-Id`; header в POST игнорируется. Клиент передаёт header в последующих `/api/v1` запросах; backend перепроверяет его и записывает `WorkingContextApplied` до endpoint, даже если предшествующего POST не было. Нет server-global selected flag/session и нет permission grant. Unknown/inactive local user, чужой/неизвестный/недоступный context и неверный header обычного запроса fail closed. Неуспешный audit write возвращает 503 без выполнения endpoint.
 
-Permission-protected route в production пока не добавлен; `TASK-01.02.02` проверяет policy на изолированном integration test endpoint. При добавлении реального scoped endpoint одного permission policy недостаточно: потребуются context, scope, validity и contractor restrictions по ADR-007.
+Permission-protected business routes добавлены для Sites и Organization, но production grant source продолжает deny-by-default. `TASK-01.02.02` также проверяет policy на изолированном integration test endpoint. Для открытия scoped grant одного permission policy недостаточно: потребуются context, scope, validity и contractor restrictions по ADR-007.
 
 `TASK-01.03.01` не добавляет admin route для выдачи/отзыва access assignment и не активирует grants. `identity.access.manage` остаётся canonical permission для будущего административного use case, а не основанием для bypass.
 

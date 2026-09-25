@@ -134,7 +134,12 @@ try {
         '/api/v1/territorial-zones',
         '/api/v1/territorial-zones/{id}',
         '/api/v1/territorial-zones/{id}/activate',
-        '/api/v1/territorial-zones/{id}/deactivate')) {
+        '/api/v1/territorial-zones/{id}/deactivate',
+        '/api/v1/organizational-units',
+        '/api/v1/organizational-units/{id}',
+        '/api/v1/organizational-units/{id}/activate',
+        '/api/v1/organizational-units/{id}/deactivate',
+        '/api/v1/organizational-units/{id}/reparent')) {
         if ($openApiPaths -notcontains $path) {
             throw "Development OpenAPI document does not include $path."
         }

@@ -27,6 +27,7 @@ Rejected
 | ADR-009 | SeaweedFS как local development S3 provider | Accepted |
 | ADR-010 | Module-owned migrations с central technical execution | Accepted |
 | ADR-011 | Durable audit obligation for module-owned business mutations | Accepted |
+| ADR-012 | Transaction-safe concurrency for organizational hierarchy | Accepted |
 
 ## Правило для Codex и разработчиков
 

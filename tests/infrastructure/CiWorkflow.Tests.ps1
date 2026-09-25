@@ -30,6 +30,8 @@ $requiredFragments = @(
     'Exploitation.SitesPersistenceChecks.csproj',
     'Exploitation.SitesApiChecks.csproj',
     'Exploitation.AuditDeliveryChecks.csproj',
+    'Exploitation.OrganizationPersistenceChecks.csproj',
+    'Exploitation.OrganizationApiChecks.csproj',
     'ApiBootstrapSmoke.Tests.ps1',
     'ApiBootstrapSmoke.Contract.Tests.ps1',
     'actions/setup-node@',
@@ -61,6 +63,11 @@ if ($migrationStep -lt 0 -or $apiStep -lt 0 -or $migrationStep -ge $apiStep) {
 
 if ($workflow -notmatch '(?ms)- name: Run API integration smoke tests\s*\r?\n\s*timeout-minutes: 5') {
     throw 'The API smoke test must have a bounded five-minute GitHub Actions step timeout.'
+}
+
+$migrationStepText = $workflow.Substring($migrationStep, $apiStep - $migrationStep)
+if ([regex]::Matches($migrationStepText, 'Exploitation\.DatabaseMigrator\.csproj').Count -lt 2) {
+    throw 'The module migration smoke must verify both clean apply and idempotent second execution.'
 }
 
 $forbiddenFragments = @(

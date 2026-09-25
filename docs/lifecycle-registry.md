@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-19
+SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
 
 ## 1. Назначение
 
@@ -65,6 +65,44 @@ INACTIVE → ACTIVE
 - Existing Sites and historical references remain valid and queryable when a Region is inactive.
 - New child creation under an inactive Region is forbidden; no cascade deactivation occurs.
 - Activate/deactivate and mutable updates use optimistic concurrency and preserve business history through the durable Audit obligation.
+
+---
+
+# 2.2. Organizational Unit
+
+## States
+
+```text
+ACTIVE
+INACTIVE
+```
+
+## Core transitions
+
+```text
+ACTIVE → INACTIVE
+INACTIVE → ACTIVE
+```
+
+## Rules
+
+- Creation starts in `ACTIVE`; hard delete is forbidden.
+- Inactive units remain queryable; existing descendants and historical
+  references remain valid, with no cascade deactivation.
+- An inactive unit cannot receive a new child or become a new reparent target.
+- Reparent requires an ACTIVE source and ACTIVE target parent; moving to root
+  is allowed, while self-parent, descendant-parent and cross-company moves are
+  forbidden.
+- Deactivation participates in ADR-012 structural serialization because it
+  changes hierarchy eligibility; activation does not require that lock.
+- Update, reparent and lifecycle commands use optimistic concurrency and
+  create one Organization-owned durable Audit obligation atomically.
+
+## 2.2.1. Organizational Unit Type
+
+`OrganizationalUnitType` is configurable reference data with `ACTIVE`/
+`INACTIVE` lifecycle. Inactive values remain queryable for history but cannot
+be used for new units; hard delete is forbidden.
 
 ---
 

@@ -104,6 +104,18 @@ jobs:
           set -o pipefail
           dotnet run --project tests/integration/Exploitation.AuditDeliveryChecks/Exploitation.AuditDeliveryChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/audit-delivery-checks.log
 
+      - name: Run Organization PostgreSQL persistence checks
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project tests/integration/Exploitation.OrganizationPersistenceChecks/Exploitation.OrganizationPersistenceChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/organization-persistence-checks.log
+
+      - name: Run Organization API integration checks
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project tests/integration/Exploitation.OrganizationApiChecks/Exploitation.OrganizationApiChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/organization-api-checks.log
+
       - name: Run infrastructure script checks
         shell: bash
         run: |
@@ -118,6 +130,7 @@ jobs:
         run: |
           set -o pipefail
           dotnet run --project src/backend/Exploitation.DatabaseMigrator/Exploitation.DatabaseMigrator.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/database-migration-smoke.log
+          dotnet run --project src/backend/Exploitation.DatabaseMigrator/Exploitation.DatabaseMigrator.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/database-migration-idempotency.log
 
       - name: Run API integration smoke tests
         timeout-minutes: 5

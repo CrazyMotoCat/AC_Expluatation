@@ -1,7 +1,7 @@
 # Traceability Matrix — АС «Эксплуатация»
 
 STATUS: WORKING / OPTIONAL PERSISTENT TRACE
-SOURCE_VERSION: 2026-09-19
+SOURCE_VERSION: 2026-09-26 (TASK-02.02.01 Phase C4 traceability)
 
 ## Назначение
 
@@ -93,3 +93,9 @@ Persistent строки добавлять только если появляе�
 | `TASK-02.01.01` | `AC-03 authorization and scope boundary` | `BR-IDN-001`, `BR-IDN-002`, `BR-IDN-003` | `sites.read`, `sites.create`, `sites.change` | N/A | N/A | endpoint policies plus production deny-by-default grant source and request-scoped working context | `Exploitation.SitesApiChecks`; `Exploitation.AuthenticationChecks` | `permissions-registry.md`, `modules/sites.md`, `context/sites.context.md`, `security.md`, `api-guidelines.md` | COVERED |
 | `TASK-02.01.01` | `AC-04 optimistic concurrency` | `BR-SIT-008` | `sites.change` | N/A | N/A | `expectedRowVersion` command precondition and standard 409 error contract | `Exploitation.SitesApiChecks`; `Exploitation.SitesPersistenceChecks` | `modules/sites.md`, `context/sites.context.md`, `api-guidelines.md`, `database.md` | COVERED |
 | `TASK-02.01.01` | `AC-05 audit changes durably` | `BR-SIT-008` | N/A — audit is not an authorization source | N/A | N/A — canonical Audit actions are not domain/integration events | atomic Sites mutation + `audit_obligations`, technical at-least-once dispatcher, stable EventId idempotency | `Exploitation.SitesApiChecks`; `Exploitation.AuditDeliveryChecks`; `Exploitation.AuditPersistenceChecks` | `adr/ADR-011-durable-audit-obligation-outbox.md`, `modules/sites.md`, `modules/audit.md`, `context/sites.context.md`, `context/audit.context.md` | COVERED |
+
+## Organization
+
+| Task | AC | BR | Permission | Lifecycle | Event | Implementation | Tests | Docs | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| `TASK-02.02.01` | arbitrary hierarchy, parent/child and cycle prevention | `BR-ORG-001`…`BR-ORG-009` | `organization.read`, `organization.create`, `organization.change`; scope deferred, deny-by-default | OrganizationalUnit `ACTIVE`/`INACTIVE`; no hard delete; type `ACTIVE`/`INACTIVE` | N/A — canonical Audit actions are not integration events | B1/B2 persistence, history, locked hierarchy commands and obligations; C1 Application handlers, seven HTTP routes and Identity seed; C2 dual-source AuditDelivery through module-owned ports | Organization persistence/API PostgreSQL checks, concurrency and atomicity; AuditDelivery crash/retry/fairness/Sites regression; Identity domain/persistence registry-seed equality; C3 API failure sanitization and architecture review | `adr/ADR-012-organizational-hierarchy-concurrency.md`, `database.md`, `modules/organization.md`, `context/organization.context.md`, `business-rules-registry.md`, `lifecycle-registry.md`, `permissions-registry.md`, `reference-data-registry.md`, `events-registry.md`, `backlog.md` | COVERED |

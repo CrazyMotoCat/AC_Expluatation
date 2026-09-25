@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-20
+SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase C1 Organization permission seed)
 MODULE: Identity
 
 ## PURPOSE
@@ -96,6 +96,7 @@ Working context:
 - Audit должен сохранять user + working context для критичных действий.
 - Role только группирует permissions и не выдаёт доступ без assignment/scope/context/validity.
 - Canonical permission code уникален, имеет lowercase формат `<module>.<action>` и совпадает с `permissions-registry.md`.
+- `TASK-02.02.01` Phase C1 seeds Organization permission codes `organization.read`, `organization.create` and `organization.change` with registry-matched module and names; Company/OrganizationalUnit scope evaluation and access-assignment dimensions remain deferred and production remains deny-by-default.
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
 - Production grant source всё ещё отказывает: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.

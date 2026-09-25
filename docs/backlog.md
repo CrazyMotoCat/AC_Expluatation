@@ -524,6 +524,69 @@ Acceptance Criteria:
 - тип подразделения;
 - cycle prevention.
 
+Phase A contract freeze (2026-09-25): Organization owns
+`OrganizationalUnit` and `OrganizationalUnitType`; geographic hierarchy
+remains Sites-owned and separate. Units belong to a mandatory Company, roots
+use nullable `parent_id`, multiple roots are allowed, and parent/child must
+share Company. Reparenting is allowed within Company only, preserves ID and
+history, requires ACTIVE source and ACTIVE target parent, permits moving to
+root, rejects self/descendant targets, and uses optimistic concurrency,
+server-derived audit and ADR-012 structural serialization. Cross-company
+parenting and Company transfer are forbidden. `ACTIVE`/`INACTIVE` is the unit
+lifecycle; creation starts ACTIVE, hard delete and descendant cascade are
+forbidden, inactive units remain queryable but cannot receive new children or
+become new parents. Deactivation participates in structural serialization.
+
+Unit types are Organization-owned configurable reference data with UUIDv7 ID,
+immutable canonical uppercase code, mutable name, ACTIVE/INACTIVE lifecycle,
+no hard delete and initial seeds `DEPARTMENT`, `DIVISION`, `DIRECTION`,
+`SECTION`, `FRONT_OFFICE`, `BACK_OFFICE`, `MANAGEMENT`.
+
+Code is required, canonical uppercase, immutable, max 50, matches
+`^[A-Z0-9][A-Z0-9_-]{0,49}$` and is unique by `(company_id, code)`. Name is
+trimmed, non-empty, max 200 and mutable.
+
+Frozen API surface: flat list with required `companyId`, get, create, PUT,
+activate, deactivate and dedicated reparent routes under
+`/api/v1/organizational-units`; no DELETE, generic PATCH or tree/children
+endpoint. `organization.read`, `organization.create` and
+`organization.change` are the canonical permissions; scope evaluation remains
+deny-by-default and is deferred to the authorization-scope task.
+
+Every master-data mutation creates one Organization-owned durable audit
+obligation for canonical entity `OrganizationalUnit` and server-derived
+Created/Updated/Reparented/Activated/Deactivated actions. Organization does
+not write Sites or Audit tables directly; delivery uses the canonical
+`IAuditWriter` and ADR-011 at-least-once/idempotent materialization.
+
+Phase B1 verified that `organization.companies` was absent and implemented
+the owner-approved minimal Company persistence prerequisite, Organization
+DbContext/migration history, and seven OrganizationalUnitType seed values.
+General Company CRUD remains out of scope. Phase B2 implements
+OrganizationalUnit domain/persistence, append-only business history,
+transaction-safe hierarchy commands and Organization-owned durable audit
+obligations. Phase C1 adds Application handlers, seven HTTP routes,
+`organization.*` permission gates and the synchronized Identity permission
+seed. Phase C2 adds Organization-owned delivery through the technical host
+and canonical Audit writer, with independent bounded Sites/Organization polls.
+
+Proposed implementation split after Phase A:
+
+- **Phase B1:** Organization module foundation, Company persistence gap
+  verification/minimal prerequisite, module-owned DbContext/schema migration,
+  and `organizational_unit_types` reference persistence/seed.
+- **Phase B2:** OrganizationalUnit domain/persistence, restrictive FKs and
+  uniqueness, lifecycle/reparent invariants, ADR-012 structural concurrency,
+  and Organization durable audit obligation persistence.
+- **Phase C1:** application use cases, transport DTOs/routes and canonical
+  `organization.*` permission policies.
+- **Phase C2:** generalized AuditDelivery adapters for Organization-owned
+  obligations through the existing `IAuditWriter`.
+- **Phase C3:** focused PostgreSQL, authorization, audit, concurrency and
+  architecture review.
+- **Phase C4:** final documentation/gates and task commit within the later
+  implementation phase.
+
 ---
 
 ### TASK-02.02.02. Functional directions

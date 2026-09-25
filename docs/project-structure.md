@@ -1681,7 +1681,7 @@ ICorrelationContext
 Exploitation.Workers
 ```
 
-До выделения standalone worker текущий `TASK-02.01.01` запускает Sites audit-obligation polling как hosted service API-процесса. Оркестрация изолирована в technical library `Exploitation.AuditDelivery`: она зависит от Sites Application delivery port и Audit Contracts, но не имеет доступа к `SitesDbContext` или `AuditDbContext`. PostgreSQL obligation остаётся source of truth, поэтому перезапуск или несколько API instances безопасны в модели at-least-once.
+До выделения standalone worker API-процесс запускает Sites и Organization audit-obligation polling как hosted service. Оркестрация изолирована в technical library `Exploitation.AuditDelivery`: она зависит от соответствующих Application delivery ports и Audit Contracts, но не имеет доступа к module DbContexts. У каждого источника отдельный ограниченный polling loop; PostgreSQL obligations остаются source of truth, поэтому перезапуск или несколько API instances безопасны в модели at-least-once.
 
 Hosted services:
 

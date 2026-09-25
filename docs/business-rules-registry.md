@@ -1,7 +1,7 @@
 # Business Rules Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
 
 ## 1. Назначение
 
@@ -93,6 +93,37 @@ Inactive Regions remain queryable and valid for existing references, but cannot 
 
 ### BR-SIT-013
 Region mutations require optimistic concurrency and create one matching durable Audit obligation atomically in the Sites transaction.
+
+---
+
+# 3.1. Organization
+
+### BR-ORG-001
+Every OrganizationalUnit belongs to one Company. Roots use `parent_id = null`; multiple roots per Company are allowed, and parent/child must share Company.
+
+### BR-ORG-002
+Cross-company parenting/reparenting and Company transfer are forbidden. Reparenting within a Company preserves the unit ID and history.
+
+### BR-ORG-003
+Reparenting requires an ACTIVE source and an ACTIVE parent; self-parent and descendant-as-parent are forbidden. Moving to root is allowed.
+
+### BR-ORG-004
+OrganizationalUnit lifecycle is `ACTIVE`/`INACTIVE`; creation starts ACTIVE, hard delete and descendant cascade are forbidden, and inactive units remain queryable but cannot receive new children or become new parents.
+
+### BR-ORG-005
+OrganizationalUnit code is trimmed, invariant-uppercase, immutable, matches `^[A-Z0-9][A-Z0-9_-]{0,49}$`, max 50 and unique within Company. Name is trimmed, non-empty, max 200 and mutable.
+
+### BR-ORG-006
+OrganizationalUnitType is Organization-owned configurable reference data with UUIDv7 ID, immutable canonical code, mutable name, `ACTIVE`/`INACTIVE` lifecycle, no hard delete, and inactive values forbidden for new units.
+
+### BR-ORG-007
+Structural mutations include create-with-parent, reparent/root move and OrganizationalUnit deactivation. They use the per-Company transaction-scoped advisory lock and recursive CTE validation from ADR-012; ordinary name/type update and activation do not require that lock.
+
+### BR-ORG-008
+Every OrganizationalUnit master-data mutation creates exactly one Organization-owned durable Audit obligation atomically with the business mutation. Audit materialization is at-least-once and idempotent by stable EventId.
+
+### BR-ORG-009
+OrganizationalUnit business history is append-only, survives reparent/lifecycle changes and is separate from technical Audit under ADR-008.
 
 ---
 

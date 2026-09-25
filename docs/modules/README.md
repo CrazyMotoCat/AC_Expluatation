@@ -1,7 +1,7 @@
 # Module Documentation
 
 STATUS: INDEX
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-26 (TASK-02.02.01 Phase C4 traceability)
 
 Эта директория содержит подробные паспорта доменных модулей.
 
@@ -17,6 +17,7 @@ SOURCE_VERSION: 2026-09-16
 - `inventory.md`
 - `contractors.md`
 - `documents.md`
+- `organization.md` (OrganizationalUnit vertical slice implemented; C3 review passed)
 
 ## Пока только context capsule
 

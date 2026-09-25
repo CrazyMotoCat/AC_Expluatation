@@ -321,6 +321,11 @@ incidents.manage
 
 Canonical permission codes определены в `permissions-registry.md`. Migration Identity seed-ит только canonical section этого реестра; provisional permissions не seed-ятся. Повторное применение migrations не создаёт дубликаты.
 
+`TASK-02.02.01` Phase C1 adds exactly three Organization permission seed rows
+(`organization.read`, `organization.create`, `organization.change`) through an
+additive Identity migration. The previous 74 IDs and rows remain unchanged;
+Company/branch scope is not persisted in `identity.permissions` yet.
+
 ---
 
 ## 5.4. identity.role_permissions
@@ -410,11 +415,27 @@ row_version         bigint optimistic concurrency
 ## 6.1. organization.companies
 
 ```text
-id
-code
-name
-status
+id                  uuid PK, UUIDv7, immutable
+code                varchar(50), canonical uppercase, immutable, unique
+name                varchar(200), trimmed, non-empty, mutable
+status              varchar(20): ACTIVE/INACTIVE
 ```
+
+Owner decision for `TASK-02.02.01` Phase B1: Company is an Organization-owned
+persistence prerequisite, not a Company administration feature. All four
+columns are required. `code` is normalized by trim plus invariant uppercase,
+matches `^[A-Z0-9][A-Z0-9_-]{0,49}$`, and is globally unique in this table.
+The database independently enforces UUIDv7, canonical code, trimmed name,
+status values and immutable ID/code. Initial business status is `ACTIVE`.
+Hard delete is forbidden. An `INACTIVE` Company remains readable and retains
+existing OrganizationalUnits; it cannot be selected for a new unit. No
+Company CRUD, API, permissions, audit, lifecycle commands or UI are part of
+this task. No speculative row version or timestamps are added.
+
+Phase A contract freeze for `TASK-02.02.01` confirms that every
+`organizational_units.company_id` references an existing Company and that
+Company transfer is out of scope. The foreign key is restrictive and
+must not cascade delete or deactivate units.
 
 ---
 
@@ -438,13 +459,16 @@ Organization schema does not own Region persistence.
 Универсальное дерево оргструктуры.
 
 ```text
-id
-company_id
-parent_id           nullable
-unit_type
-code
-name
-status
+id                  uuid PK, UUIDv7
+company_id          uuid FK organization.companies(id), NOT NULL
+parent_id           uuid nullable, restrictive self FK
+unit_type_id        uuid FK organization.organizational_unit_types(id), NOT NULL
+code                varchar(50), canonical uppercase, immutable
+name                varchar(200), NOT NULL, mutable
+status              varchar(20): ACTIVE/INACTIVE
+created_at          timestamptz
+updated_at          timestamptz
+row_version         bigint, positive optimistic concurrency
 ```
 
 Примеры `unit_type`:
@@ -458,6 +482,103 @@ FRONT_OFFICE
 BACK_OFFICE
 MANAGEMENT
 ```
+
+The unique key is `(company_id, code)`. Restrictive FKs protect Company,
+parent and unit type references. Same-Company parenting and arbitrary-depth
+cycle safety are validated by the locked command path, not an ordinary row
+constraint. A Company may have
+multiple roots. UUIDv7 ID, canonical code syntax, trimmed non-empty name,
+status values, positive row version, and immutable `company_id`/`code` need
+database guards. No physical delete or cascade lifecycle is allowed. Inactive
+units remain queryable and retain existing descendants, but cannot receive
+new children or be selected as a new parent.
+
+Structural mutations (including root creation, reparent/root move and unit
+deactivation) acquire the per-Company transaction-scoped advisory lock and
+re-read current state before recursive CTE cycle/eligibility validation; see
+ADR-012. Creation requires an ACTIVE Company; the Company row is held with
+`FOR SHARE` through commit so concurrent status changes serialize with the
+mutation. The target type is held with `FOR SHARE` on create or type change.
+Company lifecycle eligibility for mutations to existing units is not expanded
+beyond the frozen contract. A simple CHECK cannot enforce arbitrary-depth
+cycle prevention.
+
+## 6.4.1. organization.organizational_unit_types
+
+Organization-owned configurable reference data.
+
+```text
+id                  uuid PK, UUIDv7
+code                varchar(50), canonical uppercase, immutable
+name                varchar(200), NOT NULL, mutable
+status              varchar(20): ACTIVE/INACTIVE
+created_at          timestamptz
+updated_at          timestamptz
+```
+
+Inactive types remain queryable for historical references but cannot be used
+for new units. Hard delete is forbidden. Initial controlled values are
+`DEPARTMENT`, `DIVISION`, `DIRECTION`, `SECTION`, `FRONT_OFFICE`,
+`BACK_OFFICE`, and `MANAGEMENT`.
+Phase B1 stores these values through the initial Organization migration, with
+stable UUIDv7 IDs and `name` equal to the registry code. Type code uses the
+established 50-character uppercase ASCII pattern
+`^[A-Z0-9][A-Z0-9_-]{0,49}$`; ID/code updates and hard deletes are blocked
+by Organization-owned database triggers. Company and type tables are the only
+B1 tables. Organization owns `organization.__ef_migrations_history`.
+
+## 6.4.2. organization.audit_obligations
+
+Organization-owned durable obligations required by ADR-011. The B2 table stores
+the stable UUIDv7 `audit_event_id`, actor/context/correlation metadata,
+canonical action/entity, allowlisted before/after JSON snapshots and
+delivery state. It is committed atomically with the OrganizationalUnit
+mutation. Its PENDING/PROCESSED and claim/lease/retry columns are reserved for
+the C2 delivery adapter. Organization delivers through its Application port
+to the technical host and canonical `IAuditWriter`; it never writes
+`audit.events` or `sites.audit_obligations` directly.
+
+```text
+id                    uuid PK, UUIDv7
+audit_event_id        uuid unique, UUIDv7, stable retry identity
+action                varchar(200)
+entity_type           varchar(200), OrganizationalUnit only
+entity_id             uuid
+organizational_unit_id uuid FK organization.organizational_units(id)
+actor_user_id         uuid
+acting_context_id     uuid nullable
+occurred_at           timestamptz
+correlation_id        varchar(128)
+before_json           jsonb nullable
+after_json            jsonb NOT NULL
+reason                varchar(1000) nullable
+delivery_status       varchar(20): PENDING/PROCESSED
+attempt_count         integer
+claim_token           uuid nullable
+lease_until           timestamptz nullable
+next_attempt_at       timestamptz NOT NULL
+last_error            varchar(2000) nullable
+created_at            timestamptz
+processed_at          timestamptz nullable
+```
+
+The database enforces the Organization entity/action allowlist, exact semantic
+snapshot keys, stable EventId uniqueness, delivery-state coherence and a
+restrictive unit foreign key. The command store fixes action/entity/IDs and
+snapshot shape; callers supply only actor/context/correlation/time/reason.
+The Organization adapter claims bounded rows with `FOR UPDATE SKIP LOCKED` in
+a short transaction, commits claim tokens and leases before Audit append,
+and conditionally completes or records sanitized retry/backoff metadata using
+the current claim token. No C2 schema migration was needed.
+
+## 6.4.3. organization.organizational_unit_history
+
+Append-only business timeline, separate from technical Audit under ADR-008.
+Each successful unit mutation records action, before/after business snapshots,
+actor/context/correlation/time/reason and a restrictive unit FK in the same
+transaction as the unit and audit obligation. Updates and deletes are blocked
+by an Organization-owned trigger. It remains queryable after deactivation;
+there is no public history endpoint in B2.
 
 ---
 
@@ -3947,6 +4068,11 @@ identity.access_assignments
 
 sites.territorial_zones
 sites.regions
+organization.companies
+organization.organizational_unit_types
+organization.organizational_units
+organization.organizational_unit_history
+organization.audit_obligations
 organization.functional_directions
 organization.teams
 organization.team_members
