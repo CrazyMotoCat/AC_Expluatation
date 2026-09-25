@@ -643,9 +643,9 @@ Acceptance Criteria:
 
 ### TASK-02.03.01. Site types
 
-Implementation: Sites-owned persistence, deterministic four-type seed and
-`sites.read` reference read API implemented locally; final gates and hosted CI
-pending. Management API is deferred to a separate future task.
+Implementation: DONE — Sites-owned persistence, deterministic four-type seed
+and `sites.read` reference read API. Build pipeline #17 passed for `be970e9`.
+Management API is deferred to a separate future task.
 
 Acceptance Criteria:
 

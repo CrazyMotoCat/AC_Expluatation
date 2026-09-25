@@ -2,6 +2,8 @@
 
 TASK: TASK-02.03.01
 TITLE: Site types
+TASK_STATUS: DONE
+STATUS: DONE
 BASELINE_SHA: 6db2fa8991fca2a266e33a3ad2b6cfa715cca797
 PHASE_A: DONE
 PREFLIGHT_RESULT: PASS; OD-01/02/03 resolved
@@ -14,8 +16,8 @@ OPEN_CRITICAL: 0
 OPEN_HIGH: 0
 OPEN_MEDIUM: 0
 FILES_CHANGED: .agent/tasks/TASK-02.03.01/state.md; Sites Domain/Application/Infrastructure SiteType files; Sites migration and snapshot; API SiteType endpoint/registration; Sites persistence/API and migrator checks; task-owned documentation
-LAST_SAFE_COMMIT: 6db2fa8991fca2a266e33a3ad2b6cfa715cca797
-NEXT_ACTION: Explicitly stage task-owned paths, inspect staged diff, then create the task commit and push.
+LAST_SAFE_COMMIT: be970e9e8548330e924866b1a96570635a35203e
+NEXT_ACTION: Stop. TASK-02.03.02 requires a separate explicit instruction.
 
 REPOSITORY_STATE_GUARD: SAFE / CLEAN_BASELINE before this checkpoint; main, HEAD and origin/main matched, with no staged, unstaged or untracked files.
 PREVIOUS_TASK: TASK-02.02.01 DONE in its checkpoint; hosted CI PASS recorded for d19c9d84ee3537864c8871a192e3055fc4f1d689, followed only by 6db2fa8 state sync [skip ci].
@@ -36,14 +38,18 @@ RESUME_RECONCILIATION: Owner moved the FE worktree outside the main repository t
 RESUME_SAFE: YES
 STATE_DRIFT: RESOLVED
 RESUME_MINIMUM_CHECK: PASS at Phase A resume — checkpoint matched the only untracked file and git diff --check had no findings.
-CURRENT_PHASE: FINAL_LOCAL_GATES_COMPLETE
-CHECKPOINT_STATUS: SAFE_WITH_CHECKPOINT
-GIT_STATE: DIRTY_EXPECTED; all changed paths are TASK-02.03.01-owned and uncommitted, with no unrelated worktree files
+CURRENT_PHASE: FINALIZED
+CHECKPOINT_STATUS: SAFE
+GIT_STATE: CLEAN_BASELINE after this metadata-only status sync commit and push; verify against Git before reporting final status
 MIGRATION: 20260925171129_AddSiteTypes; additive Sites-owned table, four stable seed rows, constraints and delete/identity guard
 API: GET /api/v1/reference/site-types; sites.read; no SiteType mutation route
 AUDIT: N/A for seed/read-only task scope; no SiteType mutation API
 VERIFIED: Release solution build/test PASS; SitesPersistenceChecks PASS; SitesApiChecks PASS; OrganizationPersistenceChecks with DatabaseMigrator first/second run PASS; ArchitectureChecks PASS; EF pending-model-changes NONE; frontend lint/build/test PASS; git diff --check PASS.
-UNCOMMITTED: Task-owned migration/domain/application/API/tests/docs/checkpoint listed by current git status; no task commit yet.
-PENDING: Explicit staging, task commit/push, hosted CI verification and clean baseline check.
+IMPLEMENTATION_COMMIT: be970e9e8548330e924866b1a96570635a35203e; pushed to origin/main before this metadata sync.
+HOSTED_CI: PASS — Build pipeline #17 on be970e9, run https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36166543330; Backend build and tests, Frontend build and tests, Verify required checks all successful.
+STATUS_SYNC: This file, backlog status and traceability status form a metadata-only [skip ci] commit after Build #17; no production code, tests or migrations changed.
+UNCOMMITTED: NONE after status sync commit.
+PENDING: NONE after status sync commit; verify remote SHA and clean worktree.
 FOCUSED_REVIEW: PASS — no criticality coupling, Site CRUD, cross-module persistence, generic reference engine, speculative permission, SiteType mutation API or audit writer. PostgreSQL guards enforce UUIDv7, canonical unique code, status, immutable identity and no hard delete. No open CRITICAL/HIGH/MEDIUM findings.
 DOCS_IMPACT: YES; DOCUMENTATION_SYNC: PASS; TRACEABILITY_CHECK: PASS for all three backlog acceptance criteria.
+DO_NOT_REPEAT_FINAL: Do not rerun Build #17 gates or restart SiteType implementation; metadata sync changes no production code, tests or migrations.
