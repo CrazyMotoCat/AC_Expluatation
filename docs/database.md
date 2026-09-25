@@ -425,16 +425,11 @@ Territorial Zone is owned by the Sites module. Its canonical table is
 
 ---
 
-## 6.3. organization.regions
+## 6.3. Region ownership
 
-```text
-id
-territorial_zone_id
-code
-name
-timezone
-status
-```
+Region is owned by the Sites module as the middle level of the physical
+geographic hierarchy. Its canonical table is `sites.regions`; the
+Organization schema does not own Region persistence.
 
 ---
 
@@ -588,7 +583,41 @@ created_at          timestamptz
 processed_at        timestamptz nullable
 ```
 
-`entity_type = TerritorialZone` and `entity_id = territorial_zone_id` are enforced for this current Sites obligation. Payload columns are immutable after insert; delivery metadata follows `PENDING` → `PROCESSED`, with `processed_at` coherence. The Sites-owned delivery adapter claims bounded ordered batches under `FOR UPDATE SKIP LOCKED`, persists `claim_token` and bounded `lease_until`, commits that short claim transaction, and releases row locks before canonical Audit append or retry delay. Completion/failure updates require the current claim token. Lease expiry makes a crashed claim eligible again. Failed delivery increments `attempt_count`, stores a bounded diagnostic, clears the claim and persists `next_attempt_at` using bounded exponential backoff, so poison obligations cannot monopolize newer work. Audit append success or identical same-ID content permits `PROCESSED`; failure or conflicting content stays `PENDING`. This is at-least-once delivery: a crash after Audit commit but before the Sites commit is recovered by the same stable EventId. `last_error` stores diagnostic codes only, not raw exception text, tokens or connection strings. `audit.events` visibility is not required before command SUCCESS.
+Entity binding is an allowlisted alternative: TerritorialZone uses `territorial_zone_id` and Region uses `region_id`; the matching database check is enforced for every obligation. Payload columns are immutable after insert; delivery metadata follows `PENDING` → `PROCESSED`, with `processed_at` coherence. The Sites-owned delivery adapter claims bounded ordered batches under `FOR UPDATE SKIP LOCKED`, persists `claim_token` and bounded `lease_until`, commits that short claim transaction, and releases row locks before canonical Audit append or retry delay. Completion/failure updates require the current claim token. Lease expiry makes a crashed claim eligible again. Failed delivery increments `attempt_count`, stores a bounded diagnostic, clears the claim and persists `next_attempt_at` using bounded exponential backoff, so poison obligations cannot monopolize newer work. Audit append success or identical same-ID content permits `PROCESSED`; failure or conflicting content stays `PENDING`. This is at-least-once delivery: a crash after Audit commit but before the Sites commit is recovered by the same stable EventId. `last_error` stores diagnostic codes only, not raw exception text, tokens or connection strings. `audit.events` visibility is not required before command SUCCESS.
+
+## 7.0.2. sites.regions
+
+Region is the Sites-owned middle level of the physical geographic hierarchy:
+`sites.territorial_zones` → `sites.regions` → `sites.sites`.
+
+```text
+id                   uuid PK, UUIDv7
+territorial_zone_id  uuid FK sites.territorial_zones(id), NOT NULL
+code                 varchar(50), canonical uppercase, immutable
+name                 varchar(200), NOT NULL
+timezone             varchar(100), canonical IANA identifier
+status               varchar(20), ACTIVE or INACTIVE
+created_at           timestamptz
+updated_at           timestamptz
+row_version          bigint
+```
+
+The unique key is `(territorial_zone_id, code)`. The parent FK is
+restrictive/no-cascade. Database checks and application/domain validation
+enforce UUIDv7, code syntax, bounded name/timezone, valid status and
+positive row version. The additive Region migration must not rewrite the
+committed Territorial Zone migration.
+
+The existing `sites.audit_obligations` table is generalized additively for
+Region support. Its stable `audit_event_id`, delivery state, claim/lease,
+payload immutability and at-least-once delivery remain unchanged. The
+entity binding becomes an allowlisted alternative: TerritorialZone binds
+to `territorial_zone_id`, Region binds to a new nullable `region_id`; a
+database check requires exactly the matching binding for `entity_type`.
+The migration adds the Region FK and constraints without a second outbox.
+Region identity (`code`, `territorial_zone_id`) is guarded by a PostgreSQL
+trigger, creation checks the active parent, and the existing append-only
+obligation trigger also treats `region_id` as immutable semantic payload.
 
 ## 7.1. sites.site_types
 
@@ -3917,7 +3946,7 @@ identity.role_permissions
 identity.access_assignments
 
 sites.territorial_zones
-organization.regions
+sites.regions
 organization.functional_directions
 organization.teams
 organization.team_members

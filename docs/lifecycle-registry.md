@@ -42,6 +42,30 @@ INACTIVE → ACTIVE
 - `code` is immutable after creation; `name` is mutable.
 - Activate/deactivate commands use optimistic concurrency and preserve business history through the durable Audit obligation.
 
+## 2.1. Region
+
+## States
+
+```text
+ACTIVE
+INACTIVE
+```
+
+## Core transitions
+
+```text
+ACTIVE → INACTIVE
+INACTIVE → ACTIVE
+```
+
+## Rules
+
+- Creation starts in `ACTIVE`.
+- Deactivation is removal semantics; hard delete is forbidden.
+- Existing Sites and historical references remain valid and queryable when a Region is inactive.
+- New child creation under an inactive Region is forbidden; no cascade deactivation occurs.
+- Activate/deactivate and mutable updates use optimistic concurrency and preserve business history through the durable Audit obligation.
+
 ---
 
 # 3. Asset

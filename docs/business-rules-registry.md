@@ -79,6 +79,21 @@ Territorial Zone name is trimmed, non-empty and mutable; lifecycle removal is de
 ### BR-SIT-008
 Territorial Zone mutations require optimistic concurrency and preserve a durable Audit obligation in the same Sites transaction.
 
+### BR-SIT-009
+Region belongs to exactly one Territorial Zone. A Region can be created only under an ACTIVE parent; parent reassignment and hard delete are forbidden.
+
+### BR-SIT-010
+Region code is trimmed, invariant-uppercase, immutable, matches `^[A-Z0-9][A-Z0-9_-]{0,49}$`, and is unique within its parent Territorial Zone. Region name is trimmed, non-empty, maximum 200 and mutable.
+
+### BR-SIT-011
+Region stores a canonical IANA timezone identifier string, validated by a deterministic approved local provider/list; UTC offsets are not authoritative.
+
+### BR-SIT-012
+Inactive Regions remain queryable and valid for existing references, but cannot be selected for creation of new child objects; reactivation restores eligibility.
+
+### BR-SIT-013
+Region mutations require optimistic concurrency and create one matching durable Audit obligation atomically in the Sites transaction.
+
 ---
 
 # 4. Assets

@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-23 (TASK-02.01.01 Phase C3R)
+SOURCE_VERSION: 2026-09-25 (TASK-02.01.02 Phase C1)
 
 ## Purpose
 
@@ -15,6 +15,7 @@ Sites моделирует физические объекты эксплуат�
 - Location
 - LocationType
 - TerritorialZone
+- Region
 - future operating/service windows
 
 ## Database
@@ -31,6 +32,7 @@ Core tables:
 site_types
 site_criticality_classes
 territorial_zones
+regions
 audit_obligations
 sites
 location_types
@@ -61,6 +63,13 @@ Sites persists a durable audit obligation in the same transaction as a zone muta
 `X-Work-Context-Id` remains request-scoped: the existing middleware validates and audits it before the endpoint, and Sites records the validated context only as `acting_context_id` obligation metadata. Context, UserType, role name and token claims do not grant any `sites.*` permission. Production authorization remains deny-by-default.
 
 The technical dispatcher claims bounded batches in a short Sites-owned PostgreSQL transaction using `FOR UPDATE SKIP LOCKED`, persists `claim_token` and bounded `lease_until`, commits, and releases row locks before calling Audit or waiting for retry backoff. A successful or identical idempotent Audit append is followed by token-checked `PROCESSED`/`processed_at`; failures remain `PENDING`, increment failed-attempt count, clear the claim, and persist bounded `next_attempt_at` scheduling with a sanitized diagnostic. Lease expiry recovers crashed workers, stale tokens cannot overwrite a later owner's state, and poison obligations cannot monopolize newer work. This provides restart-safe at-least-once delivery without RabbitMQ, a global DbContext or cross-module SQL.
+
+Region is Sites-owned and belongs to exactly one Territorial Zone. Its canonical table is `sites.regions`; `territorial_zone_id` is immutable and uses a restrictive foreign key. Region lifecycle is `ACTIVE`/`INACTIVE`, starts `ACTIVE`, forbids hard delete, and leaves existing children and historical references valid when inactive. New Regions require an `ACTIVE` parent; new Sites/objects under an inactive Region are forbidden, while existing references remain queryable. Region code is trimmed and invariant-uppercase, matches `^[A-Z0-9][A-Z0-9_-]{0,49}$`, is immutable, and is unique within its parent zone. Name is trimmed, non-empty, maximum 200 and mutable. Timezone is a canonical IANA identifier string (maximum 100), validated deterministically against the approved local timezone provider/list; UTC offsets are not authoritative.
+
+Region API routes are `GET /api/v1/regions`, `GET /api/v1/regions/{id}`, `POST /api/v1/regions`, `PUT /api/v1/regions/{id}`, and explicit `activate`/`deactivate` commands. List supports an optional `territorialZoneId` filter. PUT changes only `name` and `timezone` and requires `expectedRowVersion`; parent, code and status are immutable through PUT. Reads use `sites.read`, creation uses `sites.create`, and update/lifecycle commands use `sites.change`; scope evaluation remains deny-by-default and is deferred to the authorization scope evaluation task where not yet implemented.
+The C1 HTTP response is a transport DTO containing only `id`, `territorialZoneId`, `code`, `name`, `timezone`, `status`, `createdAt`, `updatedAt`, and `rowVersion`; no DELETE route is exposed. Stale update and lifecycle writes return `OPTIMISTIC_CONCURRENCY_CONFLICT`.
+
+Region mutations create exactly one Sites-owned durable audit obligation atomically with the business change. The canonical Audit entity is `Region`; actions are `RegionCreated`, `RegionUpdated`, `RegionActivated`, and `RegionDeactivated`. The existing obligation/delivery mechanism is generalized additively with entity/action/payload allowlists and a Region binding; no second outbox or direct write to `audit.events` is introduced.
 
 ## Permissions
 

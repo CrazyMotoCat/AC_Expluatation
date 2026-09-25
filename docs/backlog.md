@@ -500,6 +500,17 @@ Acceptance Criteria:
 - timezone хранится;
 - inactive region нельзя использовать для новых объектов.
 
+Phase A contract freeze: Region is owned by Sites and is persisted in
+`sites.regions` under an immutable Territorial Zone parent. Lifecycle is
+`ACTIVE`/`INACTIVE`; hard delete and parent reassignment are forbidden.
+Code is canonical uppercase, immutable and unique within the parent zone;
+name is trimmed, non-empty, maximum 200 and mutable; timezone is a
+canonical IANA identifier string. API uses `sites.read`, `sites.create`
+and `sites.change` with optimistic `expectedRowVersion` writes. Region
+mutations create one matching durable Sites audit obligation atomically;
+canonical Audit entity/actions are `Region` and
+`RegionCreated`/`RegionUpdated`/`RegionActivated`/`RegionDeactivated`.
+
 ---
 
 ## FEATURE-02.02. Organizational model

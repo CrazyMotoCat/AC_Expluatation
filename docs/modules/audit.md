@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-09-23 (TASK-02.01.01 Phase C3R)
+SOURCE_VERSION: 2026-09-25 (TASK-02.01.02 Phase C1)
 
 ## Purpose
 
@@ -14,6 +14,8 @@ Audit владеет `audit.events`, `AuditDbContext`, собственной mi
 `audit.events` содержит event ID UUIDv7, timestamp, actor user ID, acting context ID, correlation ID, action, entity type/ID и optional before/after JSON, reason, IP/user agent. Persistent action/entity identifiers принадлежат Audit, case-sensitive и не выводятся из CLR names; каталог включает `WorkingContextSelected`, `WorkingContextApplied`, `UserContext` и `TerritorialZone` actions/entity. `IAuditWriter.AppendAsync` принимает обязательный caller-supplied UUIDv7 EventId, проверяет actor, correlation, каталог и structured JSON payload до INSERT; before/after ограничены 64 KiB UTF-8 без silent truncation. Повторная доставка с тем же EventId и тем же immutable content завершается no-op, конфликт content отклоняется. JWT, tokens, passwords и secrets не записываются. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE; EF context также отвергает tracked update/delete. Migration `Down` запрещает автоматическое удаление истории без отдельного retention/archival плана. Durable business mutations follow ADR-011: the owning module commits a durable audit obligation in its own transaction, then Audit materialization is at-least-once and idempotent by stable event ID. UUIDv7 guard добавлен отдельной additive migration.
 
 ## Current writer contract
+
+Region is a canonical Audit entity. Its actions are `RegionCreated`, `RegionUpdated`, `RegionActivated`, and `RegionDeactivated`; Region before/after payloads use an explicit allowlist. Region obligations use the same Sites-owned durable obligation and `Exploitation.AuditDelivery` path as Territorial Zone. Phase B must generalize the existing entity binding additively to support Region while preserving stable EventId idempotency and at-least-once delivery; no second outbox or direct Sites write to `audit.events` is allowed.
 
 `IAuditWriter.AppendAsync(AuditEventDraft, CancellationToken)` — единый Audit-owned durable append contract. Draft требует UUIDv7 EventId, local user ID, correlation ID, canonical action/entity и entity ID для текущих entity-bound actions; acting context остаётся optional по существующей semantics. Повторный append с тем же EventId и идентичным immutable content безопасен, а другой content для существующего EventId является integrity conflict. Before/after optional, но для `UserContext` и `TerritorialZone` должны быть object JSON только с canonical allowlisted fields, соответствующим snapshot semantics, и не превышать 64 KiB UTF-8.
 
