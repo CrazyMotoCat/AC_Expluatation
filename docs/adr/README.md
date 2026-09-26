@@ -28,6 +28,7 @@ Rejected
 | ADR-010 | Module-owned migrations с central technical execution | Accepted |
 | ADR-011 | Durable audit obligation for module-owned business mutations | Accepted |
 | ADR-012 | Transaction-safe concurrency for organizational hierarchy | Accepted |
+| ADR-013 | Target-aware production authorization for geographic data | Accepted |
 
 ## Правило для Codex и разработчиков
 

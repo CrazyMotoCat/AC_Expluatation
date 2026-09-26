@@ -532,6 +532,8 @@ Backend обязан проверить принадлежность конте�
 
 С `TASK-01.03.02` context request-scoped: `X-Work-Context-Id` означает применение context только к текущему `/api/v1` request. Backend проверяет ACTIVE local user, ownership и availability, затем записывает durable `WorkingContextApplied` до передачи управления endpoint. Предшествующий POST не требуется. На `POST /api/v1/me/context` заголовок игнорируется: body определяет выбор и создаёт ровно один `WorkingContextSelected`. Ни выбор, ни применение не выдаёт permission и не заменяет future contractor/scope authorization.
 
+ADR-013 фиксирует для будущих фаз `AUTH-SCOPE-01` отдельный `POST /api/v1/capabilities/evaluate` с target-specific DTO и scope-aware Sites geography authorization. Phase A не добавляет route: пока production permission source отказывает. Capabilities не заменяют проверку на business endpoint.
+
 ---
 
 # 28. Context audit

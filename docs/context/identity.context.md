@@ -100,6 +100,7 @@ Working context:
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
 - Production grant source всё ещё отказывает: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
+- `AUTH-SCOPE-01` Phase A / ADR-013 утверждает будущий первый evaluator только для INTERNAL пользователя в INTERNAL context и Sites geography targets; до implementation phases он не подключён. Contractor и Organization grants остаются закрыты.
 
 ## PERMISSIONS
 

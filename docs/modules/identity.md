@@ -94,6 +94,8 @@ Contractor request дополнительно проходит Contractors valid
 
 `access_assignments` хранятся и проверяются на matching scope/validity как кандидаты. Self-service context ownership/availability реализованы, но не подключены к operational grant evaluation: authoritative target ancestry и contractor chain остаются будущими dependencies. Поэтому production grant source продолжает всегда отказывать; assignment, role-permission mapping и выбранный context сами по себе не открывают permission-protected endpoint.
 
+`AUTH-SCOPE-01` Phase A / ADR-013 фиксирует будущий первый production evaluator для INTERNAL пользователя в INTERNAL context и Sites geography targets. Это контракт для последующих фаз, а не реализованный grant. Contractor и Organization grants остаются закрыты.
+
 `GET /api/v1/me/contexts` и `POST /api/v1/me/context` — узкий own-context bootstrap alongside `GET /api/v1/me`: authenticated + ACTIVE local profile + strict owner/availability. `identity.contexts.read` не требуется в этих self-service маршрутах из-за bootstrap circular dependency; canonical permission сохранён для будущего permission-controlled доступа к contexts. Исключение не применяется к admin/other Identity endpoints.
 
 `AccessAssignment.IsApplicableTo` — только Identity Domain eligibility по exact user/context, пяти scope dimensions и validity; это не межмодульный authorization contract и не grant source.

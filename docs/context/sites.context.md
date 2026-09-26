@@ -138,6 +138,8 @@ Territorial Zone API maps permissions exactly: list/get → `sites.read`, create
 
 Region API uses the same permission keys: list/get → `sites.read`, create → `sites.create`, PUT/activate/deactivate → `sites.change`. Region and parent scope checks must not be inferred from an entity ID, role, UserType, JWT claim or working context. Full assignment/contract scope evaluation remains deferred to the authorization scope evaluation task.
 
+`AUTH-SCOPE-01` Phase A / ADR-013 freezes scope-filtered Zone/Region lists, parent-aware Region creation, and target-specific capabilities for a later implementation. Runtime behavior remains deny-by-default; root Zone creation remains closed in the planned internal evaluator.
+
 ## PUBLIC CONTRACTS
 
 Предпочтительные contracts:

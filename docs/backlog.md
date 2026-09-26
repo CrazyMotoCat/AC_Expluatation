@@ -442,6 +442,17 @@ Owner decision для этой Task ID: чтение и выбор только 
 
 ---
 
+### AUTH-SCOPE-01. Production authorization evaluation + capabilities
+
+Cross-cutting Identity/Sites/API security task discovered by frontend
+integration preflight. Phase A owner decisions OD-01…OD-06 are frozen in
+`docs/adr/ADR-013-target-aware-production-authorization.md` and
+`.agent/tasks/AUTH-SCOPE-01/phase-a-contract.md`. Phase A changes no runtime
+authorization. Implementation phases B1/B2/C1…C4 require an explicit
+follow-up request; the current production grant source remains deny-by-default.
+
+---
+
 ## FEATURE-01.04. Audit foundation
 
 ### TASK-01.04.01. Создать audit.events
