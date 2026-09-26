@@ -28,6 +28,7 @@ export class SessionService implements ApiAuth {
     private userId: string | null = null;
     private expiryUnsubscribe: (() => void) | null = null;
     private generation = 0;
+    private selectionVersion = 0;
 
     public constructor(
         private readonly gateway: OidcGateway | null,
@@ -114,6 +115,7 @@ export class SessionService implements ApiAuth {
 
     public async onUnauthorized() {
         ++this.generation;
+        ++this.selectionVersion;
         if (this.userId) this.storage.removeItem(this.contextStorageKey(this.userId));
         this.contextId = null;
         this.userId = null;
@@ -140,6 +142,7 @@ export class SessionService implements ApiAuth {
     public async selectContext(contextId: string | null) {
         if (this.state.status !== "authenticated" || !this.userId) return;
         const generation = this.generation;
+        const selectionVersion = ++this.selectionVersion;
         const userId = this.userId;
         if (contextId !== null) {
             if (!this.state.contexts.some((context) => context.id === contextId)) {
@@ -148,8 +151,9 @@ export class SessionService implements ApiAuth {
             const selected = await this.api.selectContext(contextId);
             if (selected.id !== contextId) throw new Error("Working context response did not match selection.");
         }
-        if (this.generation !== generation) return;
+        if (this.generation !== generation || this.selectionVersion !== selectionVersion) return;
         await this.queryClient.cancelQueries();
+        if (this.generation !== generation || this.selectionVersion !== selectionVersion) return;
         this.contextId = contextId;
         if (contextId) this.storage.setItem(this.contextStorageKey(userId), contextId);
         else this.storage.removeItem(this.contextStorageKey(userId));

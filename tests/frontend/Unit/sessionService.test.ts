@@ -152,4 +152,25 @@ describe("canonical session", () => {
         await expect(service.selectContext(context.id)).rejects.toThrow();
         expect(service.getContextId()).toBeNull();
     });
+
+    it("keeps the latest context choice when backend responses arrive out of order", async () => {
+        const { service, api, storage } = fixture();
+        const secondContext = { ...context, id: "0199e000-0000-7000-8000-000000000002" };
+        vi.mocked(api.contexts).mockResolvedValue({ contexts: [context, secondContext], appliedContextId: null });
+        await service.bootstrap(false);
+
+        let finishFirst!: (value: WorkingContext) => void;
+        vi.mocked(api.selectContext).mockImplementation((contextId) => contextId === context.id
+            ? new Promise<WorkingContext>((resolve) => { finishFirst = resolve; })
+            : Promise.resolve(secondContext));
+
+        const first = service.selectContext(context.id);
+        await service.selectContext(secondContext.id);
+        finishFirst(context);
+        await first;
+
+        expect(service.getContextId()).toBe(secondContext.id);
+        expect(service.getState().contextId).toBe(secondContext.id);
+        expect(storage.get("exploitation:context:user-1")).toBe(secondContext.id);
+    });
 });
