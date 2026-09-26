@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 Phase A; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 B1; FRONTEND-AUTH-01)
 MODULE: Identity
 
 ## PURPOSE
@@ -100,7 +100,7 @@ Working context:
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
 - Production grant source всё ещё отказывает: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
-- `AUTH-SCOPE-01` Phase A / ADR-013 утверждает будущий первый evaluator только для INTERNAL пользователя в INTERNAL context и Sites geography targets; до implementation phases он не подключён. Contractor и Organization grants остаются закрыты.
+- `AUTH-SCOPE-01` B1 / ADR-013 реализует Identity evaluator для ACTIVE INTERNAL пользователя, собственного действующего INTERNAL context, действующего assignment, активной роли, canonical role-permission и доверенного Zone/Region scope. Он не подключён к production `IPermissionGrantSource`; Site targets/projection и Geography routes остаются deny-by-default до следующих фаз. Capabilities, Development bootstrap, contractor и Organization grants не реализованы.
 
 ## PERMISSIONS
 

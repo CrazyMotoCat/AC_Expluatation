@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 Phase A; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 B1; FRONTEND-AUTH-01)
 
 ## Purpose
 
@@ -92,9 +92,9 @@ Contractor request дополнительно проходит Contractors valid
 
 `TASK-01.02.02` добавила permission policy boundary: endpoint может объявить canonical permission code через `RequirePermission`, а API регистрирует policies только для migration-seeded catalog. Policy требует authenticated principal, активный локальный профиль и явный grant для canonical permission ID; отсутствие любого условия возвращает 403 после authentication. Невалидный или отсутствующий bearer token возвращает 401. `UserType`, имя роли и claims токена не выдают права.
 
-`access_assignments` хранятся и проверяются на matching scope/validity как кандидаты. Self-service context ownership/availability реализованы, но не подключены к operational grant evaluation: authoritative target ancestry и contractor chain остаются будущими dependencies. Поэтому production grant source продолжает всегда отказывать; assignment, role-permission mapping и выбранный context сами по себе не открывают permission-protected endpoint.
+`access_assignments` хранятся и проверяются на matching scope/validity как кандидаты. Self-service context ownership/availability реализованы. B1 evaluator проверяет внутреннюю цепочку Identity и доверенный Zone/Region descriptor, но production grant source пока остаётся deny-all до route integration с authoritative target ancestry; contractor chain также остаётся будущей dependency. Assignment, role-permission mapping и выбранный context сами по себе не открывают permission-protected endpoint.
 
-`AUTH-SCOPE-01` Phase A / ADR-013 фиксирует будущий первый production evaluator для INTERNAL пользователя в INTERNAL context и Sites geography targets. Это контракт для последующих фаз, а не реализованный grant. Contractor и Organization grants остаются закрыты.
+`AUTH-SCOPE-01` B1 / ADR-013 реализует внутренний Identity effective-grant evaluator для ACTIVE INTERNAL пользователя, собственного действующего INTERNAL context, действующего assignment, активной роли, canonical role-permission и доверенного Zone/Region scope. Evaluator использует только Identity persistence и не подключён к production `IPermissionGrantSource`; защищённые business routes остаются deny-by-default до последующих фаз. Site targets/projection, Geography route integration, capabilities, Development bootstrap и contractor grants не реализованы.
 
 `GET /api/v1/me/contexts` и `POST /api/v1/me/context` — узкий own-context bootstrap alongside `GET /api/v1/me`: authenticated + ACTIVE local profile + strict owner/availability. `identity.contexts.read` не требуется в этих self-service маршрутах из-за bootstrap circular dependency; canonical permission сохранён для будущего permission-controlled доступа к contexts. Исключение не применяется к admin/other Identity endpoints.
 
