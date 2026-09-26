@@ -775,25 +775,36 @@ reference values. Site criticality has its own table in `TASK-02.03.02`.
 
 ## 7.2. sites.site_criticality_classes
 
+Implemented by the additive Sites migration
+`20260926064400_AddSiteCriticalityClasses`; owned independently of SiteType.
+
 ```text
 id
 code
 name
 rank
 description
-is_active
+status
+created_at
+updated_at
 ```
 
-Примеры:
+Initial seed and exact names/ranks are in `reference-data-registry.md`. Seed IDs
+use the established SiteType mechanism: fixed deterministic UUIDv7 values in
+the Sites EF migration, distinct from SiteType IDs. The four rows are an
+initial set, not a closed DB enum. `id` is UUIDv7. `code` is required,
+canonical uppercase, immutable and globally unique, using the SiteType
+50-character code convention. `name` is required, trimmed, non-empty and at
+most 200 characters. `description` is nullable text, as for SiteType.
 
-```text
-NORMAL
-KVO3
-KVO2
-KVO1
-```
-
-`rank` позволяет сравнивать уровни без hardcode.
+`rank` is a required integer with `rank >= 0` and a unique constraint across
+the whole catalog, including inactive rows. Higher rank means higher
+criticality; comparisons use persisted rank, never code or enum ordinal.
+Do not hardcode seed code/rank pairs in a CHECK constraint. `status` is
+`ACTIVE` or `INACTIVE`; seeds start ACTIVE. Hard delete and changes to `id` or
+`code` are forbidden, following the SiteType guard pattern. Inactive values
+remain valid for existing references and visible to the read API; future Site
+CRUD rejects them for new assignments. No cascade deletion.
 
 ---
 

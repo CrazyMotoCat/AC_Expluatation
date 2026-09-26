@@ -1276,6 +1276,7 @@ GET /audit/events
 ```text
 GET /reference/asset-types
 GET /reference/site-types
+GET /reference/site-criticality-classes
 GET /reference/units
 ```
 
@@ -1286,6 +1287,13 @@ GET /reference/units
 array ordered by canonical code. Each row exposes `id`, `code`, `name`,
 `description` and `status`; inactive rows remain visible for historical
 references. No SiteType mutation route is included in this task.
+
+`TASK-02.03.02` implements `GET /api/v1/reference/site-criticality-classes`
+under canonical `sites.read`. It returns an unpaged array of both ACTIVE and
+INACTIVE classes, ordered by rank ASC then code ASC. Each row contains only
+`id`, `code`, `name`, `rank`, nullable `description` and `status`. This is a
+global reference list with no Zone/Region filtering. The route has no runtime
+management operations; a working context does not grant permission.
 
 ---
 

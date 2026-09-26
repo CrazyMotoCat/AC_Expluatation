@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 SiteCriticality contract freeze)
 
 ## 1. Назначение
 
@@ -76,7 +76,15 @@ forbidden. Inactive values remain readable and valid for existing historical
 references. `TASK-02.03.01` has no mutation API; the new-Site selection rule
 is deferred to `TASK-02.03.03` or a separate owner decision.
 
-# 2.3. Organizational Unit
+# 2.3. SiteCriticalityClass
+
+Contract frozen; implementation pending. States: `ACTIVE`, `INACTIVE`.
+Initial seeds start `ACTIVE`; future management may transition either way.
+Hard delete is forbidden. Inactive classes remain readable and valid for
+existing Site references. Future Site CRUD must reject an inactive class for
+a new assignment. `TASK-02.03.02` has no mutation API.
+
+# 2.4. Organizational Unit
 
 ## States
 

@@ -668,6 +668,13 @@ Acceptance Criteria:
 
 ### TASK-02.03.02. Site criticality
 
+Contract freeze: DONE. Phases B and C are implemented: Sites domain/reference
+model, persistence, additive migration, seeds, PostgreSQL checks, and the
+read-only `sites.read` GET reference API with focused authorization/OpenAPI
+checks. Phase D review, traceability reconciliation, documentation sync, and
+all applicable local gates are complete; task commit and push are pending.
+Site CRUD and runtime catalog management are outside this task.
+
 Acceptance Criteria:
 
 - NORMAL;

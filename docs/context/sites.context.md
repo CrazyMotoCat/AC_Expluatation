@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 Phase D final review; implementation remains uncommitted until task commit)
 MODULE: Sites
 
 ## PURPOSE
@@ -91,14 +91,20 @@ not decided by `TASK-02.03.01`.
 
 ## CRITICALITY
 
-Примеры:
-
-- NORMAL
-- KVO3
-- KVO2
-- KVO1
-
-Критичность должна быть справочником с `rank`, а не hardcoded if/else по строкам.
+Approved initial seed: NORMAL/Обычный/0, KVO3/КВО-3/10,
+KVO2/КВО-2/20, KVO1/КВО-1/30. This is an extensible Sites-owned reference;
+its Sites persistence and additive migration are implemented in Phase B;
+the public API is implemented in Phase C.
+Rank is non-negative, unique across the catalog and compared from persisted
+data; higher means more critical. Fixed UUIDv7 seed IDs follow the SiteType
+mechanism. Code is canonical, immutable and unique; nullable description
+follows SiteType. ACTIVE/INACTIVE classes are both readable, with no hard
+delete; future Site CRUD rejects inactive classes for new assignments.
+The global GET `/api/v1/reference/site-criticality-classes` uses
+`sites.read`, returns id/code/name/rank/description/status, and orders by rank
+then code. It has no geographic target filtering; AUTH-SCOPE-01 B1 is not a
+prerequisite, while production grants may remain deny-by-default. No runtime
+catalog management or mutation audit is included in TASK-02.03.02.
 
 ## INVARIANTS
 

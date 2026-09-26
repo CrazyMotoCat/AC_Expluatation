@@ -1,7 +1,7 @@
 # Business Rules Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 SiteCriticality contract freeze)
 
 ## 1. Назначение
 
@@ -100,6 +100,14 @@ Its initial seed is not an exhaustive enum. A SiteType starts ACTIVE; hard
 delete is forbidden, and inactive types remain readable and valid for existing
 historical references. Eligibility for a new Site is deferred to
 `TASK-02.03.03` or a separate owner decision.
+
+### BR-SIT-015
+
+SiteCriticalityClass is an extensible Sites reference independent of SiteType.
+Higher persisted rank means higher criticality; rank is non-negative and
+unique in the catalog. Code ordering and enum ordinals do not define
+criticality. Inactive classes remain readable and valid for existing Sites;
+future Site CRUD rejects them for new assignments. Hard delete is forbidden.
 
 ---
 

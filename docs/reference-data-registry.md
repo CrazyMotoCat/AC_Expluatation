@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType contract)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 Phase D final review)
 
 ## 1. Назначение
 
@@ -153,6 +153,36 @@ decision.
 `TASK-02.03.01` supplies persistence, deterministic seed and a read endpoint
 under `sites.read`. A management API, mutation permissions and audit
 obligations for SiteType are deferred to a separate future task.
+
+## 4.3. Site Criticality
+
+Owner: Sites. `SiteCriticalityClass` is an extensible database reference in
+`sites.site_criticality_classes`, independent of SiteType. PostgreSQL is its
+source of truth. The initial seed is exactly:
+
+| Code | Name | Rank | Initial status | Fixed UUIDv7 seed ID |
+|---|---|---:|---|---|
+| NORMAL | Обычный | 0 | ACTIVE | `0199d36e-0000-7001-8000-000000000001` |
+| KVO3 | КВО-3 | 10 | ACTIVE | `0199d36e-0000-7001-8000-000000000002` |
+| KVO2 | КВО-2 | 20 | ACTIVE | `0199d36e-0000-7001-8000-000000000003` |
+| KVO1 | КВО-1 | 30 | ACTIVE | `0199d36e-0000-7001-8000-000000000004` |
+
+Higher persisted integer rank means higher criticality. Rank is non-negative
+and unique across this catalog, including inactive rows. Code is canonical
+uppercase, immutable and unique; fixed UUIDv7 seed IDs use the SiteType
+mechanism with a distinct `7001` namespace. Names are required and mutable
+only through a future management capability. Description is optional; initial descriptions
+may be NULL. These seeds are not a closed enum, and code/ordinal ordering is
+not a business comparison rule.
+
+Lifecycle is `ACTIVE`/`INACTIVE`, with no hard delete or cascade. Inactive
+classes remain valid for existing references and visible in the read catalog;
+new Site assignments must reject them in future Site CRUD. `TASK-02.03.02`
+implements a read-only `GET /api/v1/reference/site-criticality-classes` under
+`sites.read`, returning both statuses. Runtime management, mutation audit
+actions and mutation permissions are not included. Extensions require an
+explicit future migration/release or separate management task. Phase B
+persistence and migration are implemented; the read API is implemented in Phase C.
 
 ## 5. Units of Measure
 

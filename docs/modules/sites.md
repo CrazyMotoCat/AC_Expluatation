@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.01 SiteType)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 Phase D final review)
 
 ## Purpose
 
@@ -85,6 +85,33 @@ this task. Full administration is deferred to a separate future task; the
 new-Site eligibility rule for inactive types is deferred to `TASK-02.03.03`
 or a separate owner decision.
 
+SiteCriticalityClass is implemented by `TASK-02.03.02` Phase B as a Sites-owned
+extensible reference in
+`sites.site_criticality_classes`, separate from SiteType. The approved initial
+codes, Russian names and ranks are in `reference-data-registry.md`. Higher
+persisted integer rank means higher criticality; rank is non-negative and
+unique across active and inactive classes. Business logic must not compare
+code strings or enum ordinals. Seed IDs use the established SiteType fixed
+UUIDv7 mechanism, with separate values; code is canonical uppercase,
+immutable and unique. Description is nullable. Lifecycle is
+`ACTIVE`/`INACTIVE`, with ACTIVE seeds, no hard delete and no cascade.
+Inactive classes remain valid for existing references and visible through
+the read API; future Site CRUD must reject them for new assignments.
+Migration `20260926064400_AddSiteCriticalityClasses` creates the table,
+constraints, identity/delete guard and four migration-owned seed rows.
+
+The implemented `GET /api/v1/reference/site-criticality-classes` requires an
+authenticated active local user with canonical `sites.read`. It returns
+`id`, `code`, `name`, `rank`, `description`, `status` for both statuses, ordered
+by rank ASC then code ASC, without paging or filtering. Expected responses
+are 200, 401 and 403. This global reference list has no Zone/Region target
+filtering. ADR-013 target-aware scope still applies to target business
+resources; AUTH-SCOPE-01 B1 is not a catalog prerequisite. Current production
+grant evaluation may still deny access until implemented. Role name, UserType,
+JWT claims, working context and frontend state do not themselves grant access.
+No management route or mutation audit action is in this task; future management
+must define audit actions using the established durable Sites obligation.
+
 ## Permissions
 
 - sites.read
@@ -92,6 +119,9 @@ or a separate owner decision.
 - sites.change
 - sites.manage_locations
 - sites.change_criticality
+
+The criticality catalog read uses `sites.read`; `sites.change_criticality`
+concerns future Site changes, not reference catalog management.
 
 ## Public contracts
 
