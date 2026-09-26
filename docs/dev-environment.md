@@ -419,9 +419,13 @@ Auditor
 
 ```text
 VITE_API_URL=/api/v1
+VITE_OIDC_ISSUER=http://127.0.0.1:8081/realms/exploitation
+VITE_OIDC_CLIENT_ID=<registered-public-client-id>
 ```
 
 Локальное значение задаётся в `src/frontend/.env.local` на основе `src/frontend/.env.example`. Не hardcode URL в source files и не помещать secrets в `VITE_*`: эти значения попадают в browser bundle.
+
+Frontend использует Authorization Code + PKCE через public OIDC client. Зарегистрировать client в dev realm с browser origin, redirect URI `/auth/callback`, silent redirect URI `/auth/silent-callback` и post-logout URI `/`; client secret не нужен. Access token должен иметь backend audience `exploitation-api`, а для первого создания локального профиля — доверенный `user_type` claim согласно Identity contract. `VITE_OIDC_CLIENT_ID` задаётся из фактической регистрации, готового client ID в репозитории нет. Redirect URL можно переопределить публичными `VITE_OIDC_REDIRECT_URI` и `VITE_OIDC_POST_LOGOUT_REDIRECT_URI` на том же browser origin. Vite проксирует `/api` на `http://localhost:5000` для локального запуска; при другом API origin использовать `VITE_API_URL` и настроенный CORS.
 
 ---
 

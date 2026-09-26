@@ -60,7 +60,7 @@ npm ci
 npm run dev
 ```
 
-Frontend использует `/api/v1` по умолчанию. Для другого API origin скопируйте `src/frontend/.env.example` в `src/frontend/.env.local` и задайте `VITE_API_URL`. Переменные `VITE_*` публичны в browser bundle и не должны содержать secrets.
+Frontend использует `/api/v1` по умолчанию; dev Vite проксирует его на локальный API `http://localhost:5000`. Скопируйте `src/frontend/.env.example` в `src/frontend/.env.local` и задайте `VITE_OIDC_CLIENT_ID` зарегистрированного browser public client в dev Keycloak. Для другого API origin задайте `VITE_API_URL`. Переменные `VITE_*` публичны в browser bundle и не должны содержать secrets; подробности регистрации OIDC client находятся в `docs/dev-environment.md`.
 
 Проверки frontend:
 

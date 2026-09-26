@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase C1 Organization permission seed)
+SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 Phase A; FRONTEND-AUTH-01)
 MODULE: Identity
 
 ## PURPOSE
@@ -134,6 +134,7 @@ Identity не должен знать все бизнес-правила дру�
 - `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
 - API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
 - `GET /api/v1/me/contexts`, `POST /api/v1/me/context` для собственных available contexts; request header `X-Work-Context-Id` validated by API
+- Browser frontend использует public OIDC Authorization Code + PKCE, единый session provider и Bearer/context pipeline; выбранный context browser-session scoped, повторно сверяется со списком available contexts; capabilities API пока не реализован
 - `IWorkingContextAuditWriter` из Audit.Contracts для durable selection audit
 
 Планируемые контракты последующих задач:

@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase C1 Organization permission seed)
+SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 Phase A; FRONTEND-AUTH-01)
 
 ## Purpose
 
@@ -148,6 +148,8 @@ POST /api/v1/admin/access-assignments
 `GET /api/v1/me` требует валидный bearer token, безопасно создаёт или синхронизирует локальный профиль и возвращает `userId`, canonical identity key, optional display name/email, `userType` и `status`. Для первого создания обязателен configured trusted `user_type` claim. Missing/invalid provisioning type и inactive local profile возвращают 403; повторный concurrency conflict возвращает 409. Permission catalog и assignment persistence не расширяют этот response.
 
 `GET /api/v1/me/contexts` возвращает только собственные доступные contexts и optional `appliedContextId` из валидированного и аудированного request header. `POST /api/v1/me/context` принимает body `contextId`, проверяет owner/availability, пишет ровно один durable `WorkingContextSelected` до 200 и возвращает ID в body и `X-Work-Context-Id`; header в POST игнорируется. Клиент передаёт header в последующих `/api/v1` запросах; backend перепроверяет его и записывает `WorkingContextApplied` до endpoint, даже если предшествующего POST не было. Нет server-global selected flag/session и нет permission grant. Unknown/inactive local user, чужой/неизвестный/недоступный context и неверный header обычного запроса fail closed. Неуспешный audit write возвращает 503 без выполнения endpoint.
+
+Frontend browser session использует Authorization Code + PKCE через public OIDC client. Один session provider загружает `/me` и own contexts, а общий API client передаёт Bearer и выбранный request-scoped context. Выбор через POST сохраняется только в browser session и повторно сверяется со списком доступных contexts после перезагрузки. Смена context сбрасывает TanStack Query cache, включая будущие capabilities. Frontend не выводит grant из `userType`, JWT claims или role names; capabilities API пока не реализован.
 
 Permission-protected business routes добавлены для Sites и Organization, но production grant source продолжает deny-by-default. `TASK-01.02.02` также проверяет policy на изолированном integration test endpoint. Для открытия scoped grant одного permission policy недостаточно: потребуются context, scope, validity и contractor restrictions по ADR-007.
 

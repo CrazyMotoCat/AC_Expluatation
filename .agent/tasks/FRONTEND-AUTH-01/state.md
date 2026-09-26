@@ -1,0 +1,38 @@
+# FRONTEND-AUTH-01 — standalone auth split
+
+TASK: FRONTEND-AUTH-01
+STATUS: AUTH_SPLIT_COMPLETE; independent integration review pending
+CHECKPOINT_STATUS: SAFE
+PHASE: AUTH_SPLIT
+BRANCH: feat/frontend-auth-standalone
+LAST_SAFE_COMMIT: b4973e0896049151e7bd3a16fdd0cd5bf3de2780 (main baseline for this phase)
+SOURCE_AUTH_COMMIT: df1559d3d89d8d8cfa3bda673c82003ce684ed07
+SOURCE_PARENT: a48fa4b9a6f4804875daf0fee6e9e03e22818725
+
+COMPLETED:
+- Recreated OIDC Authorization Code + PKCE session, shared Bearer client, backend-owned working contexts, and scoped Query cache reset on the current main frontend shell.
+- Kept Geography read views, navigation, tests, documentation and FRONTEND-PAR-01 checkpoint outside this branch.
+- Hardened session loss handling when OIDC storage disappears or renewal fails.
+- Synchronized frontend setup, Identity module documentation and context capsule.
+
+VERIFIED:
+- `npm ci`: PASS; npm audit reported 0 vulnerabilities.
+- `npx tsc --noEmit`: PASS.
+- `npm run lint`: PASS.
+- `npm test`: PASS (24 tests in 4 files).
+- `npm run build`: PASS.
+- Backend endpoint source matches `/api/v1/me`, `/api/v1/me/contexts`, and `/api/v1/me/context` DTOs and methods.
+- No backend, Geography, or FRONTEND-PAR-01 files changed.
+- OIDC userStore uses sessionStorage; only backend-owned contexts are selectable. No frontend permission derivation or capabilities implementation.
+
+UNCOMMITTED: NONE after this standalone feature commit.
+PENDING:
+- Independent security/integration review of this commit; main integration is a separate phase.
+- Live Keycloak smoke requires an actually registered public SPA client ID. The repo has no configured client ID.
+DECISIONS:
+- Owner required a standalone auth commit based on b4973e0 and expressly excluded a48fa4b / FRONTEND-PAR-01.
+- The frontend context header is request-scoped and does not grant permission; AUTH-SCOPE-01 Phase A remains unchanged.
+BLOCKERS: None for this local split; live Keycloak smoke is BLOCKED_CONFIGURATION.
+FILES_CHANGED: Auth/session/client/provider/config/tests, related Identity and dev setup docs, and this checkpoint only.
+NEXT_ACTION: Independently review and integrate the standalone auth commit into main after a fresh repository guard.
+DO_NOT_REPEAT: Do not cherry-pick df1559d or merge feat/frontend-geography. Do not start AUTH-SCOPE-01 B1 or TASK-02.03.02 in this phase.
