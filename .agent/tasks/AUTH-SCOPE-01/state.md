@@ -410,3 +410,22 @@ HOSTED_CI: NOT_YET_VERIFIED
 UNCOMMITTED: this checkpoint update only, to be committed separately
 NEXT_ACTION: commit this checkpoint update, push main without force, fetch and verify local main equals origin/main, then inspect hosted CI availability. Stop before B2.
 DO_NOT_REPEAT: Do not amend source B1 commit; do not change Site checkpoint; do not start B2, Site scope, Geography routes, capabilities, DEV bootstrap, contractor-positive grants, or another business task.
+
+## B1 publication completion checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B1 — INDEPENDENT REVIEW + MAIN INTEGRATION
+STATUS: DONE — published
+SOURCE_AUTH_COMMIT: fb3d5648caceecb1668f84bc0823e12d3de43f8b
+MAIN_FAST_FORWARD_SHA: fb3d5648caceecb1668f84bc0823e12d3de43f8b
+PUSH_VERIFIED_SHA_BEFORE_THIS_CHECKPOINT: e7814db81861cb731cd2a75a464c491b5fd0a874
+PUSH_VERIFICATION: PASS — local main, origin/main, and git ls-remote matched e7814db81861cb731cd2a75a464c491b5fd0a874 after fetch.
+HOSTED_CI: NOT_YET_VERIFIED — GitHub Actions API returned 404 without authenticated access; gh CLI is unavailable in this environment.
+POSTGRESQL_RERUN: NOT_YET_VERIFIED — Docker daemon unavailable; the prior B1 checkpoint records PASS for the unchanged source commit.
+SITE_CHECKPOINT_BRANCH: unchanged at 4d230e7c8192614954b7d106014bfaaf75669207
+B2: NOT_STARTED
+SITE_TARGET_SCOPE: NOT_STARTED
+CAPABILITIES: NOT_STARTED
+DEV_BOOTSTRAP: NOT_STARTED
+NEXT_ACTION: none for B1. Stop here; B2 requires a separate task and planning.
+DO_NOT_REPEAT: Do not start B2 or another business task in this continuation.
