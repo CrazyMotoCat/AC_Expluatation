@@ -1,3 +1,390 @@
+## Current checkpoint — Phase B2-B2 implementation and verification (2026-09-27)
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-B2 — SITES TRUSTED TARGET RESOLVER + SCOPED SQL QUERY FOUNDATION
+STATUS: IMPLEMENTED — verification and independent review passed; recorded in the local B2 commit
+BASELINE_SHA: a3167e85115875c48737f7af10007366e2beaa69
+BRANCH: codex/auth-scope-01-b2
+LAST_SAFE_COMMIT: a3167e85115875c48737f7af10007366e2beaa69
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT / DIRTY_EXPECTED
+RESUME_SAFE: YES — HEAD, main, origin/main and live origin/main match baseline;
+  dirty paths contain B2-A/B2-B1 plus B2-B2 task-owned code, tests and docs.
+SITE_CHECKPOINT_BRANCH: `codex/task-02.03.03-site-b1` at
+  `4d230e7c8192614954b7d106014bfaaf75669207`; verified read-only, unchanged
+
+PREFLIGHT_VERIFIED:
+- Reconciled `state.md`, branch, HEAD, main, origin/main, live origin/main,
+  expected dirty paths and existing B2-A/B2-B1 changes before edits.
+- No unrelated paths or baseline drift found. No Site checkpoint checkout or
+  write occurred. B2-B2 changes contain no schema or migration files.
+- Read the complete B2-B2 request, frozen B2-A contract, ADR-015, B1/B2-B1
+  contracts, Sites module/context, security docs, Sites DbContext, Zone/Region
+  persistence and the PostgreSQL Sites harness.
+- B2-B1 review and validation remain accepted; do not repeat them wholesale.
+- Sites persistence harness uses Testcontainers PostgreSQL and its four
+  existing Sites migrations; B2-B2 adds only query/resolver checks.
+- Verified B2-B2 production dependency edges: Sites Application and
+  Infrastructure reference Identity Application contracts only; no module
+  reads the other module's DbContext/schema.
+
+DECISIONS:
+- Keep current Geography HTTP route mapping and behavior unchanged.
+- Add a narrowly scoped Sites Application query composition that requests
+  `sites.read`; retain canonical permission alongside scopes in the read
+  request and fail closed for other permission values.
+- Expose direct target checks that resolve Sites-owned trusted target facts
+  before calling the Identity B1 evaluator.
+- Resolve Zone/Region facts only through Sites persistence; Region parent is
+  projected from the persisted row.
+- No persistence schema or migration is needed.
+
+ATOMIC_CHECKPOINT_0: PASS — branch/baseline/site-ref/dirty-path reconciliation.
+ATOMIC_CHECKPOINT_1: PASS — trusted Zone and Region projection; unknown targets
+  return null, inactive targets resolve, and Region parent is DB-owned.
+ATOMIC_CHECKPOINT_2: PASS — PostgreSQL Zone/Region scope matrix, empty and
+  unsupported scopes, duplicate inputs, downward-only coverage and no leakage.
+ATOMIC_CHECKPOINT_3: PASS — `sites.read` composition, permission association,
+  real B1 evaluator composition, create-parent Zone projection and architecture.
+ATOMIC_CHECKPOINT_4: PASS — focused/full verification and independent read-only
+  security/integration review; open findings zero at all severities.
+B2_B1_REGRESSION: PASS — Identity provider and B1 matrix through real PG harness.
+TARGET_RESOLVER: PASS — Zone/Region trusted projections from Sites persistence.
+AUTHORITATIVE_HIERARCHY: PASS — Region target uses persisted Zone parent;
+  resolver exposes no caller-supplied parent input.
+ZONE_SCOPED_QUERY: PASS — exact Zone IDs only; Region scope grants no parent.
+REGION_SCOPED_QUERY: PASS — exact Region IDs OR persisted parent Zone IDs.
+EMPTY_SCOPE: EMPTY_RESULT — includes contractor provider result with no scopes.
+UNSUPPORTED_SCOPE: FAIL_CLOSED — ignored and cannot widen results.
+PERMISSION_ISOLATION: PASS — list composition requests `sites.read`; store
+  rejects scopes labeled with another canonical permission.
+DIRECT_TARGET_FOUNDATION: PASS — actual B1 evaluator: wrong Zone denied,
+  persisted covering Zone allowed, ID alone denied, wrong permission denied.
+CREATE_PARENT_FOUNDATION: PASS — `sites.create` evaluates resolved Zone.
+SERVER_SIDE_FILTERING: PASS — Sites EF predicates execute against PostgreSQL;
+  no entity enumeration or per-row authorization call.
+N_PLUS_ONE_AUTHORIZATION: NONE — one scope-provider call per list and one
+  bounded Sites query when scopes exist.
+PRODUCTION_ROUTE_INTEGRATION_CHANGED: NO
+SITE_TARGET_SCOPE: NOT_IMPLEMENTED
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NOT_APPLICABLE — Sites/Identity EF mappings unchanged.
+POSTGRESQL_TESTS: PASS — Sites query/resolver matrix and Identity provider/B1
+  composition matrix.
+GEOGRAPHY_REGRESSION: PASS — Sites persistence and Sites API harnesses.
+AUTH_REGRESSION: PASS — Identity persistence, Authentication and working-context
+  harnesses; pure Identity and Sites checks.
+ARCHITECTURE_CHECKS: PASS
+RELEASE_BUILD: PASS — full solution, 0 warnings/errors.
+SOLUTION_DOTNET_TEST: PASS — exits 0; executable repository harnesses run directly.
+FORMAT: PASS — changed C# whitespace verification.
+MARKDOWN_REFERENCES: PASS — changed Markdown whitespace/local links and ADR index.
+DIFF_CHECK: PASS
+SECRET_HYGIENE: PASS — changed tracked/untracked paths scanned.
+SECURITY_FINDINGS: NONE
+HIGHEST_SEVERITY: NONE
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+B2_COMMIT_CONTENT: B2-A contract/ADR, B2-B1 Identity implementation/tests/docs,
+  and B2-B2 Sites contracts/resolver/scoped queries/tests/docs are recorded in
+  this single local commit. No migrations.
+LOCAL_B2_COMMIT: THIS COMMIT; exact SHA is repository HEAD and is reported in
+  the final response.
+WORKTREE_AFTER_COMMIT: CLEAN
+MAIN_MODIFIED: NO
+SITE_CHECKPOINT_BRANCH: UNCHANGED
+PUSH: NONE
+MERGE: NONE
+NEXT_ACTION: Independent B2 security/integration review before C1 route integration.
+DO_NOT_REPEAT: Do not redo B2-B1 review; do not reopen B2-A; do not modify
+  Site checkpoint branch or start B2-B3/C1, routes, Site authorization,
+  capabilities, DEV bootstrap, contractor-positive grants, push or merge.
+
+---
+
+## Current checkpoint — Phase B2-B1 preflight (2026-09-27)
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-B1 — IDENTITY EFFECTIVE SCOPE PROVIDER
+STATUS: DONE — B2-B1 IDENTITY EFFECTIVE SCOPE PROVIDER
+BASELINE_SHA: a3167e85115875c48737f7af10007366e2beaa69
+BRANCH: codex/auth-scope-01-b2
+LAST_SAFE_COMMIT: a3167e85115875c48737f7af10007366e2beaa69
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT / DIRTY_EXPECTED
+RESUME_SAFE: YES — HEAD, main, origin/main and live origin/main match baseline;
+  dirty paths match the B2-A docs/checkpoint listed below.
+SITE_CHECKPOINT_BRANCH: `codex/task-02.03.03-site-b1` at
+  `4d230e7c8192614954b7d106014bfaaf75669207`; unchanged
+B1: DONE / PUBLISHED; Identity evaluator is present in baseline
+B2-A: CONTRACT_FROZEN; ADR-015; retained as uncommitted docs
+
+PREFLIGHT_VERIFIED:
+- Reconciled this checkpoint and actual Git state before edits. No unrelated
+  files, implementation changes, partial files, or baseline drift found.
+- Read the frozen B2-A contract, ADR-015, Identity module/context, security
+  docs, published B1 evaluator and Identity PostgreSQL harness/model.
+- Current B1 evaluator duplicates its eligible-user/context/assignment/
+  role/permission query inline; B2-B1 must extract shared Identity-owned query
+  semantics before adding the provider. Keep direct-target behavior intact.
+- Live `git ls-remote origin refs/heads/main` matched the baseline.
+- No Site branch checkout or write occurred.
+
+B2_B1_STEP_1: DONE
+EFFECTIVE_SCOPE_INTERFACE: IMPLEMENTED
+SHARED_AUTH_SEMANTICS: IMPLEMENTED — one Identity Infrastructure eligible-assignment query
+PURE_TESTS: PASS
+B2_B1_STEP_2: DONE
+POSTGRESQL_PROVIDER: PASS
+PERMISSION_SPECIFIC: PASS
+VALIDITY: PASS
+DISTINCT_SCOPES: PASS
+EMPTY_SCOPE: NO_ACCESS
+B2_B1_STEP_3: DONE
+B1_REGRESSION: PASS
+SITES_DB_DEPENDENCY: NONE
+ARCHITECTURE: PASS
+CONTRACTOR: FAIL_CLOSED
+B2_B1_STEP_4: DONE
+SECURITY_REVIEW: PASS — independent read-only review; no semantic drift,
+  widening, fallback, cross-module dependency, or schema change
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+IMPLEMENTATION_STARTED: YES
+EFFECTIVE_SCOPE_PROVIDER: PASS
+SUPPORTED_SCOPES: TerritorialZone / Region
+PERMISSION_SPECIFIC: PASS
+EMPTY_SCOPE: NO_ACCESS
+DISTINCT_SCOPES: PASS
+SHARED_WITH_B1: PASS
+USER_ELIGIBILITY: PASS
+CONTEXT_VALIDATION: PASS
+ASSIGNMENT_VALIDITY: PASS — same `[valid_from, valid_to)` and active semantics
+ROLE_NAME_GRANT: NONE
+USERTYPE_GRANT: NONE
+JWT_CLAIM_GRANT: NONE — no JWT input in provider contract
+WORKING_CONTEXT_ALONE_GRANT: NONE
+CONTRACTOR: FAIL_CLOSED
+QUERY_SHAPE: one PostgreSQL query bounded to eligible user/context/permission assignments
+N_PLUS_ONE: NONE
+SITES_DB_DEPENDENCY: NONE
+CROSS_MODULE_DEPENDENCY: NONE
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NOT_APPLICABLE — Identity EF model/mappings unchanged
+POSTGRESQL_TESTS: PASS — Testcontainers provider matrix and B1 evaluator regressions
+SECURITY_TESTS: PASS
+AUTHENTICATION_REGRESSION: PASS
+WORKING_CONTEXT_REGRESSION: PASS
+AUTHORIZATION_REGRESSION: PASS
+ARCHITECTURE_CHECKS: PASS
+RELEASE_BUILD: PASS — full solution, Release, 0 warnings/errors
+SOLUTION_DOTNET_TEST: PASS — exits 0; repository executable check harnesses run separately
+FORMAT: PASS — changed C# files via `dotnet format whitespace --verify-no-changes`
+DIFF_CHECK: PASS
+SECRET_HYGIENE: PASS — changed paths scanned; no secrets found
+DOCUMENTATION_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — Identity module/context, security, backlog
+SECURITY_FINDINGS: NONE
+HIGHEST_SEVERITY: NONE
+
+ATOMIC_CHECKPOINT_1_VERIFIED:
+- Identity Infrastructure Release build — PASS, 0 warnings/errors.
+- Identity pure checks — PASS, including exact Zone/Region descriptor
+  construction and malformed/unsupported descriptor rejection.
+- B1 direct-target evaluator now composes the shared eligibility/supported
+  scope query; target-specific matching remains in the evaluator.
+- Provider query narrows shared eligible assignments to exactly one Zone or
+  Region dimension and emits immutable distinct descriptors.
+- Schema/migration remain unchanged.
+
+ATOMIC_CHECKPOINT_2_VERIFIED:
+- Identity Testcontainers PostgreSQL provider matrix — PASS. Covers exact
+  Zone/Region scopes, multiple assignments, duplicate paths, permission
+  isolation, missing/inactive/contractor profile, missing/foreign/external/
+  inactive/future/expired context, no assignment, role-name-only, wrong or
+  missing permission, future/expired/revoked assignment, unsupported and
+  composite scopes, malformed empty scope ID, and `[valid_from, valid_to)`
+  boundaries.
+- Emitted exact Zone/Region scopes agree with the published B1 evaluator;
+  permission mismatch is absent from provider output and denied by B1.
+- Existing Identity PostgreSQL harness also re-ran the published B1 matrix;
+  all existing direct-target cases passed.
+
+ATOMIC_CHECKPOINT_3_VERIFIED:
+- Existing B1 evaluator regression matrix — PASS, including exact Zone/Region,
+  trusted Zone-to-Region coverage, wrong Zone, sibling Region, Region-to-parent
+  denial, permission mismatch, validity boundaries, contractor fail-closed,
+  and role-name/UserType/context non-grants.
+- Architecture checks — PASS; Identity Infrastructure has no Sites project,
+  persistence, or schema dependency, and no circular module edge was added.
+- Authentication/permission-policy and working-context regression harness —
+  PASS.
+
+ATOMIC_CHECKPOINT_4_VERIFIED:
+- Independent read-only security review — PASS; no B1 drift, scope widening,
+  permission contamination, eligibility shortcut, contractor access, fail-open
+  path, Sites dependency, or schema change. OPEN findings: 0 at every severity.
+- Cancellation behavior is covered: a valid provider request with a cancelled
+  token propagates `OperationCanceledException`; database failures likewise
+  propagate by direct-await/no-catch implementation.
+- Full solution Release build — PASS, 0 warnings/errors; solution `dotnet test`
+  exits 0. Identity pure, Testcontainers PostgreSQL provider/B1, architecture,
+  authentication, permission-policy and working-context harnesses — PASS.
+- Changed C# whitespace verification, `git diff --check`, Markdown whitespace
+  and reference consistency, and secret hygiene — PASS.
+- No Identity EF model/mapping changes; schema/model drift check is not
+  applicable. No migration was created.
+
+FILES_ADDED_OR_UPDATED_BY_B2_B1:
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Application/Authorization/EffectiveScopeRequest.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Application/Authorization/EffectiveAuthorizationScopeKind.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Application/Authorization/EffectiveAuthorizationScope.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Application/Authorization/IEffectiveScopeProvider.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/Authorization/EffectiveAuthorizationQueries.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/Authorization/EffectiveScopeProvider.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/Authorization/EffectiveGrantEvaluator.cs`
+- `src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/IdentityModuleRegistration.cs`
+- `tests/unit/Exploitation.IdentityDomainChecks/EffectiveAuthorizationScopeChecks.cs`
+- `tests/unit/Exploitation.IdentityDomainChecks/Program.cs`
+- `tests/integration/Exploitation.IdentityPersistenceChecks/Program.cs`
+- `docs/modules/identity.md`
+- `docs/context/identity.context.md`
+- `docs/security.md`
+- `docs/backlog.md`
+
+UNCOMMITTED: B2-A contract/ADR/reference docs plus B2-B1 Identity Application
+contract, shared Identity Infrastructure query/provider/evaluator registration,
+Identity pure/PostgreSQL regression checks, synchronized Identity/security/
+backlog docs, and this checkpoint. No schema or migration files changed.
+DOCUMENTATION_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — implementation status and unimplemented Sites
+integration are explicit.
+CHECKPOINT_UPDATED: YES
+WORKTREE_STATE: DIRTY_EXPECTED — B2-A docs plus B2-B1 implementation/tests/docs only.
+PUSH: NONE
+MERGE: NONE
+SITE_CHECKPOINT_BRANCH: unchanged at
+  `4d230e7c8192614954b7d106014bfaaf75669207`
+NEXT_ACTION: B2-B2 — Sites trusted Zone/Region target resolver and scoped SQL
+queries; proceed only under a separate explicit phase request.
+RECOMMENDED_MODEL_NEXT: gpt-6-sol
+RECOMMENDED_EFFORT_NEXT: high
+DO_NOT_REPEAT: Do not redo B1 architecture review or reopen B2-A. Do not start
+B2-B2/B2-B3/C1, Geography routes, Site target scope, capabilities, DEV
+bootstrap, contractor-positive authorization, push, or merge.
+
+---
+
+## Current checkpoint — Phase B2-A (2026-09-27)
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-A — EFFECTIVE SCOPE CONTRACT FREEZE
+STATUS: CONTRACT_FROZEN
+CHECKPOINT_STATUS: SAFE — docs-only phase complete; no partial files
+BASELINE_SHA: a3167e85115875c48737f7af10007366e2beaa69
+BRANCH: codex/auth-scope-01-b2
+LAST_SAFE_COMMIT: a3167e85115875c48737f7af10007366e2beaa69
+REPOSITORY_STATE_GUARD: SAFE — clean baseline before edits; expected docs-only diff now
+RESUME_SAFE: YES — branch/HEAD/origin/main matched baseline before edits
+B1: DONE / PUBLISHED; source `fb3d5648caceecb1668f84bc0823e12d3de43f8b`
+B2_COMMIT: NONE
+PUSH: NONE
+SITE_CHECKPOINT_BRANCH: `codex/task-02.03.03-site-b1` at `4d230e7c8192614954b7d106014bfaaf75669207`; unchanged
+
+COMPLETED:
+- Froze the separate Identity `IEffectiveScopeProvider` list contract while
+  retaining B1 `IEffectiveGrantEvaluator` for direct target checks.
+- Froze exact Zone/Region scope semantics, permission-specific eligibility,
+  no-empty-means-all, Zone-to-Region-only Sites filtering, and module DB
+  boundaries in `.agent/tasks/AUTH-SCOPE-01/phase-b2a-effective-scope-contract.md`.
+- Added ADR-015 to refine ADR-013's conflicting empty-list response rule;
+  ADR-013 itself was not modified.
+- Reconciled numbering: ADR-014 is reserved for Site target authorization;
+  the B2 effective-scope ADR is ADR-015. ADR-014's Site record was verified
+  read-only in the separate Site checkpoint commit.
+- Synchronized Identity/Sites module and context docs, security guidance,
+  ADR index, and AUTH-SCOPE-01 backlog pointer.
+- No production code, tests, schema, migration, cache, Site scope, or route
+  integration was changed.
+
+VERIFIED:
+- Initial repo guard: `HEAD`, `origin/main`, live `git ls-remote origin main`,
+  and requested baseline all matched `a3167e85115875c48737f7af10007366e2beaa69`.
+- Initial worktree was clean. Requested AUTH branch was at the published
+  baseline; Site checkpoint branch was read-only and unchanged.
+- ADR number/reference reconciliation: PASS — current branch references
+  ADR-014 only for Site target authorization/reservation and ADR-015 for B2
+  effective scopes. The Site commit contains the ADR-014 Site title and index.
+- DOCUMENTATION_IMPACT: YES; DOCUMENTATION_SYNC: PASS — contract, ADR, Identity/Sites module/context, security and backlog references synchronized.
+- `git diff --check`: PASS; untracked Markdown whitespace check: PASS.
+- Secret hygiene on task-owned changed docs: PASS.
+- Runtime build/tests/migration checks: NOT_REQUIRED for this docs-only phase.
+- No push, B2 implementation, or C1 work started.
+
+EFFECTIVE_SCOPE_PROVIDER_CONTRACT: FROZEN
+SUPPORTED_SCOPE_KINDS: TerritorialZone, Region
+EMPTY_SCOPE: NO_ACCESS — `200 []` for these future list operations
+ZONE_TO_REGION: DOWNWARD_COVERAGE_IN_SITES
+REGION_TO_ZONE: NO_UPWARD_COVERAGE
+DIRECT_TARGET_AUTH: `IEffectiveGrantEvaluator` — ALLOW/DENY for one trusted target
+LIST_AUTH: `IEffectiveScopeProvider`
+PROVIDER_INPUT: localUserId, workingContextId, exact canonical permission
+PROVIDER_OUTPUT: immutable bounded distinct `(kind, scopeId)` descriptors
+PERMISSION_SPECIFIC: YES — no wildcard or cross-permission reuse
+DUPLICATE_BEHAVIOR: distinct by pair; deterministic kind/scopeId order preferred
+ZONE_LIST_RULE: zone.id in effective TerritorialZone scope IDs
+REGION_LIST_RULE: region.id in Region IDs OR authoritative parent Zone ID in Zone IDs
+B1_SEMANTICS_REUSE: REQUIRED — shared Identity-owned eligibility rules
+IDENTITY_RESPONSIBILITY: user/context/assignment/permission eligibility and exact scopes; no hierarchy lookup
+SITES_RESPONSIBILITY: authoritative hierarchy, SQL filtering, direct target projection
+CROSS_MODULE_DB_ACCESS: FORBIDDEN
+N_PLUS_ONE_POLICY: FORBIDDEN
+CONTRACTOR: FAIL_CLOSED — no effective scopes
+FAILURE: ambiguity/no valid scope fails closed; infrastructure errors never widen
+SCHEMA_CHANGE_EXPECTED: NO
+MIGRATION_EXPECTED: NO
+CACHE_REQUIRED: NO
+SITE_TARGET: NOT_IMPLEMENTED
+C1: NOT_STARTED
+ADR-014_RESERVED_FOR_SITE_TARGET: YES
+B2_EFFECTIVE_SCOPE_ADR: ADR-015
+ADR_NUMBER_RECONCILIATION: PASS
+ADR_REQUIRED: YES — ADR-015 refines ADR-013 §4 empty-list response semantics; ADR-013 unchanged
+DOCUMENTATION_UPDATED: YES — contract, ADR/index, Identity/Sites module/context, security, backlog pointer
+CHECKPOINT_UPDATED: YES
+IMPLEMENTATION_STARTED: NO
+
+UNCOMMITTED:
+- B2-A contract, ADR-015, ADR index, backlog pointer, Identity/Sites
+  module/context docs, security guidance, and this state checkpoint.
+
+FILES_CHANGED:
+- `.agent/tasks/AUTH-SCOPE-01/phase-b2a-effective-scope-contract.md`
+- `.agent/tasks/AUTH-SCOPE-01/state.md`
+- `docs/adr/ADR-015-effective-scope-provider-for-geographic-lists.md`
+- `docs/adr/README.md`
+- `docs/backlog.md`
+- `docs/context/identity.context.md`
+- `docs/context/sites.context.md`
+- `docs/modules/identity.md`
+- `docs/modules/sites.md`
+- `docs/security.md`
+
+BLOCKERS: None for B2-A.
+WORKTREE_STATE: DIRTY_EXPECTED — only the listed docs/checkpoint paths are uncommitted.
+IMPLEMENTATION_STARTED: NO
+NEXT_ACTION: B2-B1 — implement Identity effective-scope provider after an explicit phase request.
+DO_NOT_REPEAT: Do not redo Phase A/B1. Do not start B2-B1, B2-B2, B2-B3, C1,
+Site scope, capabilities, Development bootstrap, or contractor-positive grants.
+
+---
+
 TASK: AUTH-SCOPE-01
 STATUS: DONE — Phase A contract only
 CONTRACT_FROZEN: YES

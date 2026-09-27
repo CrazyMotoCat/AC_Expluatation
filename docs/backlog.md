@@ -451,6 +451,15 @@ integration preflight. Phase A owner decisions OD-01…OD-06 are frozen in
 authorization. Implementation phases B1/B2/C1…C4 require an explicit
 follow-up request; the current production grant source remains deny-by-default.
 
+The B2-A effective-scope contract is frozen in
+`.agent/tasks/AUTH-SCOPE-01/phase-b2a-effective-scope-contract.md` and refined
+by ADR-015. B2-B1 implements the Identity `IEffectiveScopeProvider` and shared
+Identity eligibility query. B2-B2 implements Sites-owned trusted Zone/Region
+target projection, direct-target composition with the B1 evaluator, and
+permission-specific scoped Zone/Region PostgreSQL query composition and stores.
+Focused PostgreSQL, security, architecture and Release build gates pass.
+Geography route integration remains deferred to C1; B2-B3 remains not started.
+
 ---
 
 ## FEATURE-01.04. Audit foundation

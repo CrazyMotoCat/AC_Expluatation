@@ -29,6 +29,8 @@ Rejected
 | ADR-011 | Durable audit obligation for module-owned business mutations | Accepted |
 | ADR-012 | Transaction-safe concurrency for organizational hierarchy | Accepted |
 | ADR-013 | Target-aware production authorization for geographic data | Accepted |
+| ADR-014 | Site target authorization | Accepted; separate TASK-02.03.03 checkpoint branch |
+| ADR-015 | Identity scope provider for geographic list filtering | Accepted; refines ADR-013 |
 
 ## Правило для Codex и разработчиков
 

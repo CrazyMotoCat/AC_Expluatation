@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-26 (AUTH-SCOPE-01 B1; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-B2; FRONTEND-AUTH-01)
 
 ## Purpose
 
@@ -94,7 +94,7 @@ Contractor request дополнительно проходит Contractors valid
 
 `access_assignments` хранятся и проверяются на matching scope/validity как кандидаты. Self-service context ownership/availability реализованы. B1 evaluator проверяет внутреннюю цепочку Identity и доверенный Zone/Region descriptor, но production grant source пока остаётся deny-all до route integration с authoritative target ancestry; contractor chain также остаётся будущей dependency. Assignment, role-permission mapping и выбранный context сами по себе не открывают permission-protected endpoint.
 
-`AUTH-SCOPE-01` B1 / ADR-013 реализует внутренний Identity effective-grant evaluator для ACTIVE INTERNAL пользователя, собственного действующего INTERNAL context, действующего assignment, активной роли, canonical role-permission и доверенного Zone/Region scope. Evaluator использует только Identity persistence и не подключён к production `IPermissionGrantSource`; защищённые business routes остаются deny-by-default до последующих фаз. Site targets/projection, Geography route integration, capabilities, Development bootstrap и contractor grants не реализованы.
+`AUTH-SCOPE-01` B1 / ADR-013 реализует внутренний Identity `IEffectiveGrantEvaluator` для прямой проверки одного доверенного Zone/Region target. Он проверяет ACTIVE INTERNAL пользователя, собственный действующий INTERNAL context, assignment validity, активную роль, canonical role-permission и scope; использует только Identity persistence и не подключён к production `IPermissionGrantSource`. B2-B1 реализует отдельный Identity Application `IEffectiveScopeProvider` для immutable distinct permission-specific scope descriptors `TerritorialZone`/`Region`, используя ту же Identity eligibility query. Provider не принимает target и не разрешает Identity читать Sites hierarchy; composite/unsupported assignments не преобразуются в более широкий descriptor. B2-B2 добавляет Sites Application потребителя этих контрактов: scoped list composition явно запрашивает `sites.read`, а прямые target checks передают Identity только trusted descriptor, спроецированный Sites resolver. PostgreSQL/provider/evaluator composition регрессии прошли; HTTP route integration не реализована и production routes остаются deny-by-default. Site scope, C1, capabilities, Development bootstrap и contractor grants не реализованы.
 
 `GET /api/v1/me/contexts` и `POST /api/v1/me/context` — узкий own-context bootstrap alongside `GET /api/v1/me`: authenticated + ACTIVE local profile + strict owner/availability. `identity.contexts.read` не требуется в этих self-service маршрутах из-за bootstrap circular dependency; canonical permission сохранён для будущего permission-controlled доступа к contexts. Исключение не применяется к admin/other Identity endpoints.
 
@@ -106,6 +106,7 @@ Contractor request дополнительно проходит Contractors valid
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
 - `IPermissionGrantSource` принимает локальный user ID и canonical permission ID; текущая production реализация deny-by-default.
+- `IEffectiveGrantEvaluator` authorizes one trusted target; B2-B1 `IEffectiveScopeProvider` returns immutable exact permission-specific Zone/Region descriptors for Sites list queries, reusing shared Identity eligibility semantics. B2-B2 adds the Sites Application consumer/composition and persistence contracts; Geography HTTP routes are not integrated until C1.
 - `IWorkingContextAuditWriter` — Audit-owned cross-module contract для durable `WorkingContextSelected` и `WorkingContextApplied`; Identity не пишет в Audit schema напрямую.
 
 Planned subsequent contracts: `IWorkingContext`, `IAuthorizationService`, `UserReference`, `WorkingContextReference`. Текущий Domain `AccessScope` не является публичным контрактом для business modules.
