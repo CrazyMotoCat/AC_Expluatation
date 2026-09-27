@@ -1228,11 +1228,11 @@ DO_NOT_REPEAT: Do not redo B1/B2 preflight or passing regression suites without 
 
 TASK: AUTH-SCOPE-01
 PHASE: C1 — INDEPENDENT SECURITY / INTEGRATION REVIEW
-STATUS: DONE / PUBLISHED ON LOCAL MAIN; remote publication verification follows
+STATUS: DONE / PUBLISHED
 SOURCE_C1_COMMIT: 279cb598b2a11e6ac665bafceee1f78972d07743
 BASELINE_SHA: 2910ba4a6e4f89923ac3b51400602959c90014fb
 BRANCH: main
-LAST_SAFE_COMMIT: this documentation-only checkpoint commit at HEAD once committed; source C1 commit is 279cb598b2a11e6ac665bafceee1f78972d07743
+LAST_SAFE_COMMIT: HEAD (final publication checkpoint commit); source C1 commit is 279cb598b2a11e6ac665bafceee1f78972d07743
 OWNER_DECISION: C1-OD-01 — missing and out-of-scope direct Zone/Region targets and Region-create parent Zone return 403 GEOGRAPHY_ACCESS_DENIED; authentication failure remains 401; empty scoped lists return 200 [].
 
 C1_SECURITY_REVIEW: PASS — independent cumulative diff and whitespace-insensitive harness review; no open Critical, High, Medium or Low finding.
@@ -1272,7 +1272,9 @@ DOCUMENTATION_IMPACT: YES
 DOCUMENTATION_SYNC: PASS — C1-OD-01, route behavior and publication wording aligned in affected docs.
 FAST_FORWARD: PASS — main advanced from baseline to source C1 commit without merge commit.
 SITE_CHECKPOINT_BRANCH: UNCHANGED at 4d230e7c8192614954b7d106014bfaaf75669207
-PUSH: PENDING — verify origin/main before normal push.
-HOSTED_CI: NOT_YET_VERIFIED — requires exact final remote SHA.
-NEXT_ACTION: Commit this documentation-only checkpoint, recheck origin/main, push main normally, verify exact remote SHA and hosted CI; then plan safe return to TASK-02.03.03 Site checkpoint without starting Site work.
+PUSH: PASS — normal main push; verify origin/main equals HEAD after this checkpoint commit is published.
+REMOTE_SHA: HEAD after final normal push; live ls-remote verification required before closure.
+HOSTED_CI: NOT_YET_VERIFIED — GitHub Actions run for the exact final SHA is inaccessible from this environment; no PASS claimed.
+REPOSITORY_STATE: CLEAN after final push.
+NEXT_ACTION: Prepare a safe return/integration plan for TASK-02.03.03 Site checkpoint on the published C1 baseline; do not start Site work in this phase.
 DO_NOT_REPEAT: Do not redo preflight, change C1 code, amend source commit, force push, touch Site branch or start Site authorization.
