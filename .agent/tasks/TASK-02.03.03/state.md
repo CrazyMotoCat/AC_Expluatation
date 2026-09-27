@@ -304,3 +304,157 @@ BLOCKERS: None for local integration. Push and exact-SHA hosted CI verification 
 FILES_CHANGED: `docs/architecture.md`, `docs/api-guidelines.md`, `docs/backlog.md`, `docs/context/sites.context.md`, `docs/modules/sites.md`, `docs/security.md`, this checkpoint.
 NEXT_ACTION: Commit only the publication-status files, fetch and verify origin/main is still the replay baseline, push main normally, then verify hosted CI for the final SHA.
 DO_NOT_REPEAT: Do not repeat replay/cherry-pick or alter the historical branch; do not start Site authorization, Site HTTP API, capabilities or frontend.
+
+## SITE-AUTH-00 contract refinement checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-AUTH-00 — Site authorization contract refinement
+STATUS: CONTRACT_FROZEN
+BASELINE_SHA: 4307ac3412f2c7da73290b76e4ee5358d1f8053c
+BRANCH: codex/task-02.03.03-site-auth (local, from exact clean main)
+REPOSITORY_GUARD: `git fetch`; main == origin/main == baseline SHA; initial worktree clean
+SITE_B1: PUBLISHED
+ADR_014: ACCEPTED / REFINED_BY_ADR_017; historical file unchanged
+ADR_017: ACCEPTED / contract only
+IDENTITY_SITE_SCOPE: NOT_IMPLEMENTED
+SITES_SITE_AUTH: NOT_IMPLEMENTED
+SITE_LIST_AUTH: NOT_IMPLEMENTED
+SITE_HTTP_API: NOT_IMPLEMENTED
+SCHEMA_CHANGE_EXPECTED: NO; existing `identity.access_assignments.site_id`
+MIGRATION_REQUIRED: NO
+
+CONTRACT: Identity returns exact permission-specific Site/Region/Zone scopes
+for eligible INTERNAL user/context; Sites resolves authoritative Site →
+Region → Zone and applies downward coverage. Site list obtains `sites.read`
+scopes internally and filters in SQL before count/page. Create requires
+`sites.create` on parent Region or ancestor Zone; direct changes require
+their independent permission and Site coverage. No upward coverage or
+caller-supplied parent/effective-scope evidence. Empty list scopes return a
+200 empty page. Direct Site and create-parent absence/out-of-scope share
+403 GEOGRAPHY_ACCESS_DENIED; denied commands leave Site/version/audit unchanged.
+Contractor-positive access remains closed. No Site move or DELETE.
+
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: ADR-017/index, Site API/backlog/module/context,
+Identity module, security, and this checkpoint.
+VERIFICATION: `git diff --check` PASS; ADR-017 trailing whitespace none;
+ADR numbering unique; references to ADR-014/015/016/017 and C1 concealment
+checked; scoped secret-pattern scan found no matches; changed paths are docs
+and this checkpoint only. No runtime tests required for contract-only phase.
+WORKTREE: task-owned documentation edits only; no commit or push
+NEXT_ACTION: SITE-AUTH-01A Identity exact Site scopes; SITE-AUTH-01B Sites
+authoritative target/list; SITE-AUTH-01C PostgreSQL/security/architecture
+review and independent publication review. Site API only after publication.
+DO_NOT_REPEAT: Do not implement Site auth/API, migration, capabilities,
+frontend or Development bootstrap in SITE-AUTH-00; do not start next phase
+automatically.
+
+## SITE-AUTH-01 atomic checkpoint 1
+
+TASK: TASK-02.03.03
+PHASE: SITE-AUTH-01 — Site authorization foundation
+BASELINE_SHA: 4307ac3412f2c7da73290b76e4ee5358d1f8053c
+BRANCH: codex/task-02.03.03-site-auth
+REPOSITORY_GUARD: SAFE_WITH_CHECKPOINT / DIRTY_EXPECTED_DOCS_ONLY at start;
+`git fetch` confirmed main == origin/main == HEAD == baseline; dirty paths
+matched SITE-AUTH-00 docs and this checkpoint.
+SITE_AUTH_01_STEP_1: DONE
+IDENTITY_SITE_SCOPE: IMPLEMENTED
+SITE_SCOPE_EXACT: PASS
+IDENTITY_HIERARCHY_EXPANSION: NONE
+IDENTITY_POSTGRESQL_TESTS: PASS — IdentityPersistenceChecks Release/Testcontainers
+IDENTITY_BUILD: PASS — Identity Infrastructure Release, zero warnings/errors
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+WORKTREE: SITE-AUTH-00 docs plus task-owned Identity source/tests/checkpoint;
+uncommitted, no push.
+NEXT_ACTION: Extend Sites-owned target authorization and verify with
+PostgreSQL before checkpoint 2.
+
+## SITE-AUTH-01 atomic checkpoints 2 and 3
+
+SITE_AUTH_01_STEP_2: DONE
+SITES_SITE_TARGET: IMPLEMENTED through existing SitesTargetGrantChecks
+SITE_AUTHORITATIVE_HIERARCHY: PASS — one Sites Site/Region join
+DIRECT_SITE_COVERAGE: PASS — exact Site, parent Region, ancestor Zone
+CREATE_PARENT_COVERAGE: PASS — fixed sites.create, parent Region/Zone;
+Site-only, sibling, wrong Zone and missing parent deny. Inactive parent
+coverage is separate from B1 create lifecycle eligibility.
+FORGED_SITE_HIERARCHY: DENIED — public direct API accepts siteId only;
+PostgreSQL test proves wrong Region/Zone cannot authorize.
+SITE_AUTH_01_STEP_3: DONE
+AUTHORIZED_SITE_LIST: PASS — public IAuthorizedSiteReadService obtains
+fixed sites.read scopes internally; no caller-supplied scopes/permission.
+SERVER_SIDE_FILTERING: PASS — EF IQueryable joins Sites-owned Region and
+applies scope predicate before CountAsync and ordered Skip/Take.
+EMPTY_SCOPE: EMPTY_RESULT, zero totalCount/totalPages
+COUNT_LEAKAGE: NONE — unauthorized rows excluded before count and page.
+N_PLUS_ONE: NONE — one bounded provider scope query plus Sites count/page.
+POSTGRESQL_TESTS: SitesPersistenceChecks Release/Testcontainers PASS,
+including direct/create/list union, filters, count/page, permission isolation,
+contractor with real Identity provider and Site B1 regressions.
+ARCHITECTURE_CHECKS: PASS at this checkpoint.
+WORKTREE: task-owned source/tests/docs/checkpoint; uncommitted, no push.
+NEXT_ACTION: Full regressions, cumulative security review, documentation
+status and local commit only after all gates pass.
+
+## SITE-AUTH-01 atomic checkpoint 4 and local handoff
+
+SITE_AUTH_01_STEP_4: DONE
+F1: CLOSED — existing Zone/Region forged-parent PostgreSQL/architecture cases pass
+F2: CLOSED — existing public geography list boundary remains enforced
+SITE_F1: CLOSED — only siteId/parent Region business ID accepted; persisted
+Site/Region lookup supplies hierarchy, wrong Region/Zone tests deny
+SITE_F2: CLOSED — public Site list accepts only subject/business filters;
+service obtains fixed sites.read scopes; concrete SQL service is internal
+SECURITY_REVIEW: PASS — separate cumulative branch diff review of forged
+ancestry/scopes, permission reuse, upward coverage, cross-region/zone,
+empty scope, count leakage, contractor, provider failure, public store and
+cross-module database access. No open Critical/High/Medium/Low findings.
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: Independent publication review remains the next action. No Site
+mutation HTTP integration or positive contractor path was added.
+
+VALIDATION:
+- Identity Infrastructure Release build PASS; Sites Infrastructure Release
+  build PASS; full Release solution build PASS with zero warnings/errors.
+- IdentityPersistenceChecks and SitesPersistenceChecks real PostgreSQL/
+  Testcontainers PASS, including exact Site, direct/create/list, inactive
+  target, permission isolation, contractor, fail-closed and count/page cases.
+- All 11 explicit executable harnesses PASS: SitesDomain, IdentityDomain,
+  SitesPersistence, SitesApi, OrganizationPersistence, OrganizationApi,
+  IdentityPersistence, Authentication, AuditPersistence, AuditDelivery,
+  Architecture. Zone/Region C1, B2 F1/F2, Site B1 persistence/races/audit,
+  OIDC and working-context regressions are included.
+- `dotnet test Exploitation.sln -c Release --no-build` PASS (exit 0; solution
+  uses executable harnesses rather than VSTest discovery).
+- Identity and Sites EF `has-pending-model-changes` PASS: no model drift.
+- Changed handwritten C# `dotnet format whitespace --verify-no-changes`
+  PASS; `git diff --check` and changed-file trailing whitespace PASS.
+- ADR numbering/index and affected Markdown/reference status PASS; scoped
+  secret-pattern scan found no matches.
+
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NONE
+SITE_HTTP_API: NOT_IMPLEMENTED
+CAPABILITIES: NOT_ADDED
+DEV_BOOTSTRAP: NOT_ADDED
+FRONTEND: UNCHANGED
+CONTRACTOR_POSITIVE: NONE
+ZONE_REGION_C1: PUBLISHED / ROUTES UNCHANGED
+SITE_B1: PUBLISHED
+SITE_AUTH_FOUNDATION: IMPLEMENTED_LOCALLY_VERIFIED / NOT_PUBLISHED
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: Site/Identity modules and contexts, security and
+non-normative ADR-017 implementation status updated; ADR decision unchanged;
+Site API still marked unimplemented.
+LOCAL_COMMIT: one task-owned standalone commit after staged diff review
+MAIN: 4307ac3412f2c7da73290b76e4ee5358d1f8053c (unchanged)
+ORIGIN_MAIN: same
+PUSH: NONE
+NEXT_ACTION: Independent SITE-AUTH-01 security/integration review before
+publication; do not start Site HTTP API, merge or push automatically.

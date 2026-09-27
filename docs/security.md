@@ -263,14 +263,14 @@ scope matches target entity
 
 С `TASK-01.03.02` получение списка и выбор только собственных available contexts — узкий self-service/bootstrap boundary: validated OIDC principal + ACTIVE local user + проверка ownership/active/validity. Он не требует operational grant `identity.contexts.read`, поскольку context нужен до полной authorization evaluation. Permission остаётся canonical для будущих permission-controlled context use cases. Выбранный context не является grant: production permission source остаётся deny; role name, UserType, JWT claims и DEV environment не расширяют права. Клиентский `X-Work-Context-Id` проверяется на backend при каждом `/api/v1` запросе, если передан. CONTRACT context selection не заменяет будущую проверку membership/contract/scope/validity при operational access.
 
-ADR-013 / `AUTH-SCOPE-01` B1 реализует Identity `IEffectiveGrantEvaluator` для прямой проверки одного доверенного Zone/Region target. B2-B1 / ADR-015 реализует отдельный `IEffectiveScopeProvider` для permission-specific list scopes, без передачи бизнес-иерархии в Identity. Оба используют общий Identity eligibility query: ACTIVE INTERNAL local user, собственный текущий INTERNAL context, active/current assignment, active role, точное canonical role-permission и supported persisted scope. Provider возвращает только точные `TerritorialZone`/`Region` descriptors и не раскрывает Site/Global/wildcard scope.
+ADR-013 / `AUTH-SCOPE-01` B1 реализует Identity `IEffectiveGrantEvaluator` для прямой проверки одного доверенного Zone/Region target. B2-B1 / ADR-015 реализует отдельный `IEffectiveScopeProvider` для permission-specific list scopes, без передачи бизнес-иерархии в Identity. Оба используют общий Identity eligibility query: ACTIVE INTERNAL local user, собственный текущий INTERNAL context, active/current assignment, active role, точное canonical role-permission и supported persisted scope. Published C1 provider возвращает точные `TerritorialZone`/`Region` descriptors; SITE-AUTH-01 локально добавляет exact `Site/siteId` без Global/wildcard и без расширения иерархии в Identity.
 
-Для Zone/Region scoped query пустой effective-scope set означает ноль разрешённых целей; пустой набор никогда не означает all rows или fallback access. Sites SQL filtering применяет Zone scope только к Zone и её дочерним Regions; Region scope не покрывает parent Zone и открывает только соответствующий Region. Unsupported scopes не расширяют результат, duplicate scopes не дублируют rows. List composition получает scopes из Identity с фиксированным `sites.read`; scopes другой permission не используются. Прямые target checks получают authoritative Zone/Region facts из Sites persistence и отдельно запрашивают effective scopes для точного permission, не полагаясь на list result. C1 включает только Geography HTTP routes; target-blind production grant source остаётся deny-by-default для прочих маршрутов. Site scope, contractor grants и capabilities также не реализованы.
+Для Zone/Region scoped query пустой effective-scope set означает ноль разрешённых целей; пустой набор никогда не означает all rows или fallback access. Sites SQL filtering применяет Zone scope только к Zone и её дочерним Regions; Region scope не покрывает parent Zone и открывает только соответствующий Region. Unsupported scopes не расширяют результат, duplicate scopes не дублируют rows. List composition получает scopes из Identity с фиксированным `sites.read`; scopes другой permission не используются. Прямые target checks получают authoritative Zone/Region facts из Sites persistence и отдельно запрашивают effective scopes для точного permission, не полагаясь на list result. C1 включает только Geography HTTP routes; target-blind production grant source остаётся deny-by-default для прочих маршрутов. Site HTTP routes, contractor grants и capabilities не реализованы; Site scope/coverage реализованы только локально в SITE-AUTH-01.
 
 ADR-016 / `AUTH-SCOPE-01` B2-R1 исправляет границу доверия после независимой проверки B2: Identity evaluator принимает только exact Zone/Region target ID без caller-supplied Region parent; Zone → Region coverage вычисляется Sites по сохранённой иерархии. Публичный Sites direct service принимает бизнес-цель, authenticated local user и validated context, затем сам запрашивает `IEffectiveScopeProvider` для точного permission. Публичный list service запрашивает фиксированный `sites.read`; SQL-фильтрация скрыта внутри Sites Infrastructure, без публичного scope-bearing store или permission-string evidence. B1 exact-scope eligibility сохраняется. Финальная проверка F1/F2 прошла, B2 интегрирован на main. C1-OD-01: отсутствующая и недоступная прямая Zone/Region цель либо parent Zone для Region create одинаково возвращают 403, без раскрытия существования; authentication failure остаётся 401, а пустой scoped list возвращает 200 `[]`.
 
-ADR-014 уточняет тот же контракт для Site: authoritative target включает
-Site, Region и Territorial Zone; Zone scope покрывает потомков, Region scope
+ADR-014, уточнённый ADR-017 после ADR-015/016, закрепляет контракт для Site:
+authoritative target включает Site, Region и Territorial Zone; Zone scope покрывает потомков, Region scope
 покрывает Sites своего Region, Site scope — только эту Site. Site list
 фильтруется на backend, direct ID и mutations проверяются по сохранённой
 иерархии. Создание требует `sites.create` и effective coverage существующего
@@ -278,11 +278,22 @@ parent Region. Ordinary update/lifecycle используют `sites.change`, а
 criticality command — `sites.change_criticality` без дополнительного
 `sites.change`. Этот Phase A contract не открывает production grants.
 Published AUTH-SCOPE supports exact Zone/Region scopes and target-aware
-Zone/Region routes only; Site scope and Site target/list integration are not
-implemented. A later extension must keep Identity scopes exact and evaluate
-authoritative Site → Region → Zone coverage in Sites. The B1
+Zone/Region routes. SITE-AUTH-01 locally implements exact Site scope and
+Sites-owned Site target/list coverage without Site HTTP routes. Independent
+review/publication is pending. The B1
 domain/persistence foundation is published on main.
 Contractors remain fail-closed.
+
+SITE-AUTH-01 реализует exact `Site/siteId` через общий Identity
+eligibility/provider. `site_id` уже есть в assignment schema;
+миграция не потребовалась. Sites самостоятельно загружает Site → Region → Zone,
+вычисляет direct coverage и SQL list predicate для `sites.read` до count и
+pagination. Пустой scope set даёт пустую страницу. Отсутствующий Site и
+вне-scope Site, а также отсутствующий/вне-scope parent Region для Site create,
+возвращают одинаковый `403 GEOGRAPHY_ACCESS_DENIED`; `401` остаётся для
+authentication. Denied mutations не меняют Site, row_version и audit
+obligation. Site authorization foundation проверен локально, но HTTP routes
+ещё не реализованы.
 
 Успешный `POST /api/v1/me/context` возможен только после durable Audit-owned `WorkingContextSelected` по context ID из body; заголовок на этом POST игнорируется. На остальных `/api/v1` запросах валидный `X-Work-Context-Id` означает request-scoped применение context и требует durable `WorkingContextApplied` до endpoint, даже без предшествующего POST. Отказ в validation или сбой Audit не позволяет endpoint выполниться. Audit-событие не является authorization state. Identity grant/state не мутирует, поэтому cross-module transaction не требуется.
 

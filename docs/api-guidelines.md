@@ -1348,11 +1348,15 @@ valid UUIDs and new assignments must reference ACTIVE rows. A created Site
 ID is UUIDv7. Every mutable request carries `expectedRowVersion` and stale
 writes return `409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
 
-Reuse the existing error envelope and established Region code pattern; the
-new Site-specific identifiers below are frozen for this API contract:
+Reuse the existing error envelope and established Region code pattern. ADR-017
+refines the historical draft for authorization concealment: absent and
+out-of-scope direct Site targets, and absent and out-of-scope create parent
+Regions, return the same `403 GEOGRAPHY_ACCESS_DENIED` used by C1 Geography.
+They do not return `SITE_NOT_FOUND`, `REGION_NOT_FOUND` or a separate
+`ACCESS_DENIED` code before authorization succeeds. The remaining business
+errors retain their canonical responses after authorization:
 `VALIDATION_FAILED` (400),
-`ACCESS_DENIED` (403), `SITE_NOT_FOUND` (404),
-`REGION_NOT_FOUND`/`SITE_TYPE_NOT_FOUND`/
+`SITE_TYPE_NOT_FOUND`/
 `SITE_CRITICALITY_CLASS_NOT_FOUND` (404 after authorization permits
 disclosure), `SITE_CODE_ALREADY_EXISTS` (409),
 `REGION_STATE_CONFLICT`/`SITE_TYPE_STATE_CONFLICT`/

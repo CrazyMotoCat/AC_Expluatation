@@ -725,6 +725,11 @@ paginated scoped reads, explicit criticality command and durable Site audit
 obligations. Published production authorization supports Zone/Region only.
 Full production-positive Site CRUD needs a later exact Site-scope and
 Sites-owned target/list coverage extension; contractor grants stay closed.
+SITE-AUTH-00 / ADR-017 freezes that extension under ADR-015/016: Identity
+returns exact Site scopes; Sites resolves Site → Region → Zone and performs
+direct coverage and SQL-filtered lists. The existing assignment schema has
+`site_id`, so no migration is expected. Site authorization and HTTP routes
+remain unimplemented; SITE-AUTH-01 is the next separate phase.
 TASK-02.03.04 owns the later Site card UI.
 
 Acceptance Criteria:
