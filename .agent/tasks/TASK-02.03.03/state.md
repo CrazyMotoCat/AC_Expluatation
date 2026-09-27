@@ -270,3 +270,37 @@ ORIGIN_MAIN: unchanged at `1c7e93558bac453b0a5108798ae03565136fd605`.
 PUSH: NONE.
 NEXT_ACTION: independent review of the replayed Site B1 commit before publication.
 DO_NOT_REPEAT: Do not modify the historical branch, merge or push, begin Site authorization/API/capabilities/frontend, or regenerate the migration.
+
+## RETURN-01C independent replay review and publication checkpoint
+TASK: TASK-02.03.03
+PHASE: RETURN-01C — independent B1 replay review and integration
+STATUS: SITE_B1_PUBLISHED_LOCALLY; PUSH_PENDING
+CHECKPOINT_STATUS: SAFE
+SITE_PHASE_A: FROZEN
+SITE_B1: PUBLISHED on local main by fast-forward
+REPLAY: VERIFIED; local main contains `87777e5e4bc208cb074179893cf66030c02e4e3f`
+HISTORICAL_SITE_CHECKPOINT: `4d230e7c8192614954b7d106014bfaaf75669207`; historical branch unchanged
+AUTH_SCOPE_B1_B2_C1: PUBLISHED and regression-verified
+SITE_AUTHORIZATION: NOT_STARTED
+SITE_HTTP_API: NOT_STARTED
+LAST_SAFE_COMMIT: `87777e5e4bc208cb074179893cf66030c02e4e3f` before this status-only publication commit
+
+COMPLETED:
+- Independent comparison of current main, historical Site checkpoint and final replay across all 40 paths and all eight overlap paths; three textual conflict files (`docs/adr/README.md`, `docs/context/sites.context.md`, `docs/modules/sites.md`) retain current AUTH-SCOPE content and add Site B1.
+- Reviewed Site contract, reference eligibility, migration/snapshot, both Region race orderings, audit atomicity/delivery, B2/C1 trust boundaries and registrations; no open Critical/High/Medium findings.
+- Fast-forwarded local main from `1c7e93558bac453b0a5108798ae03565136fd605` to replay commit; no merge commit, squash or new cherry-pick.
+- `docs-impact`: YES; publication wording synchronized in architecture, API, backlog, Sites module/context and security. Accepted ADR-014 left unchanged.
+DOCUMENTATION_SYNC: PASS — affected documents now describe the published B1 foundation and the pending Site authorization/API boundary.
+
+VERIFIED:
+- Before and after fast-forward: 11 explicit executable harnesses PASS, including Site PostgreSQL persistence/race/audit, Sites API, Identity persistence/authentication, Organization, Audit and architecture.
+- Release solution build PASS with zero warnings/errors; `dotnet test` exit 0 (executable harnesses run separately); EF Sites model drift NONE; `git diff --check` PASS.
+- Changed handwritten C# whitespace formatter PASS; replay secret-pattern scan 0; no Site API route or Identity/Sites DB cross-dependency added.
+- Sites migration IDs, in order: InitialTerritorialZones, AddRegions, AddSiteTypes, AddSiteCriticalityClasses, AddSites. Organization harness count 4 to 5 JUSTIFIED.
+
+UNCOMMITTED: Only narrow publication-status documentation and this checkpoint, to be committed explicitly on main.
+DECISIONS: ADR-014 remains Accepted and compatible in ownership, but its context says AUTH-SCOPE Phase A/evaluator is not implemented; that historical status should be refined against ADR-016 before future Site authorization work, without changing this frozen Site contract now.
+BLOCKERS: None for local integration. Push and exact-SHA hosted CI verification remain pending.
+FILES_CHANGED: `docs/architecture.md`, `docs/api-guidelines.md`, `docs/backlog.md`, `docs/context/sites.context.md`, `docs/modules/sites.md`, `docs/security.md`, this checkpoint.
+NEXT_ACTION: Commit only the publication-status files, fetch and verify origin/main is still the replay baseline, push main normally, then verify hosted CI for the final SHA.
+DO_NOT_REPEAT: Do not repeat replay/cherry-pick or alter the historical branch; do not start Site authorization, Site HTTP API, capabilities or frontend.

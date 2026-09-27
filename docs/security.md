@@ -281,7 +281,7 @@ Published AUTH-SCOPE supports exact Zone/Region scopes and target-aware
 Zone/Region routes only; Site scope and Site target/list integration are not
 implemented. A later extension must keep Identity scopes exact and evaluate
 authoritative Site → Region → Zone coverage in Sites. The B1
-domain/persistence foundation is present only on the local resume branch.
+domain/persistence foundation is published on main.
 Contractors remain fail-closed.
 
 Успешный `POST /api/v1/me/context` возможен только после durable Audit-owned `WorkingContextSelected` по context ID из body; заголовок на этом POST игнорируется. На остальных `/api/v1` запросах валидный `X-Work-Context-Id` означает request-scoped применение context и требует durable `WorkingContextApplied` до endpoint, даже без предшествующего POST. Отказ в validation или сбой Audit не позволяет endpoint выполниться. Audit-событие не является authorization state. Identity grant/state не мутирует, поэтому cross-module transaction не требуется.

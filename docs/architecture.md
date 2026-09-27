@@ -490,9 +490,9 @@ For the TASK-02.03.03 first slice, `address_text` is required and no
 coordinates or commissioning/closure timestamps are part of the Site
 contract. Site ownership and target-aware scope are documented in
 `modules/sites.md` and ADR-014. The Site B1 domain/persistence foundation is
-implemented only on the local resume branch; Site HTTP routes and production
-Site authorization remain unimplemented. Published target-aware authorization
-currently covers Zone/Region only.
+published on main; Site HTTP routes and production Site authorization remain
+unimplemented. Published target-aware authorization currently covers
+Zone/Region only.
 
 ## 10.2. SiteType
 

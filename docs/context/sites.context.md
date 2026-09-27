@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.03 B1 replay)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 and TASK-02.03.03 B1 publication)
 MODULE: Sites
 
 ## PURPOSE
@@ -173,8 +173,8 @@ valid. ACTIVE/INACTIVE transitions and all mutable commands use optimistic
 commissioning/closure timestamps are included. Creation serializes with
 Region deactivation by locking the Region row. See `modules/sites.md` and
 `api-guidelines.md` for the future API contract. Phase B1 domain/persistence
-foundation is implemented on the local resume branch only; HTTP/API and Site
-target authorization remain unimplemented and unpublished.
+foundation is published on main; HTTP/API and Site target authorization
+remain unimplemented.
 
 ## PUBLIC CONTRACTS
 

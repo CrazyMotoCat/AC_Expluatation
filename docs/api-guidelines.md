@@ -1307,7 +1307,7 @@ management operations; a working context does not grant permission.
 
 The first Site CRUD slice is specified by the routes and base Site DTO below;
 none of these Site routes is implemented. The B1 domain/persistence
-foundation is present on the local resume branch only. Published production
+foundation is published on main. Production
 authorization supports target-aware Zone/Region operations; Site scope,
 Site target authorization and authorized Site lists remain unsupported. Do
 not expose these routes until exact Site scope support in Identity and

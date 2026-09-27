@@ -713,11 +713,10 @@ Acceptance Criteria:
 
 Phase A: owner decisions OD-01 through OD-10 are frozen in Sites module,
   database/API/security documentation and ADR-014. Phase B1 foundation is
-  replayed locally on `codex/task-02.03.03-site-resume`: Site domain and
-  persistence, additive migration, parent/reference invariants and durable
-  Site Audit binding/delivery compatibility. It is not published. Site
-  HTTP/API and production authorization remain unimplemented; frontend is a
-  separate task.
+  published on main: Site domain and persistence, additive migration,
+  parent/reference invariants and durable Site Audit binding/delivery
+  compatibility. Site HTTP/API and production authorization remain
+  unimplemented; frontend is a separate task.
 Sites owns `sites.sites` in the Territorial Zone → Region → Site hierarchy.
 The first backend slice has required immutable globally unique canonical code,
 required name/Region/SiteType/SiteCriticalityClass/address/timezone,

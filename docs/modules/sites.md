@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.03 B1 replay)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 and TASK-02.03.03 B1 publication)
 
 ## Purpose
 
@@ -130,11 +130,11 @@ concerns future Site changes, not reference catalog management.
 ## Site CRUD — TASK-02.03.03 contract and Phase B1 foundation
 
 Owner decisions OD-01 through OD-10 are frozen. The Phase B1 foundation is
-implemented on the local resume branch: Site domain aggregate, Sites-owned
-table and additive migration, and internal atomic command persistence. It is
-not published. No Site HTTP route, production Site scope evaluator or target
-projection is implemented; published target-aware authorization supports
-TerritorialZone and Region only. Site is the Sites-owned child of exactly one
+published on main: Site domain aggregate, Sites-owned table and additive
+migration, and internal atomic command persistence. No Site HTTP route,
+production Site scope evaluator or target projection is implemented;
+published target-aware authorization supports TerritorialZone and Region only.
+Site is the Sites-owned child of exactly one
 Region. Site ID is UUIDv7. Required code is trimmed, invariant-uppercase,
 globally unique, immutable, at most 50 characters and matches
 `^[A-Z0-9][A-Z0-9_-]{0,49}$`. `region_id` is required and immutable; no
