@@ -367,3 +367,46 @@ integration. Do not start that work in this task.
 DO_NOT_REPEAT: Do not reimplement or repeat passing gates without a related
 code change. Do not begin B2, Site projection, route integration, capabilities,
 Development bootstrap, contractor-positive authorization, merge or push.
+
+## B1 independent integration checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B1 — INDEPENDENT REVIEW + MAIN INTEGRATION
+STATUS: INTEGRATED — ready to push
+BASELINE_SHA: 8bef135bf28be900325966257803d69c105ef11e
+SOURCE_AUTH_COMMIT: fb3d5648caceecb1668f84bc0823e12d3de43f8b
+AUTH_BRANCH_SHA: fb3d5648caceecb1668f84bc0823e12d3de43f8b
+MAIN_FAST_FORWARD_SHA: fb3d5648caceecb1668f84bc0823e12d3de43f8b
+COMMIT_PARENT_VERIFIED: YES — baseline SHA
+AUTH_SCOPE_ONLY: YES
+INDEPENDENT_INTEGRATION_REVIEW: PASS
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 1 — test-tool source scanner checks literal fragments; exact project-reference assertions and current project files independently exclude Identity-to-Sites project dependency; no material bypass.
+NOTE: Future callers must construct TrustedAuthorizationScope from authoritative facts owned by Sites. No caller was implemented in B1.
+EFFECTIVE_GRANT_EVALUATOR: PASS
+IDENTITY_OWNS_EVALUATION: YES
+INTERNAL_USER_AND_CONTEXT: PASS
+ASSIGNMENT_VALIDITY: PASS
+PERMISSION_EVALUATION: PASS
+SCOPE_EVALUATION: PASS — exact Zone/Region and trusted Zone-to-Region projection
+CONTRACTOR: FAIL_CLOSED
+SITES_DB_DEPENDENCY: NONE
+PRODUCTION_GRANT_SOURCE_CHANGED: NO
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+SITE_TARGET_SCOPE: NOT_IMPLEMENTED
+GEOGRAPHY_ROUTE_INTEGRATION: NOT_IMPLEMENTED
+CAPABILITIES: NOT_IMPLEMENTED
+DEV_BOOTSTRAP: NOT_IMPLEMENTED
+PRE_INTEGRATION_GATES: PASS for unit evaluator, authentication/context/policy, architecture, solution Release build (0 warnings/errors), solution dotnet test exit 0, diff check, secret hygiene. PostgreSQL/Testcontainers gate is recorded PASS in the prior B1 checkpoint for this exact unchanged commit; this turn's rerun was unavailable because Docker daemon was stopped and Windows refused service access.
+POST_INTEGRATION_GATES: PASS for evaluator unit, authentication/context/policy, architecture, solution Release build (0 warnings/errors), solution dotnet test exit 0, diff check, secret hygiene.
+POSTGRESQL_RERUN: NOT_YET_VERIFIED — Docker service unavailable; prior B1 PASS retained for unchanged source.
+MAIN_FAST_FORWARD: PASS — no merge commit
+SITE_CHECKPOINT_BRANCH: unchanged at 4d230e7c8192614954b7d106014bfaaf75669207
+PUSH: PENDING
+HOSTED_CI: NOT_YET_VERIFIED
+UNCOMMITTED: this checkpoint update only, to be committed separately
+NEXT_ACTION: commit this checkpoint update, push main without force, fetch and verify local main equals origin/main, then inspect hosted CI availability. Stop before B2.
+DO_NOT_REPEAT: Do not amend source B1 commit; do not change Site checkpoint; do not start B2, Site scope, Geography routes, capabilities, DEV bootstrap, contractor-positive grants, or another business task.
