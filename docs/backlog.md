@@ -469,11 +469,11 @@ remediation contract. B2-R1 implements exact Identity targets, Sites-owned
 direct coverage and an authorized list service with internal SQL filtering.
 Final adversarial review closed F1/F2 with no open HIGH/MEDIUM findings. A
 PostgreSQL test composes the real Identity provider with the public Sites list
-service. B2 is integrated on main. C1 locally integrates only Zone/Region
+service. B2 is integrated on main. C1 integrates only Zone/Region
 production routes through Sites target-aware services. C1-OD-01 makes absent
 and out-of-scope direct targets or Region-create parents uniformly 403;
-empty scoped lists remain 200 `[]`. Root Zone create stays closed. C1 awaits
-independent review before any publication.
+empty scoped lists remain 200 `[]`. Root Zone create stays closed. Independent
+C1 review passed and the Geography routes are integrated on main.
 
 ---
 

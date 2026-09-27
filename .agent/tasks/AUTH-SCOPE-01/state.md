@@ -1221,3 +1221,58 @@ PUSH: NONE
 MERGE: NONE
 NEXT_ACTION: Independent C1 security/integration review of the local commit before publication. Do not start Site authorization, capabilities or Development bootstrap.
 DO_NOT_REPEAT: Do not redo B1/B2 preflight or passing regression suites without a relevant change; do not touch the Site checkpoint branch, push, merge or broaden C1.
+
+---
+
+## C1 independent review and main integration checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: C1 — INDEPENDENT SECURITY / INTEGRATION REVIEW
+STATUS: DONE / PUBLISHED ON LOCAL MAIN; remote publication verification follows
+SOURCE_C1_COMMIT: 279cb598b2a11e6ac665bafceee1f78972d07743
+BASELINE_SHA: 2910ba4a6e4f89923ac3b51400602959c90014fb
+BRANCH: main
+LAST_SAFE_COMMIT: this documentation-only checkpoint commit at HEAD once committed; source C1 commit is 279cb598b2a11e6ac665bafceee1f78972d07743
+OWNER_DECISION: C1-OD-01 — missing and out-of-scope direct Zone/Region targets and Region-create parent Zone return 403 GEOGRAPHY_ACCESS_DENIED; authentication failure remains 401; empty scoped lists return 200 [].
+
+C1_SECURITY_REVIEW: PASS — independent cumulative diff and whitespace-insensitive harness review; no open Critical, High, Medium or Low finding.
+PRODUCTION_GEOGRAPHY_AUTHORIZATION: TARGET_AWARE
+ZONE_LIST: ENABLED_SCOPED
+ZONE_GET: TARGET_AWARE
+ZONE_ROOT_CREATE: CLOSED
+ZONE_MUTATIONS: TARGET_AWARE
+REGION_LIST: ENABLED_SCOPED
+REGION_GET: TARGET_AWARE
+REGION_CREATE: TARGET_AWARE
+REGION_MUTATIONS: TARGET_AWARE
+CONTRACTOR: FAIL_CLOSED
+SITE_TARGET: NOT_IMPLEMENTED
+CAPABILITIES: NOT_IMPLEMENTED
+DEV_BOOTSTRAP: NOT_IMPLEMENTED
+
+F1_F2_REGRESSION: PASS — no caller-supplied parent or scopes enter public Sites authorization services.
+IDOR_AND_CONCEALMENT: PASS — 403 for missing and out-of-scope targets; same safe error code.
+DENIED_MUTATION_SIDE_EFFECTS: NONE — real PostgreSQL rows, versions and audit obligations unchanged.
+COUNT_LEAKAGE: NOT_APPLICABLE — current Geography list routes expose arrays without pagination or total count; SQL scope predicate precedes materialization.
+PERMISSION_ISOLATION: PASS — sites.read / sites.create / sites.change checked separately.
+SERVER_SIDE_FILTERING: PASS — bounded Identity scope query plus Sites SQL; no per-row evaluator.
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NOT_APPLICABLE — no EF mapping changes.
+
+SITES_API_POSTGRESQL: PASS — before and after fast-forward.
+SITES_PERSISTENCE_POSTGRESQL: PASS — before and after fast-forward.
+IDENTITY_PERSISTENCE_POSTGRESQL: PASS — before and after fast-forward.
+OIDC_AUTHENTICATION: PASS — before and after fast-forward.
+DOMAIN_AND_ARCHITECTURE_CHECKS: PASS — before and after fast-forward.
+RELEASE_BUILD: PASS — zero warnings/errors before and after fast-forward.
+DOTNET_TEST: PASS — before and after fast-forward; executable harnesses run separately.
+FORMAT_AND_DIFF_CHECK: PASS
+DOCUMENTATION_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — C1-OD-01, route behavior and publication wording aligned in affected docs.
+FAST_FORWARD: PASS — main advanced from baseline to source C1 commit without merge commit.
+SITE_CHECKPOINT_BRANCH: UNCHANGED at 4d230e7c8192614954b7d106014bfaaf75669207
+PUSH: PENDING — verify origin/main before normal push.
+HOSTED_CI: NOT_YET_VERIFIED — requires exact final remote SHA.
+NEXT_ACTION: Commit this documentation-only checkpoint, recheck origin/main, push main normally, verify exact remote SHA and hosted CI; then plan safe return to TASK-02.03.03 Site checkpoint without starting Site work.
+DO_NOT_REPEAT: Do not redo preflight, change C1 code, amend source commit, force push, touch Site branch or start Site authorization.

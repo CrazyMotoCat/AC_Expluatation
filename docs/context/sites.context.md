@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 local integration; TASK-02.03.02 Phase D final review)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.02 Phase D final review)
 MODULE: Sites
 
 ## PURPOSE
@@ -146,7 +146,7 @@ Region API uses the same permission keys: list/get → `sites.read`, create → 
 
 `AUTH-SCOPE-01` Phase A / ADR-013 freezes target-aware geographic authorization; B2-A / ADR-015 freezes the list-scope provider and exact list rules. Zone queries match only Zone scope IDs; Region queries match exact Region IDs or the persisted parent Zone scope IDs. Coverage is downward Zone → Region only; Region does not cover a parent Zone. Empty scopes return no rows. Unsupported kinds add no IDs, duplicates do not multiply rows, and the hierarchy predicate is applied in Sites SQL. Sites loads persisted Zone/Region facts and the Region's DB-owned parent without an ACTIVE filter, then evaluates coverage using Identity effective scopes. C1 integrates Geography routes only. Root Zone creation remains closed; Site scope, capabilities, Development bootstrap and contractor grants remain unimplemented.
 
-ADR-016 / B2-R1 implements the public boundary after F1 HIGH/F2 MEDIUM review. Sites direct authorization accepts only business Zone/Region IDs, loads authoritative Region parent from Sites persistence, requests effective scopes for the exact permission and evaluates coverage locally. Region creation loads the parent Zone and requires exact `sites.create` Zone coverage. Public `IAuthorizedGeographyReadService` lists request fixed `sites.read` scopes internally; SQL filtering is private in an internal Sites Infrastructure implementation. No public scope-bearing read request/store remains. Identity derives scopes; Sites maps them to targets. C1 locally enables Zone/Region routes while unrelated routes retain target-blind denial. C1-OD-01 returns uniform 403 for absent and out-of-scope direct targets or Region-create parents; no list scopes yield 200 `[]`.
+ADR-016 / B2-R1 implements the public boundary after F1 HIGH/F2 MEDIUM review. Sites direct authorization accepts only business Zone/Region IDs, loads authoritative Region parent from Sites persistence, requests effective scopes for the exact permission and evaluates coverage locally. Region creation loads the parent Zone and requires exact `sites.create` Zone coverage. Public `IAuthorizedGeographyReadService` lists request fixed `sites.read` scopes internally; SQL filtering is private in an internal Sites Infrastructure implementation. No public scope-bearing read request/store remains. Identity derives scopes; Sites maps them to targets. C1 enables Zone/Region routes while unrelated routes retain target-blind denial. C1-OD-01 returns uniform 403 for absent and out-of-scope direct targets or Region-create parents; no list scopes yield 200 `[]`.
 
 ## PUBLIC CONTRACTS
 
