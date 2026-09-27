@@ -1066,3 +1066,47 @@ SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d1060
 UNCOMMITTED: focused real-provider Sites integration harness, project references, review evidence and this checkpoint only.
 NEXT_ACTION: Commit the reviewed test/evidence on B2; fetch and recheck origin/main; fast-forward main if unchanged, rerun post-integration gates, update publication checkpoint, then push and verify hosted CI for the final SHA.
 DO_NOT_REPEAT: Do not amend B2/R1 commits, rebase, merge non-fast-forward, touch Site checkpoint or start C1.
+
+---
+
+## B2 main integration and publication checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B2 — FINAL ADVERSARIAL SECURITY REVIEW + MAIN INTEGRATION
+STATUS: MAIN_INTEGRATED_PUBLICATION_METADATA_COMMIT_PENDING_PUSH
+BRANCH: main
+LAST_SAFE_COMMIT: 3bea63999da517009c594da0b35fd439238d2d56
+BASELINE_MAIN: a3167e85115875c48737f7af10007366e2beaa69
+SOURCE_B2_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88
+REMEDIATION_COMMIT: 23eb97bfb6642061f8f2a95a8f585fd27380d542
+FINAL_B2_SHA: 3bea63999da517009c594da0b35fd439238d2d56
+INTEGRATION_METHOD: FAST_FORWARD_ONLY — no squash, cherry-pick or merge commit
+B1: PUBLISHED
+B2: PUBLISHED
+B2_SECURITY_REVIEW: PASS
+F1: CLOSED
+F2: CLOSED
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+ADR_015: IMPLEMENTED
+ADR_016: IMPLEMENTED
+C1: NOT_STARTED
+PRODUCTION_ROUTE_INTEGRATION: NOT_STARTED
+SITE_TARGET: NOT_IMPLEMENTED
+CAPABILITIES: NOT_IMPLEMENTED
+DEV_BOOTSTRAP: NOT_IMPLEMENTED
+END_TO_END_PROVIDER_LIST_PROOF: PASS — real Identity/Sites DI and PostgreSQL in Sites persistence harness
+POST_INTEGRATION_GATES: PASS — Identity domain, Identity/Sites PostgreSQL, architecture, Sites API, OIDC/working-context, Release solution build and `dotnet test` on main
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — ADR index, backlog, security, Identity/Sites modules and contexts updated for final review and main integration; database/OpenAPI unchanged because schema/routes did not change
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NOT_APPLICABLE — EF mappings unchanged
+PRODUCTION_ROUTE_INTEGRATION_CHANGED: NO
+SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d106014bfaaf75669207 — unchanged
+HOSTED_CI: NOT_YET_VERIFIED — verify the exact final pushed main SHA after publication
+UNCOMMITTED: publication metadata in this checkpoint and synchronized docs only
+NEXT_ACTION: Commit the publication metadata, fetch and verify unchanged origin/main, push main normally, verify local/remote SHA and hosted CI; then stop before C1.
+DO_NOT_REPEAT: Do not start C1, change Geography routes, touch Site checkpoint, force push or claim hosted CI success without exact-SHA evidence.

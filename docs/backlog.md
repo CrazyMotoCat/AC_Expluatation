@@ -454,9 +454,10 @@ follow-up request; the current production grant source remains deny-by-default.
 The B2-A effective-scope contract is frozen in
 `.agent/tasks/AUTH-SCOPE-01/phase-b2a-effective-scope-contract.md` and refined
 by ADR-015. B2-B1 implements the Identity `IEffectiveScopeProvider` and shared
-Identity eligibility query. B2-B2 implements Sites-owned trusted Zone/Region
-target projection, direct-target composition with the B1 evaluator, and
-permission-specific scoped Zone/Region PostgreSQL query composition and stores.
+Identity eligibility query. The initial B2-B2 implementation used a trusted
+Zone/Region projection, direct-target composition with the B1 evaluator, and
+permission-specific scoped Zone/Region PostgreSQL stores; B2-R1 superseded
+those public authorization handoffs under ADR-016.
 Focused PostgreSQL, security, architecture and Release build gates pass.
 Geography route integration remains deferred to C1; B2-B3 remains not started.
 
@@ -466,8 +467,9 @@ and permission at the public Sites read store). B2-R0 freezes ADR-016 and
 `.agent/tasks/AUTH-SCOPE-01/phase-b2r0-trust-boundary-contract.md` as the
 remediation contract. B2-R1 implements exact Identity targets, Sites-owned
 direct coverage and an authorized list service with internal SQL filtering.
-Security re-review and integration remain pending; the B2 branch is unpublished
-and C1 remains deferred.
+Final adversarial review closed F1/F2 with no open HIGH/MEDIUM findings. A
+PostgreSQL test composes the real Identity provider with the public Sites list
+service. B2 is integrated on main; C1 route integration remains deferred.
 
 ---
 

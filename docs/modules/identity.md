@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-R1 remediation; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2 publication; FRONTEND-AUTH-01)
 
 ## Purpose
 
@@ -96,7 +96,7 @@ Contractor request дополнительно проходит Contractors valid
 
 `AUTH-SCOPE-01` B1 / ADR-013 ввёл Identity `IEffectiveGrantEvaluator`; B2-B1 добавил `IEffectiveScopeProvider` с общей Identity eligibility query для immutable distinct permission-specific `TerritorialZone`/`Region` descriptors. Provider не принимает target и не читает Sites hierarchy; composite/unsupported assignments не преобразуются в более широкий descriptor. Исходный B2-B2 передавал Identity trusted Region projection из Sites resolver и публиковал scoped read store; этот handoff заменён B2-R1 по ADR-016. HTTP route integration не реализована, production routes остаются deny-by-default. Site scope, C1, capabilities, Development bootstrap и contractor grants не реализованы.
 
-ADR-016 / B2-R1 реализует уточнение после review F1/F2: Identity остаётся источником точных effective scopes для permission; Sites решает покрытие своей иерархии. Публичный Identity evaluator теперь принимает только target kind + один ID и проверяет exact Zone/Region scope, без Region parent или Zone → Region expansion. Sites direct service получает business target ID, читает Region parent из Sites и запрашивает `IEffectiveScopeProvider`. Exact eligibility B1 сохраняется; composite Zone+Region assignment не упрощается до exact scope. Реализация ожидает независимой проверки B2 перед интеграцией.
+ADR-016 / B2-R1 реализует уточнение после review F1/F2: Identity остаётся источником точных effective scopes для permission; Sites решает покрытие своей иерархии. Публичный Identity evaluator теперь принимает только target kind + один ID и проверяет exact Zone/Region scope, без Region parent или Zone → Region expansion. Sites direct service получает business target ID, читает Region parent из Sites и запрашивает `IEffectiveScopeProvider`. Exact eligibility B1 сохраняется; composite Zone+Region assignment не упрощается до exact scope. Финальная проверка B2 прошла, foundation интегрирован на main; HTTP routes ожидают C1.
 
 `GET /api/v1/me/contexts` и `POST /api/v1/me/context` — узкий own-context bootstrap alongside `GET /api/v1/me`: authenticated + ACTIVE local profile + strict owner/availability. `identity.contexts.read` не требуется в этих self-service маршрутах из-за bootstrap circular dependency; canonical permission сохранён для будущего permission-controlled доступа к contexts. Исключение не применяется к admin/other Identity endpoints.
 
