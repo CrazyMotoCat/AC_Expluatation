@@ -269,6 +269,21 @@ ADR-013 / `AUTH-SCOPE-01` B1 реализует Identity `IEffectiveGrantEvaluat
 
 ADR-016 / `AUTH-SCOPE-01` B2-R1 исправляет границу доверия после независимой проверки B2: Identity evaluator принимает только exact Zone/Region target ID без caller-supplied Region parent; Zone → Region coverage вычисляется Sites по сохранённой иерархии. Публичный Sites direct service принимает бизнес-цель, authenticated local user и validated context, затем сам запрашивает `IEffectiveScopeProvider` для точного permission. Публичный list service запрашивает фиксированный `sites.read`; SQL-фильтрация скрыта внутри Sites Infrastructure, без публичного scope-bearing store или permission-string evidence. B1 exact-scope eligibility сохраняется. Финальная проверка F1/F2 прошла, B2 интегрирован на main. C1-OD-01: отсутствующая и недоступная прямая Zone/Region цель либо parent Zone для Region create одинаково возвращают 403, без раскрытия существования; authentication failure остаётся 401, а пустой scoped list возвращает 200 `[]`.
 
+ADR-014 уточняет тот же контракт для Site: authoritative target включает
+Site, Region и Territorial Zone; Zone scope покрывает потомков, Region scope
+покрывает Sites своего Region, Site scope — только эту Site. Site list
+фильтруется на backend, direct ID и mutations проверяются по сохранённой
+иерархии. Создание требует `sites.create` и effective coverage существующего
+parent Region. Ordinary update/lifecycle используют `sites.change`, а
+criticality command — `sites.change_criticality` без дополнительного
+`sites.change`. Этот Phase A contract не открывает production grants.
+Published AUTH-SCOPE supports exact Zone/Region scopes and target-aware
+Zone/Region routes only; Site scope and Site target/list integration are not
+implemented. A later extension must keep Identity scopes exact and evaluate
+authoritative Site → Region → Zone coverage in Sites. The B1
+domain/persistence foundation is present only on the local resume branch.
+Contractors remain fail-closed.
+
 Успешный `POST /api/v1/me/context` возможен только после durable Audit-owned `WorkingContextSelected` по context ID из body; заголовок на этом POST игнорируется. На остальных `/api/v1` запросах валидный `X-Work-Context-Id` означает request-scoped применение context и требует durable `WorkingContextApplied` до endpoint, даже без предшествующего POST. Отказ в validation или сбой Audit не позволяет endpoint выполниться. Audit-событие не является authorization state. Identity grant/state не мутирует, поэтому cross-module transaction не требуется.
 
 ---

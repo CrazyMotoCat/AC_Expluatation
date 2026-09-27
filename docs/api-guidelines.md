@@ -1303,6 +1303,65 @@ INACTIVE classes, ordered by rank ASC then code ASC. Each row contains only
 global reference list with no Zone/Region filtering. The route has no runtime
 management operations; a working context does not grant permission.
 
+## TASK-02.03.03 — Site API contract (frozen; HTTP API not implemented)
+
+The first Site CRUD slice is specified by the routes and base Site DTO below;
+none of these Site routes is implemented. The B1 domain/persistence
+foundation is present on the local resume branch only. Published production
+authorization supports target-aware Zone/Region operations; Site scope,
+Site target authorization and authorized Site lists remain unsupported. Do
+not expose these routes until exact Site scope support in Identity and
+authoritative Site → Region → Zone coverage in Sites are implemented and
+verified. This contract does not open production grants.
+
+| Operation | Route | Permission and target | Body | Success |
+|---|---|---|---|---|
+| List | `GET /api/v1/sites` | `sites.read`; backend-filtered Site targets | Query below | `200` page |
+| Get | `GET /api/v1/sites/{siteId}` | `sites.read`; Site target | — | `200` Site DTO |
+| Create | `POST /api/v1/sites` | `sites.create`; existing parent Region coverage | `code`, `name`, `regionId`, `siteTypeId`, `criticalityClassId`, `address`, `timezone` | `201` Site DTO |
+| Update | `PUT /api/v1/sites/{siteId}` | `sites.change`; Site target | `name`, `siteTypeId`, `address`, `timezone`, `expectedRowVersion` | `200` Site DTO |
+| Activate | `POST /api/v1/sites/{siteId}/activate` | `sites.change`; Site target | `expectedRowVersion` | `200` Site DTO |
+| Deactivate | `POST /api/v1/sites/{siteId}/deactivate` | `sites.change`; Site target | `expectedRowVersion` | `200` Site DTO |
+| Change criticality | `PUT /api/v1/sites/{siteId}/criticality` | `sites.change_criticality`; Site target; no extra `sites.change` | `criticalityClassId`, `expectedRowVersion` | `200` Site DTO |
+
+No Site DELETE, Region move, SiteType management, reference catalog mutation
+or Site card UI route is included. Ordinary update cannot change `code`,
+`regionId`, `criticalityClassId` or `status`. Criticality needs no reason in
+this first slice. The Site DTO fields are `id`, `code`, `name`, `regionId`,
+`siteTypeId`, `criticalityClassId`, `address`, `timezone`, `status`,
+`rowVersion`. No coordinates, timestamps or duplicated reference labels are
+required. `address` maps to Sites-owned `address_text` persistence.
+
+List query supports `regionId`, `siteTypeId`, `criticalityClassId`, `status`,
+`q` (code/name), `page` and `pageSize`. It intersects all filters with the
+effective authorized Site set on the backend; filters never widen scope and
+`totalCount` counts only authorized filtered rows. Order is `code` ASC, then
+`id` ASC. The existing pagination convention above applies: page starts at
+1, default pageSize 50, maximum 200, response `items`, `page`, `pageSize`,
+`totalCount`, `totalPages`. No full-text engine or advanced sorting API.
+
+Validation: Site code is required, trim + invariant uppercase, max 50,
+`^[A-Z0-9][A-Z0-9_-]{0,49}$`; name is required, trimmed, non-empty, max
+200; address is required, trimmed, non-empty, max 500; timezone is a valid
+IANA identifier stored explicitly; Region/type/criticality IDs are required
+valid UUIDs and new assignments must reference ACTIVE rows. A created Site
+ID is UUIDv7. Every mutable request carries `expectedRowVersion` and stale
+writes return `409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
+
+Reuse the existing error envelope and established Region code pattern; the
+new Site-specific identifiers below are frozen for this API contract:
+`VALIDATION_FAILED` (400),
+`ACCESS_DENIED` (403), `SITE_NOT_FOUND` (404),
+`REGION_NOT_FOUND`/`SITE_TYPE_NOT_FOUND`/
+`SITE_CRITICALITY_CLASS_NOT_FOUND` (404 after authorization permits
+disclosure), `SITE_CODE_ALREADY_EXISTS` (409),
+`REGION_STATE_CONFLICT`/`SITE_TYPE_STATE_CONFLICT`/
+`SITE_CRITICALITY_CLASS_STATE_CONFLICT`/`SITE_STATE_CONFLICT` (409), and
+`OPTIMISTIC_CONCURRENCY_CONFLICT` (409). Missing authentication is 401.
+An inaccessible Site ID returns no Site DTO; it never becomes accessible
+through knowledge of its UUID. Preserve the repository's correlation ID and
+do not return stack traces.
+
 ---
 
 # 79. Master data mutation

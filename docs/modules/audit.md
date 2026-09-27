@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-09-26 (TASK-02.02.01 Phase C2 delivery)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase B1 Site audit implementation)
 
 ## Purpose
 
@@ -16,6 +16,30 @@ Audit владеет `audit.events`, `AuditDbContext`, собственной mi
 ## Current writer contract
 
 Region is a canonical Audit entity. Its actions are `RegionCreated`, `RegionUpdated`, `RegionActivated`, and `RegionDeactivated`; Region before/after payloads use an explicit allowlist. Region obligations use the same Sites-owned durable obligation and `Exploitation.AuditDelivery` path as Territorial Zone.
+
+`TASK-02.03.03` Phase B1 registers canonical Audit entity `Site` and
+actions `SiteCreated`, `SiteUpdated`, `SiteActivated`, `SiteDeactivated`,
+`SiteCriticalityChanged` in the runtime Audit catalog. `SiteCreated` has no before payload and permits siteId, code,
+name, regionId, siteTypeId, criticalityClassId, addressText, timezone and
+status in after. `SiteUpdated` records changed fields only from name,
+siteTypeId, addressText and timezone in matching before/after objects; a
+SiteType change uses this action. Lifecycle before/after objects record
+previousStatus/newStatus respectively; criticality before/after objects
+record previousCriticalityClassId/newCriticalityClassId respectively. The
+established immutable
+Audit actor, context, timestamp, correlation, entity ID and EventId fields
+remain separate. Secrets and infrastructure metadata are excluded. Each
+successful Site mutation must atomically commit one Sites-owned obligation;
+an additive `site_id` binding and allowlist extension will reuse
+`Exploitation.AuditDelivery`, with no second outbox. Audit validates Site
+action/entity pairing and per-action payload field shapes. PostgreSQL protects
+the Site binding and immutable obligation payload while delivery metadata
+continues to follow the existing claim/lease/retry protocol.
+
+The runtime action/entity compatibility catalog now includes the canonical
+Region and Site action sets. Site payload validation is action-specific;
+SiteCreated, SiteUpdated, lifecycle and criticality events each accept only
+their frozen field shape.
 
 `IAuditWriter.AppendAsync(AuditEventDraft, CancellationToken)` — единый Audit-owned durable append contract. Draft требует UUIDv7 EventId, local user ID, correlation ID, canonical action/entity и entity ID для текущих entity-bound actions; acting context остаётся optional по существующей semantics. Повторный append с тем же EventId и идентичным immutable content безопасен, а другой content для существующего EventId является integrity conflict. Before/after optional, но для `UserContext`, `TerritorialZone`, `Region` и `OrganizationalUnit` должны быть object JSON только с canonical allowlisted fields, соответствующим snapshot semantics, и не превышать 64 KiB UTF-8.
 

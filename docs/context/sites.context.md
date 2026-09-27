@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.02 Phase D final review)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.03 B1 replay)
 MODULE: Sites
 
 ## PURPOSE
@@ -86,8 +86,8 @@ creation starts ACTIVE, hard delete is forbidden, and inactive rows remain
 readable for history. The current API is only
 `GET /api/v1/reference/site-types` under `sites.read`, ordered by code.
 Mutation API, mutation permissions and audit obligations are deferred to a
-separate management task. Eligibility of an inactive type for a new Site is
-not decided by `TASK-02.03.01`.
+separate management task. `TASK-02.03.03` Phase A now requires ACTIVE type
+for a new or changed Site assignment; existing Site references remain valid.
 
 ## CRITICALITY
 
@@ -99,7 +99,7 @@ Rank is non-negative, unique across the catalog and compared from persisted
 data; higher means more critical. Fixed UUIDv7 seed IDs follow the SiteType
 mechanism. Code is canonical, immutable and unique; nullable description
 follows SiteType. ACTIVE/INACTIVE classes are both readable, with no hard
-delete; future Site CRUD rejects inactive classes for new assignments.
+delete; `TASK-02.03.03` Phase A rejects inactive classes for new assignments.
 The global GET `/api/v1/reference/site-criticality-classes` uses
 `sites.read`, returns id/code/name/rank/description/status, and orders by rank
 then code. It has no geographic target filtering; AUTH-SCOPE-01 B1 is not a
@@ -116,7 +116,9 @@ catalog management or mutation audit is included in TASK-02.03.02.
 - Parent Location должен принадлежать тому же Site.
 - Location tree не должен содержать циклы.
 - Inactive location нельзя использовать для новых placements без специального процесса.
-- Inactive/closed Site нельзя использовать для новых Assets/Work Orders.
+- Inactive Site нельзя использовать для новых Assets/Work Orders; enforcement
+  belongs to the future Assets/WorkOrders use cases. CLOSED is not a
+  TASK-02.03.03 Site lifecycle state.
 - Territorial Zone creation starts `ACTIVE`; lifecycle removal is deactivation, not hard delete.
 - Territorial Zone code is trimmed, invariant-uppercase, unique and immutable; name is trimmed, non-empty, maximum 200 and mutable.
 - Region belongs to exactly one Territorial Zone; its code is trimmed, invariant-uppercase, immutable and unique within that parent; its name is trimmed, non-empty, maximum 200 and mutable.
@@ -138,7 +140,8 @@ catalog management or mutation audit is included in TASK-02.03.02.
 - `sites.manage_locations`
 - `sites.change_criticality`
 
-Изменение criticality должно быть более ограничено, чем обычное редактирование карточки.
+Изменение criticality — отдельная команда с `sites.change_criticality` и
+Site target scope; дополнительный `sites.change` не требуется.
 
 Territorial Zone API maps permissions exactly: list/get → `sites.read`, rename/activate/deactivate → `sites.change`; root create remains closed pending a separate authority model. C1 Geography grants are target-aware; the global target-blind grant source remains deny-by-default. UserType, role name, JWT claims and working context do not grant permission. A validated request context may be copied only to obligation `acting_context_id` metadata. Mutations require explicit `expectedRowVersion`; stale authorized writes fail with the standard 409 concurrency contract.
 
@@ -147,6 +150,31 @@ Region API uses the same permission keys: list/get → `sites.read`, create → 
 `AUTH-SCOPE-01` Phase A / ADR-013 freezes target-aware geographic authorization; B2-A / ADR-015 freezes the list-scope provider and exact list rules. Zone queries match only Zone scope IDs; Region queries match exact Region IDs or the persisted parent Zone scope IDs. Coverage is downward Zone → Region only; Region does not cover a parent Zone. Empty scopes return no rows. Unsupported kinds add no IDs, duplicates do not multiply rows, and the hierarchy predicate is applied in Sites SQL. Sites loads persisted Zone/Region facts and the Region's DB-owned parent without an ACTIVE filter, then evaluates coverage using Identity effective scopes. C1 integrates Geography routes only. Root Zone creation remains closed; Site scope, capabilities, Development bootstrap and contractor grants remain unimplemented.
 
 ADR-016 / B2-R1 implements the public boundary after F1 HIGH/F2 MEDIUM review. Sites direct authorization accepts only business Zone/Region IDs, loads authoritative Region parent from Sites persistence, requests effective scopes for the exact permission and evaluates coverage locally. Region creation loads the parent Zone and requires exact `sites.create` Zone coverage. Public `IAuthorizedGeographyReadService` lists request fixed `sites.read` scopes internally; SQL filtering is private in an internal Sites Infrastructure implementation. No public scope-bearing read request/store remains. Identity derives scopes; Sites maps them to targets. C1 enables Zone/Region routes while unrelated routes retain target-blind denial. C1-OD-01 returns uniform 403 for absent and out-of-scope direct targets or Region-create parents; no list scopes yield 200 `[]`.
+
+`TASK-02.03.03` Phase A / ADR-014 freezes Site as the next target level. A
+Site target has authoritative zone, region and site dimensions. Zone scope
+covers descendant Sites, Region scope covers that Region's Sites, and Site
+scope covers only the exact Site. These remain frozen future rules; published
+target-aware authorization currently supports Zone and Region only. Site
+scope is not a published assignment kind. A future extension must keep
+Identity scopes exact and evaluate Site → Region → Zone coverage in Sites.
+Scoped list filtering occurs in the backend; create checks `sites.create`
+over the existing parent Region. Positive production Site CRUD remains
+unimplemented.
+The first slice serves INTERNAL users/contexts; contractors fail closed.
+
+Site contract: UUIDv7 ID, global immutable canonical code, immutable Region,
+required name, SiteType, SiteCriticalityClass, trimmed address_text and own
+IANA timezone. Creation starts ACTIVE and requires ACTIVE parent/references;
+SiteType and timezone can change by ordinary update, while criticality has a
+separate command. Existing inactive parent/reference associations remain
+valid. ACTIVE/INACTIVE transitions and all mutable commands use optimistic
+`expectedRowVersion`. No Site move, DELETE, CLOSED status, coordinates or
+commissioning/closure timestamps are included. Creation serializes with
+Region deactivation by locking the Region row. See `modules/sites.md` and
+`api-guidelines.md` for the future API contract. Phase B1 domain/persistence
+foundation is implemented on the local resume branch only; HTTP/API and Site
+target authorization remain unimplemented and unpublished.
 
 ## PUBLIC CONTRACTS
 

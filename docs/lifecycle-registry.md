@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 SiteCriticality contract freeze)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A contract freeze)
 
 ## 1. Назначение
 
@@ -73,18 +73,34 @@ INACTIVE → ACTIVE
 States: `ACTIVE`, `INACTIVE`. Creation starts `ACTIVE`; later management may
 transition `ACTIVE → INACTIVE` or `INACTIVE → ACTIVE`. Hard delete is
 forbidden. Inactive values remain readable and valid for existing historical
-references. `TASK-02.03.01` has no mutation API; the new-Site selection rule
-is deferred to `TASK-02.03.03` or a separate owner decision.
+references. `TASK-02.03.01` has no mutation API. `TASK-02.03.03` Phase A
+requires an ACTIVE type for a new or changed Site assignment.
 
 # 2.3. SiteCriticalityClass
 
-Contract frozen; implementation pending. States: `ACTIVE`, `INACTIVE`.
+Implemented reference; States: `ACTIVE`, `INACTIVE`.
 Initial seeds start `ACTIVE`; future management may transition either way.
 Hard delete is forbidden. Inactive classes remain readable and valid for
 existing Site references. Future Site CRUD must reject an inactive class for
 a new assignment. `TASK-02.03.02` has no mutation API.
 
-# 2.4. Organizational Unit
+# 2.4. Site
+
+`TASK-02.03.03` Phase A contract; implementation has not started.
+
+States: `ACTIVE`, `INACTIVE`. Create starts `ACTIVE`. Explicit commands
+transition `ACTIVE → INACTIVE` and `INACTIVE → ACTIVE`; `CLOSED` is outside this
+slice. Inactive Sites remain readable to authorized users. There is no hard
+delete or DELETE API. No `closed_at` or `commissioned_at` field is introduced
+by this task. Region membership and Site code are immutable in this slice.
+
+Activate/deactivate require `sites.change`, target-aware Site coverage and
+`expectedRowVersion`; a stale write returns
+`409 OPTIMISTIC_CONCURRENCY_CONFLICT`. Each successful transition commits one
+Sites-owned durable Site Audit obligation with the business mutation. Later
+Assets/WorkOrders slices enforce their own inactive-Site creation rules.
+
+# 2.5. Organizational Unit
 
 ## States
 

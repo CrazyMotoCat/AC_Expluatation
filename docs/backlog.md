@@ -692,11 +692,10 @@ Acceptance Criteria:
 
 ### TASK-02.03.02. Site criticality
 
-Contract freeze: DONE. Phases B and C are implemented: Sites domain/reference
-model, persistence, additive migration, seeds, PostgreSQL checks, and the
-read-only `sites.read` GET reference API with focused authorization/OpenAPI
-checks. Phase D review, traceability reconciliation, documentation sync, and
-all applicable local gates are complete; task commit and push are pending.
+DONE / COMMITTED / PUBLISHED at `8bef135bf28be900325966257803d69c105ef11e`.
+Sites domain/reference model, persistence, additive migration, seeds,
+PostgreSQL checks, and the read-only `sites.read` GET reference API are
+implemented. Local gates and hosted CI passed.
 Site CRUD and runtime catalog management are outside this task.
 
 Acceptance Criteria:
@@ -711,6 +710,23 @@ Acceptance Criteria:
 ---
 
 ### TASK-02.03.03. Site CRUD
+
+Phase A: owner decisions OD-01 through OD-10 are frozen in Sites module,
+  database/API/security documentation and ADR-014. Phase B1 foundation is
+  replayed locally on `codex/task-02.03.03-site-resume`: Site domain and
+  persistence, additive migration, parent/reference invariants and durable
+  Site Audit binding/delivery compatibility. It is not published. Site
+  HTTP/API and production authorization remain unimplemented; frontend is a
+  separate task.
+Sites owns `sites.sites` in the Territorial Zone → Region → Site hierarchy.
+The first backend slice has required immutable globally unique canonical code,
+required name/Region/SiteType/SiteCriticalityClass/address/timezone,
+`ACTIVE`/`INACTIVE` lifecycle, no move or DELETE, optimistic row version,
+paginated scoped reads, explicit criticality command and durable Site audit
+obligations. Published production authorization supports Zone/Region only.
+Full production-positive Site CRUD needs a later exact Site-scope and
+Sites-owned target/list coverage extension; contractor grants stay closed.
+TASK-02.03.04 owns the later Site card UI.
 
 Acceptance Criteria:
 

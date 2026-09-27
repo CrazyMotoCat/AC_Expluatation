@@ -477,13 +477,22 @@ Team
 id
 code
 name
-type_id
+site_type_id
 criticality_class_id
 region_id
 status
-address
-commissioned_at
+address_text
+timezone
+row_version
 ```
+
+For the TASK-02.03.03 first slice, `address_text` is required and no
+coordinates or commissioning/closure timestamps are part of the Site
+contract. Site ownership and target-aware scope are documented in
+`modules/sites.md` and ADR-014. The Site B1 domain/persistence foundation is
+implemented only on the local resume branch; Site HTTP routes and production
+Site authorization remain unimplemented. Published target-aware authorization
+currently covers Zone/Region only.
 
 ## 10.2. SiteType
 

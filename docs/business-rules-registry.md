@@ -1,7 +1,7 @@
 # Business Rules Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 SiteCriticality contract freeze)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A contract freeze)
 
 ## 1. Назначение
 
@@ -98,8 +98,9 @@ Region mutations require optimistic concurrency and create one matching durable 
 SiteType is a Sites-owned configurable reference, separate from SiteCriticality.
 Its initial seed is not an exhaustive enum. A SiteType starts ACTIVE; hard
 delete is forbidden, and inactive types remain readable and valid for existing
-historical references. Eligibility for a new Site is deferred to
-`TASK-02.03.03` or a separate owner decision.
+historical references. `TASK-02.03.03` Phase A now requires an ACTIVE type
+for a new or changed Site assignment; existing Sites may retain an INACTIVE
+type.
 
 ### BR-SIT-015
 
@@ -108,6 +109,37 @@ Higher persisted rank means higher criticality; rank is non-negative and
 unique in the catalog. Code ordering and enum ordinals do not define
 criticality. Inactive classes remain readable and valid for existing Sites;
 future Site CRUD rejects them for new assignments. Hard delete is forbidden.
+
+### BR-SIT-016
+Site code is required, trimmed, invariant-uppercase, immutable, globally
+unique and matches `^[A-Z0-9][A-Z0-9_-]{0,49}$`. Each Site has exactly one
+immutable Region parent; reparenting and hard delete are outside the first
+Site CRUD slice.
+
+### BR-SIT-017
+Site creation starts ACTIVE and requires an ACTIVE Region, SiteType and
+SiteCriticalityClass. Existing Site references remain valid when parent or
+reference rows later become INACTIVE. Site creation serializes against Region
+deactivation by locking the parent Region row.
+
+### BR-SIT-018
+Site lifecycle is ACTIVE ↔ INACTIVE. All mutable Site commands require
+expectedRowVersion. Ordinary update may change only name, SiteType,
+address_text and explicit IANA timezone. Criticality changes through a
+separate action with `sites.change_criticality` and an ACTIVE new class.
+
+### BR-SIT-019
+Site list and direct-ID operations require effective target-aware permission,
+valid INTERNAL working context and scope covering the Site. Zone scope covers
+descendant Sites, Region scope covers Sites in that Region, and Site scope
+covers that exact Site. Creation uses coverage of the existing parent Region;
+contractor grants remain closed. See ADR-014.
+
+### BR-SIT-020
+Each successful Site mutation commits exactly one Site audit obligation in
+the same Sites transaction. SiteCreated, SiteUpdated, SiteActivated,
+SiteDeactivated and SiteCriticalityChanged are the canonical Audit actions
+for the first Site CRUD slice; domain/integration events remain separate.
 
 ---
 

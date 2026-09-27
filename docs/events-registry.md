@@ -1,7 +1,7 @@
 # Events Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-16
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A event/Audit distinction)
 
 ## 1. Назначение
 
@@ -109,6 +109,13 @@ UpdateAsset
 | `ContractorUserVerified` | Contractors | Identity | yes | yes |
 | `UserAssignedToContract` | Contractors | Identity | yes | yes |
 | `ContractAssignmentExpired` | Contractors | Identity/Notifications | yes | yes |
+
+`TASK-02.03.03` Phase A separately freezes Site Audit entity/actions in
+`modules/audit.md`. Matching names in this domain/integration event catalog
+do not register an Audit action or imply publication of an event for every
+Site update. Integration event publication follows its own approved contract
+and outbox requirements; the Site Audit obligation is a separate ADR-011
+mechanism.
 
 `Incidents*` означает future/provisional consumer.
 

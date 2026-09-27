@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.02 Phase D final review)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 publication; TASK-02.03.03 B1 replay)
 
 ## Purpose
 
@@ -85,9 +85,9 @@ database, and inactive rows remain readable for historical references.
 `GET /api/v1/reference/site-types` requires `sites.read`, returns all types
 ordered by code, and exposes only id, code, name, description and status.
 No SiteType mutation API, additional permission or audit obligation exists in
-this task. Full administration is deferred to a separate future task; the
-new-Site eligibility rule for inactive types is deferred to `TASK-02.03.03`
-or a separate owner decision.
+that reference task. Full administration is deferred to a separate future
+task. `TASK-02.03.03` Phase A requires ACTIVE SiteType for a new or changed
+Site assignment; an existing Site may retain an INACTIVE type.
 
 SiteCriticalityClass is implemented by `TASK-02.03.02` Phase B as a Sites-owned
 extensible reference in
@@ -100,7 +100,7 @@ UUIDv7 mechanism, with separate values; code is canonical uppercase,
 immutable and unique. Description is nullable. Lifecycle is
 `ACTIVE`/`INACTIVE`, with ACTIVE seeds, no hard delete and no cascade.
 Inactive classes remain valid for existing references and visible through
-the read API; future Site CRUD must reject them for new assignments.
+the read API; `TASK-02.03.03` Phase A rejects them for new assignments.
 Migration `20260926064400_AddSiteCriticalityClasses` creates the table,
 constraints, identity/delete guard and four migration-owned seed rows.
 
@@ -126,6 +126,85 @@ must define audit actions using the established durable Sites obligation.
 
 The criticality catalog read uses `sites.read`; `sites.change_criticality`
 concerns future Site changes, not reference catalog management.
+
+## Site CRUD — TASK-02.03.03 contract and Phase B1 foundation
+
+Owner decisions OD-01 through OD-10 are frozen. The Phase B1 foundation is
+implemented on the local resume branch: Site domain aggregate, Sites-owned
+table and additive migration, and internal atomic command persistence. It is
+not published. No Site HTTP route, production Site scope evaluator or target
+projection is implemented; published target-aware authorization supports
+TerritorialZone and Region only. Site is the Sites-owned child of exactly one
+Region. Site ID is UUIDv7. Required code is trimmed, invariant-uppercase,
+globally unique, immutable, at most 50 characters and matches
+`^[A-Z0-9][A-Z0-9_-]{0,49}$`. `region_id` is required and immutable; no
+reparent route or cascade delete exists. Name is trimmed, non-empty and at
+most 200 characters. Address is required trimmed `address_text` of at most
+500 characters. Site stores its own required IANA timezone; it never
+dynamically inherits Region timezone. Region timezone changes do not mutate
+existing Sites.
+
+Exactly one SiteType and one SiteCriticalityClass are required. Create needs
+an existing ACTIVE Region, SiteType and criticality class. Changing SiteType
+uses ordinary update and requires an ACTIVE new type; changing criticality
+uses a separate command and requires an ACTIVE new class. Existing Sites
+retain references if a parent/reference later becomes INACTIVE. Criticality
+rank remains only in the reference table. Site creation takes a PostgreSQL
+row lock on Region so it serializes with Region deactivation; there is no
+speculative reference-row locking while reference management APIs are absent.
+
+Site lifecycle is `ACTIVE`/`INACTIVE`, creation ACTIVE, both explicit
+transitions allowed. Inactive Sites remain readable with authorization.
+There is no DELETE, CLOSED status, `closed_at`, `commissioned_at`, coordinate,
+geocoding, structured address or Site move in this slice. Later Assets and
+WorkOrders use cases enforce their own inactive-Site rules. Ordinary update
+changes only name, SiteType, address and timezone. Every mutable command
+requires `expectedRowVersion`; stale writes return
+`409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
+
+The future API uses `GET /api/v1/sites` (paginated),
+`GET /api/v1/sites/{siteId}`, `POST /api/v1/sites`,
+`PUT /api/v1/sites/{siteId}`, explicit `activate`/`deactivate` POST commands
+and `PUT /api/v1/sites/{siteId}/criticality`. List filters are `regionId`,
+`siteTypeId`, `criticalityClassId`, `status`, and `q` over code/name. Stable
+order is code ASC then id ASC. It uses the existing `page`/`pageSize`
+convention: default 50, maximum 200, with `items`, `page`, `pageSize`,
+`totalCount`, `totalPages`. The base Site response contains only `id`,
+`code`, `name`, `regionId`, `siteTypeId`, `criticalityClassId`, `address`,
+`timezone`, `status`, `rowVersion`.
+
+ADR-014 freezes Site target authorization. Zone scope covers descendant
+Sites, Region scope covers Sites in that Region, and Site scope covers only
+that Site. List/get need effective `sites.read` and backend target filtering;
+create needs `sites.create` covering the existing parent Region. Ordinary
+update/lifecycle need `sites.change` covering the Site; criticality change
+needs `sites.change_criticality` covering the Site without additionally
+requiring `sites.change`. First production support is INTERNAL user/context
+only; contractors remain fail-closed. Positive production Site CRUD requires
+a separately implemented and tested extension to the published exact-scope
+Identity provider and Sites-owned hierarchy composition. Identity must keep
+scopes exact; Sites resolves Site → Region → Zone. Site scope is not yet a
+published assignment kind.
+
+Canonical Audit entity `Site` has actions `SiteCreated`, `SiteUpdated`,
+`SiteActivated`, `SiteDeactivated`, `SiteCriticalityChanged`. `SiteUpdated`
+covers a SiteType change with field-level before/after; criticality is a
+separate action. Each successful mutation atomically records one Sites-owned
+durable audit obligation, using an additive Site binding in the existing
+`sites.audit_obligations` and the established AuditDelivery path. Domain or
+integration event names in `events-registry.md` are separate from Audit
+identifiers; no extra event is invented for every ordinary update.
+
+The B1 table enforces UUIDv7, canonical global code uniqueness, immutable
+`id`/`code`/`region_id`, restrictive reference FKs, lifecycle/address/name
+checks and positive optimistic `row_version`. The PostgreSQL trigger also
+rejects Site hard delete. Create locks the parent Region row and checks active
+Region/SiteType/SiteCriticalityClass; update checks only a newly assigned
+SiteType, and criticality change checks only a newly assigned class. Existing
+inactive references remain valid. Each internal mutation stores the Site and
+one allowlisted audit obligation atomically. The obligation is delivered by
+the existing AuditDelivery; no second outbox is introduced. B1 adds no
+authorization implementation or HTTP surface.
 
 ## Public contracts
 

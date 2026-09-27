@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.02 Phase D final review)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A contract freeze)
 
 ## 1. Назначение
 
@@ -147,8 +147,8 @@ model. UUIDv7 `id`, immutable globally unique canonical `code`, mutable
 `name`, and `ACTIVE`/`INACTIVE` status follow the existing reference pattern.
 Creation starts `ACTIVE`; hard delete is forbidden. `INACTIVE` values remain
 readable and valid for existing historical references. Eligibility of an
-inactive type for a new Site is deferred to `TASK-02.03.03` or a separate owner
-decision.
+inactive type for a new or changed Site assignment is forbidden by the
+`TASK-02.03.03` Phase A contract; an existing Site may retain it.
 
 `TASK-02.03.01` supplies persistence, deterministic seed and a read endpoint
 under `sites.read`. A management API, mutation permissions and audit
@@ -177,7 +177,8 @@ not a business comparison rule.
 
 Lifecycle is `ACTIVE`/`INACTIVE`, with no hard delete or cascade. Inactive
 classes remain valid for existing references and visible in the read catalog;
-new Site assignments must reject them in future Site CRUD. `TASK-02.03.02`
+new Site assignments reject them under the `TASK-02.03.03` Phase A contract.
+`TASK-02.03.02`
 implements a read-only `GET /api/v1/reference/site-criticality-classes` under
 `sites.read`, returning both statuses. Runtime management, mutation audit
 actions and mutation permissions are not included. Extensions require an

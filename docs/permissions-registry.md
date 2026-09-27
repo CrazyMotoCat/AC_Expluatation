@@ -1,7 +1,7 @@
 # Permissions Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-25 (TASK-02.02.01 Phase A)
+SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A scope clarification)
 
 ## 1. Назначение
 
@@ -149,6 +149,18 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `organization.read` | Organization | Просмотр организационных подразделений | company/organizational-unit (deferred) | INTERNAL | NORMAL |
 | `organization.create` | Organization | Создание организационного подразделения | company/organizational-unit (deferred) | INTERNAL | CRITICAL |
 | `organization.change` | Organization | Изменение, reparent и lifecycle подразделения | company/organizational-unit (deferred) | INTERNAL | SENSITIVE |
+
+For `TASK-02.03.03`, the Sites rows above are existing codes, not new grants.
+Site list/get require `sites.read` plus target coverage; create uses
+`sites.create` plus coverage of the existing parent Region. Ordinary Site
+update and lifecycle use `sites.change` on the Site target. The separate
+criticality command uses `sites.change_criticality` on that target without an
+additional `sites.change` requirement. These are frozen future rules, not
+production-enabled Site grants. Published target-aware operations cover
+TerritorialZone and Region only; Site is not a supported effective-scope kind.
+The Site B1 foundation is local to the resume branch. Site HTTP routes and
+positive Site authorization remain unimplemented; contractor access stays
+fail-closed.
 
 `CONTRACT*` означает: разрешение возможно только при явном contract scope.
 

@@ -689,7 +689,9 @@ audit_event_id      uuid unique, UUIDv7, stable retry identity
 action              varchar(200)
 entity_type         varchar(200)
 entity_id           uuid
-territorial_zone_id uuid FK sites.territorial_zones(id)
+territorial_zone_id uuid nullable FK sites.territorial_zones(id)
+region_id           uuid nullable FK sites.regions(id)
+site_id             uuid nullable FK sites.sites(id), Site obligations
 actor_user_id       uuid
 acting_context_id   uuid nullable
 occurred_at         timestamptz
@@ -704,7 +706,25 @@ created_at          timestamptz
 processed_at        timestamptz nullable
 ```
 
-Entity binding is an allowlisted alternative: TerritorialZone uses `territorial_zone_id` and Region uses `region_id`; the matching database check is enforced for every obligation. Payload columns are immutable after insert; delivery metadata follows `PENDING` → `PROCESSED`, with `processed_at` coherence. The Sites-owned delivery adapter claims bounded ordered batches under `FOR UPDATE SKIP LOCKED`, persists `claim_token` and bounded `lease_until`, commits that short claim transaction, and releases row locks before canonical Audit append or retry delay. Completion/failure updates require the current claim token. Lease expiry makes a crashed claim eligible again. Failed delivery increments `attempt_count`, stores a bounded diagnostic, clears the claim and persists `next_attempt_at` using bounded exponential backoff, so poison obligations cannot monopolize newer work. Audit append success or identical same-ID content permits `PROCESSED`; failure or conflicting content stays `PENDING`. This is at-least-once delivery: a crash after Audit commit but before the Sites commit is recovered by the same stable EventId. `last_error` stores diagnostic codes only, not raw exception text, tokens or connection strings. `audit.events` visibility is not required before command SUCCESS.
+Entity binding is an allowlisted alternative: TerritorialZone uses
+`territorial_zone_id`, Region uses `region_id`, and Site uses `site_id` while
+retaining its Region and Territorial Zone ancestry; the matching database
+check is enforced for every obligation. Payload columns are immutable
+after insert; delivery metadata follows `PENDING` → `PROCESSED`, with
+`processed_at` coherence. The Sites-owned delivery adapter claims bounded
+ordered batches under `FOR UPDATE SKIP LOCKED`, persists `claim_token` and
+bounded `lease_until`, commits that short claim transaction, and releases row
+locks before canonical Audit append or retry delay. Completion/failure updates
+require the current claim token. Lease expiry makes a crashed claim eligible
+again. Failed delivery increments `attempt_count`, stores a bounded
+diagnostic, clears the claim and persists `next_attempt_at` using bounded
+exponential backoff, so poison obligations cannot monopolize newer work.
+Audit append success or identical same-ID content permits `PROCESSED`;
+failure or conflicting content stays `PENDING`. This is at-least-once
+delivery: a crash after Audit commit but before the Sites commit is recovered
+by the same stable EventId. `last_error` stores diagnostic codes only, not raw
+exception text, tokens or connection strings. `audit.events` visibility is
+not required before command SUCCESS.
 
 ## 7.0.2. sites.regions
 
@@ -804,32 +824,41 @@ Do not hardcode seed code/rank pairs in a CHECK constraint. `status` is
 `ACTIVE` or `INACTIVE`; seeds start ACTIVE. Hard delete and changes to `id` or
 `code` are forbidden, following the SiteType guard pattern. Inactive values
 remain valid for existing references and visible to the read API; future Site
-CRUD rejects them for new assignments. No cascade deletion.
+CRUD Phase A contract rejects them for new assignments. No cascade deletion.
 
 ---
 
 ## 7.3. sites.sites
 
+`TASK-02.03.03` Phase B1 adds this Sites-owned table through an additive
+migration. The first slice stores:
+
 ```text
-id
-region_id
-code
-name
-site_type_id
-criticality_class_id
-status
-address_text
-latitude            nullable
-longitude           nullable
-timezone
-commissioned_at     nullable
-closed_at           nullable
-created_at
-created_by
-updated_at
-updated_by
-row_version
+id                    uuid PK, UUIDv7
+region_id             uuid NOT NULL FK sites.regions(id)
+site_type_id          uuid NOT NULL FK sites.site_types(id)
+criticality_class_id  uuid NOT NULL FK sites.site_criticality_classes(id)
+code                  varchar(50) NOT NULL, canonical uppercase, immutable
+name                  varchar(200) NOT NULL, trimmed, non-empty
+address_text          varchar(500) NOT NULL, trimmed, non-empty
+timezone              varchar(100) NOT NULL, valid IANA identifier
+status                varchar(20) NOT NULL, ACTIVE/INACTIVE
+row_version           bigint NOT NULL, positive optimistic concurrency
+created_at            timestamptz NOT NULL
+updated_at            timestamptz NOT NULL
 ```
+
+`code` is trimmed and invariant-uppercase, matches
+`^[A-Z0-9][A-Z0-9_-]{0,49}$` and is globally unique. `id`, `code` and
+`region_id` are immutable. All three FKs are restrictive/no-cascade.
+Creation starts ACTIVE. Existing Sites remain valid and readable when their
+Region, SiteType or SiteCriticalityClass later becomes INACTIVE. New Site
+assignments require ACTIVE Region, SiteType and SiteCriticalityClass. Creation
+locks the parent Region row so it serializes with Region deactivation; no
+reference-row lock is introduced for references without runtime mutation API.
+SiteType and timezone may change by ordinary Site update; criticality has a
+separate command. No `latitude`, `longitude`, `commissioned_at`, `closed_at`,
+`created_by` or `updated_by` belongs to this first persistence contract.
 
 Indexes:
 
@@ -840,6 +869,14 @@ ix_sites_site_type_id
 ix_sites_criticality_class_id
 ix_sites_status
 ```
+
+The existing `sites.audit_obligations` is extended additively for Site:
+nullable `site_id` with restrictive FK, an entity-to-binding CHECK branch,
+immutable binding, and Site action/payload allowlists. Each successful Site
+mutation commits exactly one durable obligation with the Site change in one
+Sites transaction. A Site identity trigger rejects updates to `id`, `code`,
+`region_id` and all hard deletes. Delivery remains the existing
+ADR-011/AuditDelivery path.
 
 ---
 
