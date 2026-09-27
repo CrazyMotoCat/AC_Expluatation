@@ -1038,3 +1038,31 @@ UNCOMMITTED_BEFORE_TASK_COMMIT: B2-R0 contract/ADR/docs/review handoff plus B2-R
 DECISION: Keep ADR-016 unchanged; preserve the original B2 source commit and create one separate narrow remediation commit.
 NEXT_ACTION: Independent B2 remediation security/integration review before publication. Do not start C1 or integrate/push automatically.
 DO_NOT_REPEAT: Do not redo passing B2-R1 gates without a relevant code change, reopen ADR-016, touch Site checkpoint, merge, push or start C1.
+
+---
+
+## B2 final adversarial review checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B2 — FINAL ADVERSARIAL SECURITY REVIEW + MAIN INTEGRATION
+STATUS: REVIEW_PASS_PRE_INTEGRATION
+BRANCH: codex/auth-scope-01-b2
+LAST_SAFE_COMMIT: 23eb97bfb6642061f8f2a95a8f585fd27380d542
+BASELINE_MAIN: a3167e85115875c48737f7af10007366e2beaa69
+RESUME_GUARD: PASS — fetched origin; main/origin/main, both B2 parents, clean relevant worktrees and Site ref matched the expected state.
+F1: CLOSED
+F2: CLOSED
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+END_TO_END_PROVIDER_LIST_PROOF: PASS — real Identity/Sites DI and PostgreSQL through the public Sites list service; Zone A/Region A only, wrong Zone filter empty, revoked read with remaining change empty.
+SECURITY_REVIEW: PASS — see `agents/b2-final-security-review.md`; cumulative B2 publication candidate reviewed, including public contracts, DI, failure semantics and cross-module persistence boundaries.
+PRE_INTEGRATION_GATES: PASS — Identity/Sites domain and PostgreSQL harnesses, Sites API, Authentication/OIDC/working-context, architecture checks, Release solution build, `dotnet test`, changed-file formatting and diff check.
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+PRODUCTION_ROUTE_INTEGRATION_CHANGED: NO
+SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d106014bfaaf75669207 — unchanged
+UNCOMMITTED: focused real-provider Sites integration harness, project references, review evidence and this checkpoint only.
+NEXT_ACTION: Commit the reviewed test/evidence on B2; fetch and recheck origin/main; fast-forward main if unchanged, rerun post-integration gates, update publication checkpoint, then push and verify hosted CI for the final SHA.
+DO_NOT_REPEAT: Do not amend B2/R1 commits, rebase, merge non-fast-forward, touch Site checkpoint or start C1.
