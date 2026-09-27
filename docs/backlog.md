@@ -459,7 +459,7 @@ Zone/Region projection, direct-target composition with the B1 evaluator, and
 permission-specific scoped Zone/Region PostgreSQL stores; B2-R1 superseded
 those public authorization handoffs under ADR-016.
 Focused PostgreSQL, security, architecture and Release build gates pass.
-Geography route integration remains deferred to C1; B2-B3 remains not started.
+Geography route integration was deferred to C1; B2-B3 remains not started.
 
 B2 independent review blocked integration on F1 HIGH (caller-forgeable Region
 parent at the public Identity evaluator) and F2 MEDIUM (caller-forgeable scopes
@@ -469,7 +469,11 @@ remediation contract. B2-R1 implements exact Identity targets, Sites-owned
 direct coverage and an authorized list service with internal SQL filtering.
 Final adversarial review closed F1/F2 with no open HIGH/MEDIUM findings. A
 PostgreSQL test composes the real Identity provider with the public Sites list
-service. B2 is integrated on main; C1 route integration remains deferred.
+service. B2 is integrated on main. C1 locally integrates only Zone/Region
+production routes through Sites target-aware services. C1-OD-01 makes absent
+and out-of-scope direct targets or Region-create parents uniformly 403;
+empty scoped lists remain 200 `[]`. Root Zone create stays closed. C1 awaits
+independent review before any publication.
 
 ---
 

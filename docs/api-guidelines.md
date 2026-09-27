@@ -309,6 +309,14 @@ OPTIMISTIC_CONCURRENCY_CONFLICT
 
 Не использовать `200 OK` для ошибок.
 
+Для Zone/Region direct GET и mutation, а также parent Zone при Region create,
+`AUTH-SCOPE-01` C1-OD-01 устанавливает одинаковый `403 Forbidden` для
+отсутствующей и существующей вне разрешённого scope цели. Оба случая имеют
+один код `GEOGRAPHY_ACCESS_DENIED`; различие существования не раскрывается.
+Без bearer authentication ответ остаётся `401`. После успешной target
+authorization сохраняются действующие business/lifecycle и optimistic
+concurrency responses. Пустой scoped Zone/Region list возвращает `200 []`.
+
 ---
 
 # 15. Correlation ID

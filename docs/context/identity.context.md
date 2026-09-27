@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2 publication; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 C1 local integration; FRONTEND-AUTH-01)
 MODULE: Identity
 
 ## PURPOSE
@@ -99,9 +99,9 @@ Working context:
 - `TASK-02.02.01` Phase C1 seeds Organization permission codes `organization.read`, `organization.create` and `organization.change` with registry-matched module and names; Company/OrganizationalUnit scope evaluation and access-assignment dimensions remain deferred and production remains deny-by-default.
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
-- Production grant source всё ещё отказывает: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
-- `AUTH-SCOPE-01` B1 / ADR-013 ввёл `IEffectiveGrantEvaluator`; B2-B1 добавил Identity `IEffectiveScopeProvider` для exact permission-specific Zone/Region scopes через общую Identity eligibility query. Исходный B2-B2 trusted-target/scoped-store handoff заменён B2-R1 по ADR-016. Composite/unsupported assignment scopes не flatten-ятся, если это сбрасывает ограничение. Sites HTTP routes не wired и остаются deny-by-default до C1.
-- ADR-016 / B2-R1 исправляет F1: публичный Identity target содержит только kind + exact ID; Region parent больше не принимается и Zone → Region expansion в Identity отсутствует. Sites загружает Region parent и проверяет покрытие через effective scopes от `IEffectiveScopeProvider`. B1 eligibility и exact scope сохранены. F2 scope-bearing public store удалён; финальная проверка B2 прошла и foundation интегрирован на main без включения HTTP routes.
+- Target-blind production grant source всё ещё отказывает для остальных маршрутов: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain. C1 Geography routes используют Sites target-aware evaluation.
+- `AUTH-SCOPE-01` B1 / ADR-013 ввёл `IEffectiveGrantEvaluator`; B2-B1 добавил Identity `IEffectiveScopeProvider` для exact permission-specific Zone/Region scopes через общую Identity eligibility query. Исходный B2-B2 trusted-target/scoped-store handoff заменён B2-R1 по ADR-016. Composite/unsupported assignment scopes не flatten-ятся, если это сбрасывает ограничение. C1 локально интегрирует Zone/Region HTTP routes через Sites services.
+- ADR-016 / B2-R1 исправляет F1: публичный Identity target содержит только kind + exact ID; Region parent больше не принимается и Zone → Region expansion в Identity отсутствует. Sites загружает Region parent и проверяет покрытие через effective scopes от `IEffectiveScopeProvider`. B1 eligibility и exact scope сохранены. F2 scope-bearing public store удалён; финальная проверка B2 прошла и foundation интегрирован на main. C1-OD-01 задаёт единый 403 для отсутствующей и недоступной прямой цели.
 
 ## PERMISSIONS
 
@@ -133,7 +133,7 @@ Identity не должен знать все бизнес-правила дру�
 - `ExternalIdentityKey` (`issuer + subject`)
 - local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
 - `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
-- Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region` descriptors; Sites consumers are not integrated yet
+- Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region` descriptors; C1 Geography routes consume it only through Sites application services
 - API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
 - `GET /api/v1/me/contexts`, `POST /api/v1/me/context` для собственных available contexts; request header `X-Work-Context-Id` validated by API
 - Browser frontend использует public OIDC Authorization Code + PKCE, единый session provider и Bearer/context pipeline; выбранный context browser-session scoped, повторно сверяется со списком available contexts; capabilities API пока не реализован

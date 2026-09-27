@@ -1110,3 +1110,114 @@ HOSTED_CI: NOT_YET_VERIFIED — verify the exact final pushed main SHA after pub
 UNCOMMITTED: publication metadata in this checkpoint and synchronized docs only
 NEXT_ACTION: Commit the publication metadata, fetch and verify unchanged origin/main, push main normally, verify local/remote SHA and hosted CI; then stop before C1.
 DO_NOT_REPEAT: Do not start C1, change Geography routes, touch Site checkpoint, force push or claim hosted CI success without exact-SHA evidence.
+
+---
+
+## C1 contract-gate checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: C1 — GEOGRAPHY PRODUCTION ROUTE INTEGRATION
+STATUS: C1_ROUTE_CONTRACT_GAP
+BASELINE_SHA: 2910ba4a6e4f89923ac3b51400602959c90014fb
+BRANCH: codex/auth-scope-01-c1
+LAST_SAFE_COMMIT: 2910ba4a6e4f89923ac3b51400602959c90014fb
+REPOSITORY_GUARD: PASS — fetched; main, origin/main and HEAD matched the exact baseline; initial worktree clean.
+SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d106014bfaaf75669207; inspected read-only.
+IMPLEMENTATION_STARTED: NO
+UNCOMMITTED_EXPECTED: only this state.md checkpoint.
+
+ROUTE_CONTRACT_MAP:
+- GET /api/v1/territorial-zones: sites.read + authorized Sites Zone list; empty scopes → 200 [].
+- GET /api/v1/territorial-zones/{id}: sites.read + exact Zone coverage.
+- POST /api/v1/territorial-zones: sites.create route remains closed; no root authority model.
+- PUT /api/v1/territorial-zones/{id}, POST /{id}/activate and /{id}/deactivate: sites.change + exact Zone coverage before mutation.
+- GET /api/v1/regions: sites.read + authorized Sites Region list; optional parent filter narrows SQL result; empty scopes → 200 [].
+- GET /api/v1/regions/{id}: sites.read + exact Region or persisted parent Zone coverage.
+- POST /api/v1/regions: sites.create + exact authoritative parent Zone coverage, then existing ACTIVE-parent business rule.
+- PUT /api/v1/regions/{id}, POST /{id}/activate and /{id}/deactivate: sites.change + exact Region or persisted parent Zone coverage before mutation.
+
+ROUTE: Direct GET, update and lifecycle routes for TerritorialZone and Region; Region create with an unknown/unauthorized parent has the same response-semantics issue.
+CURRENT_BEHAVIOR: Legacy RequirePermission checks a target-blind IPermissionGrantSource before the endpoint. No grant returns 403. With a positive test grant, an unknown Zone GET returns 404 (SitesApiChecks); direct reads/mutations return 404 on handler NotFound. B2 Sites direct authorization returns only bool false for both absent and unauthorized targets.
+MISSING_DECISION: The published contracts do not specify one non-enumerating HTTP status/error code for unknown and existing-but-unauthorized targets when target-aware authorization is integrated. ADR-016 requires canonical not-found handling without disclosing an unauthorized target; security/testing docs expect wrong scope → 403 and existing API tests expect unknown with a positive generic grant → 404. C1 explicitly names ambiguous 403-vs-404 concealment as a stop condition.
+SECURITY_IMPACT: Returning 403 for an existing forbidden ID and 404 for an unknown ID discloses target existence. Choosing either uniform 403 or uniform 404 changes a documented/tested response and may affect client handling. An existence check before authorization would defeat concealment.
+MINIMAL_OPTIONS: (A) Return the same 403 and canonical forbidden error for absent or unauthorized targets; (B) return the same 404 and canonical not-found error for absent or unauthorized targets. Decide separately whether the same rule applies to Region create's parent ID; prefer one consistent rule for direct geography targets.
+NEXT_ACTION: Owner selects the canonical non-enumerating response for direct Geography targets and Region create parent; record the decision, then resume C1 route integration and tests.
+DO_NOT_REPEAT: Do not redo B1/B2 design or review, change Site checkpoint branch, implement Site/capabilities/bootstrap/frontend/contractor-positive auth, or push/merge before independent C1 review.
+
+## C1-OD-01 — owner decision, 2026-09-27
+
+For direct TerritorialZone/Region targets and the parent TerritorialZone of Region create, both missing and existing-but-out-of-scope targets return the same 403 Forbidden response. Do not return 404 for either. Authentication failures remain 401; after successful target authorization, existing lifecycle and optimistic-concurrency responses remain. Scoped lists return 200 with an empty array. This resolves the C1 contract gap above and authorizes C1 implementation on this branch without repeating preflight.
+
+---
+
+## C1 implementation and local verification checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: C1 — GEOGRAPHY PRODUCTION ROUTE INTEGRATION
+STATUS: LOCAL_IMPLEMENTATION_COMPLETE_AWAITING_INDEPENDENT_REVIEW
+BASELINE_SHA: 2910ba4a6e4f89923ac3b51400602959c90014fb
+BRANCH: codex/auth-scope-01-c1
+LAST_SAFE_COMMIT: 2910ba4a6e4f89923ac3b51400602959c90014fb before the C1 commit; after commit use Git HEAD.
+OWNER_DECISION: C1-OD-01 uniform 403 for absent or out-of-scope direct targets and Region-create parent; 401 authentication; 200 [] empty scoped lists.
+
+C1_STEP_1: DONE — Zone list uses IAuthorizedGeographyReadService; GET exact Zone coverage; root Zone create closed even with broad test grants.
+ZONE_LIST_AUTH: PASS
+ZONE_DIRECT_READ_AUTH: PASS
+ROOT_ZONE_CREATE: CLOSED
+C1_STEP_2: DONE — Region list uses IAuthorizedGeographyReadService and optional narrowing filter; direct GET uses Sites-owned persisted parent.
+REGION_LIST_AUTH: PASS
+REGION_DIRECT_READ_AUTH: PASS
+IDOR: DENIED — absent and out-of-scope targets share 403/code; Region scope does not expose its parent Zone.
+C1_STEP_3: DONE — Zone/Region update and lifecycle check sites.change before handlers; Region create checks sites.create against authoritative parent before business eligibility.
+ZONE_MUTATION_AUTH: PASS
+REGION_MUTATION_AUTH: PASS
+REGION_CREATE_AUTH: PASS
+DENIED_MUTATION_SIDE_EFFECTS: NONE — API harness checks row versions, Region count and Sites audit obligation count.
+C1_STEP_4: DONE — cumulative local security review and final local gates; separate independent review remains required before publication.
+SECURITY_REVIEW: LOCAL_PASS
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+
+PRODUCTION_GRANT_WIRING_CHANGED: YES — only Zone/Region endpoints replace target-blind RequirePermission with OIDC RequireAuthorization plus canonical Sites target/list services. The global NoAccessAssignmentPermissionGrantSource and unrelated routes remain unchanged.
+PRODUCTION_GEOGRAPHY_AUTHORIZATION: TARGET_AWARE
+PERMISSION_ISOLATION: lists/GET sites.read; Region create sites.create; Zone/Region mutation sites.change; no implication.
+CURRENT_SUBJECT: OIDC principal → ACTIVE local Identity profile; selected context comes only from validated X-Work-Context-Id middleware, never request business data.
+FORGED_PARENT: IMPOSSIBLE — public Sites target check loads Region parent from persistence.
+FORGED_SCOPES: IMPOSSIBLE at API boundary — endpoints pass no scopes; Sites obtains them from Identity.
+EMPTY_SCOPE: NO_ACCESS — 200 [] lists, 403 direct targets.
+COUNT_LEAKAGE: NOT_APPLICABLE — published lists return arrays without totalCount/pagination; Sites SQL filters before materialization.
+QUERY_SHAPE: one Identity provider call plus bounded Sites SQL list or target query; no per-row authorization.
+N_PLUS_ONE: NONE
+CONTRACTOR: FAIL_CLOSED — real Identity provider PostgreSQL regression.
+F1: CLOSED — Sites persisted parent regression.
+F2: CLOSED — no public scope-bearing list contract, real provider → Sites SQL regression.
+IDENTITY_SITES_DB_DEPENDENCY: NONE
+SITES_IDENTITY_DB_DEPENDENCY: NONE
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NOT_APPLICABLE — EF models unchanged.
+
+VERIFIED:
+- Sites API Testcontainers/PostgreSQL harness: PASS, including C1 route matrices, C1-OD-01, root create, no side effects, OpenAPI and existing lifecycle/audit/concurrency.
+- Sites persistence Testcontainers/PostgreSQL harness: PASS, including F1/F2, scoped SQL and real provider composition.
+- Identity persistence Testcontainers/PostgreSQL harness: PASS, including exact permission scopes and contractor fail-closed.
+- Authentication/OIDC/permission/working-context harness: PASS.
+- Sites and Identity domain harnesses: PASS.
+- Architecture checks: PASS.
+- Full solution Release build: PASS, zero warnings/errors.
+- dotnet test Release --no-build: exit 0; conventional cases are not discovered, so executable harnesses above were run directly.
+- Changed C# whitespace verifier: PASS after formatting only the touched SitesApiChecks/Program.cs file. The baseline test file had widespread indentation drift; reviewers can use `git diff -w` to inspect the 333-line logical test diff separately from whitespace changes. No other file was reformatted.
+- Documentation impact: YES; documentation sync: PASS for Sites/Identity module and context, security, API guidelines, backlog and ADR implementation-status index. Accepted ADR semantics unchanged.
+- Git diff --check, changed Markdown references and secret hygiene: PASS.
+
+SECURITY_REVIEW_NOTES: Checked direct-ID IDOR, forged parent/scope, permission mismatch, role/UserType/JWT/context-only bypass, contractor, legacy policy conflict, empty-scope widening, mutation/audit before authorization, and provider exception path. No open finding at CRITICAL/HIGH/MEDIUM/LOW. The separate independent C1 review is the next publication gate.
+UNCOMMITTED_BEFORE_TASK_COMMIT: C1-owned API helper/routes/DI, Sites API harness, synchronized docs and this state file only; no migration/frontend/Site branch changes.
+LOCAL_C1_COMMIT: THIS COMMIT — exact SHA is Git HEAD after explicit-path staging and commit.
+SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d106014bfaaf75669207, unchanged.
+MAIN_MODIFIED: NO
+PUSH: NONE
+MERGE: NONE
+NEXT_ACTION: Independent C1 security/integration review of the local commit before publication. Do not start Site authorization, capabilities or Development bootstrap.
+DO_NOT_REPEAT: Do not redo B1/B2 preflight or passing regression suites without a relevant change; do not touch the Site checkpoint branch, push, merge or broaden C1.
