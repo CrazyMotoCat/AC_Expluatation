@@ -460,6 +460,15 @@ permission-specific scoped Zone/Region PostgreSQL query composition and stores.
 Focused PostgreSQL, security, architecture and Release build gates pass.
 Geography route integration remains deferred to C1; B2-B3 remains not started.
 
+B2 independent review blocked integration on F1 HIGH (caller-forgeable Region
+parent at the public Identity evaluator) and F2 MEDIUM (caller-forgeable scopes
+and permission at the public Sites read store). B2-R0 freezes ADR-016 and
+`.agent/tasks/AUTH-SCOPE-01/phase-b2r0-trust-boundary-contract.md` as the
+remediation contract. B2-R1 implements exact Identity targets, Sites-owned
+direct coverage and an authorized list service with internal SQL filtering.
+Security re-review and integration remain pending; the B2 branch is unpublished
+and C1 remains deferred.
+
 ---
 
 ## FEATURE-01.04. Audit foundation

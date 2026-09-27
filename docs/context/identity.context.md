@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-B2; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-R1 remediation; FRONTEND-AUTH-01)
 MODULE: Identity
 
 ## PURPOSE
@@ -100,7 +100,8 @@ Working context:
 - Security-critical Role active state использует optimistic concurrency без silent overwrite.
 - Permission policy принимает только canonical seeded code, требует active local profile и явный grant по canonical permission ID; token claims, `UserType` и имя роли не являются grants.
 - Production grant source всё ещё отказывает: self-service ownership не является operational evaluation, а assignment match не проверяет authoritative target ancestry и contractor chain; permission-protected business endpoints не открываются без полной evaluation.
-- `AUTH-SCOPE-01` B1 / ADR-013 реализует `IEffectiveGrantEvaluator` для прямой проверки одного доверенного Zone/Region target. B2-B1 реализует Identity `IEffectiveScopeProvider` для exact permission-specific Zone/Region scopes в list queries через общую с B1 Identity eligibility query. B2-B2 реализует Sites Application composition, trusted target projection и scoped SQL stores; composition вызывает Identity provider с `sites.read`, а прямые Zone/Region checks используют Sites-owned resolver перед B1 evaluator. Composite/unsupported assignment scopes не flatten-ятся, если это сбрасывает ограничение. Identity/Sites PostgreSQL и direct-composition regression проходят; Sites HTTP routes не wired и остаются deny-by-default до C1.
+- `AUTH-SCOPE-01` B1 / ADR-013 ввёл `IEffectiveGrantEvaluator`; B2-B1 добавил Identity `IEffectiveScopeProvider` для exact permission-specific Zone/Region scopes через общую Identity eligibility query. Исходный B2-B2 trusted-target/scoped-store handoff заменён B2-R1 по ADR-016. Composite/unsupported assignment scopes не flatten-ятся, если это сбрасывает ограничение. Sites HTTP routes не wired и остаются deny-by-default до C1.
+- ADR-016 / B2-R1 исправляет F1: публичный Identity target содержит только kind + exact ID; Region parent больше не принимается и Zone → Region expansion в Identity отсутствует. Sites загружает Region parent и проверяет покрытие через effective scopes от `IEffectiveScopeProvider`. B1 eligibility и exact scope сохранены. F2 scope-bearing public store удалён; B2 ещё ожидает независимой проверки и не интегрирован.
 
 ## PERMISSIONS
 
@@ -147,7 +148,7 @@ Identity не должен знать все бизнес-правила дру�
 
 Другие модули не должны напрямую читать таблицы Identity ради бизнес-проверки доступа.
 
-`IEffectiveScopeProvider` принимает local user, validated working context и один canonical permission. Identity owns the eligibility query and returns exact scopes only; it does not resolve the Zone/Region relationship. Permission scopes cannot be reused between actions. Empty scope means no authorized targets; contractors/external contexts return no scopes. Role name, UserType alone, JWT claims and context existence alone never grant.
+`IEffectiveScopeProvider` принимает local user, validated working context и один canonical permission. Identity owns the eligibility query and returns exact scopes only; it does not resolve the Zone/Region relationship. Permission scopes cannot be reused between actions. Effective scope DTOs are data, not capability tokens; Sites public application operations must acquire them internally. Empty scope means no authorized targets; contractors/external contexts return no scopes. Role name, UserType alone, JWT claims and context existence alone never grant.
 
 `ClaimsPrincipal`, JWT и `HttpContext` остаются на API boundary. Runtime contract не является persistence entity. API boundary извлекает configured trusted `user_type` claim в clean runtime input; Application/Domain не зависят от JWT, ASP.NET Core или Keycloak.
 

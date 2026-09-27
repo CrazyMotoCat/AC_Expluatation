@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-A; TASK-02.03.02 Phase D final review)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-R1 remediation; TASK-02.03.02 Phase D final review)
 MODULE: Sites
 
 ## PURPOSE
@@ -142,9 +142,11 @@ catalog management or mutation audit is included in TASK-02.03.02.
 
 Territorial Zone API maps permissions exactly: list/get → `sites.read`, create → `sites.create`, rename/activate/deactivate → `sites.change`. Production grant evaluation remains deny-by-default; UserType, role name, JWT claims and working context do not grant permission. A validated request context may be copied only to obligation `acting_context_id` metadata. Mutations require explicit `expectedRowVersion`; stale writes fail with the standard 409 concurrency contract.
 
-Region API uses the same permission keys: list/get → `sites.read`, create → `sites.create`, PUT/activate/deactivate → `sites.change`. Region and parent scope checks must not be inferred from an entity ID, role, UserType, JWT claim or working context. B2-B2 adds a Sites Application composition that requests `sites.read` scopes, a Sites-persistence-backed trusted Zone/Region target resolver, and scoped PostgreSQL query stores. Existing HTTP routes are not wired to these foundations and remain deny-by-default until C1.
+Region API uses the same permission keys: list/get → `sites.read`, create → `sites.create`, PUT/activate/deactivate → `sites.change`. Region and parent scope checks must not be inferred from an entity ID, role, UserType, JWT claim or working context. B2-R1 adds Sites-owned direct coverage and an authorized list service that obtains `sites.read` scopes through Identity and filters in Sites PostgreSQL. Existing HTTP routes are not wired to these foundations and remain deny-by-default until C1.
 
-`AUTH-SCOPE-01` Phase A / ADR-013 freezes target-aware geographic authorization; B2-A / ADR-015 freezes the list-scope provider and exact list rules. B2-B2 implements the foundation: Zone queries match only Zone scope IDs; Region queries match exact Region IDs or the persisted parent Zone scope IDs. Coverage is downward Zone → Region only; Region does not cover a parent Zone. Empty scopes return no rows. Unsupported kinds add no IDs, duplicates do not multiply rows, and the hierarchy predicate is applied in Sites SQL. Target projection uses persisted Zone/Region facts and the Region's DB-owned parent without an ACTIVE filter; authorization is delegated to Identity B1 through a composition service. No Geography route behavior changed and production runtime remains deny-by-default until C1 integration. Root Zone creation remains closed; Site scope, capabilities, Development bootstrap and contractor grants remain unimplemented.
+`AUTH-SCOPE-01` Phase A / ADR-013 freezes target-aware geographic authorization; B2-A / ADR-015 freezes the list-scope provider and exact list rules. Zone queries match only Zone scope IDs; Region queries match exact Region IDs or the persisted parent Zone scope IDs. Coverage is downward Zone → Region only; Region does not cover a parent Zone. Empty scopes return no rows. Unsupported kinds add no IDs, duplicates do not multiply rows, and the hierarchy predicate is applied in Sites SQL. Sites loads persisted Zone/Region facts and the Region's DB-owned parent without an ACTIVE filter, then evaluates coverage using Identity effective scopes. No Geography route behavior changed and production runtime remains deny-by-default until C1 integration. Root Zone creation remains closed; Site scope, capabilities, Development bootstrap and contractor grants remain unimplemented.
+
+ADR-016 / B2-R1 implements the public boundary after F1 HIGH/F2 MEDIUM review. Sites direct authorization accepts only business Zone/Region IDs, loads authoritative Region parent from Sites persistence, requests effective scopes for the exact permission and evaluates coverage locally. Region creation loads the parent Zone and requires exact `sites.create` Zone coverage. Public `IAuthorizedGeographyReadService` lists request fixed `sites.read` scopes internally; SQL filtering is private in an internal Sites Infrastructure implementation. No public scope-bearing read request/store remains. Identity derives scopes; Sites maps them to targets. Independent review and B2 integration are still pending; no C1 route is enabled.
 
 ## PUBLIC CONTRACTS
 
@@ -174,7 +176,7 @@ Region API uses the same permission keys: list/get → `sites.read`, create → 
 Допустимо:
 
 - Organization contracts;
-- Identity Application authorization contracts only (`IEffectiveScopeProvider` for lists and `IEffectiveGrantEvaluator` for direct targets); no Identity Infrastructure, `IdentityDbContext`, or `identity.*` SQL access;
+- Identity Application authorization contracts only (`IEffectiveScopeProvider` for future direct/list Sites coverage; `IEffectiveGrantEvaluator` only for exact checks if retained); no Identity Infrastructure, `IdentityDbContext`, or `identity.*` SQL access;
 - shared clock/audit abstractions.
 
 ## USED_BY

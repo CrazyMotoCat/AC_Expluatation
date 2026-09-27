@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-B2; FRONTEND-AUTH-01)
+SOURCE_VERSION: 2026-09-27 (AUTH-SCOPE-01 B2-R1 remediation; FRONTEND-AUTH-01)
 
 ## Purpose
 
@@ -94,7 +94,9 @@ Contractor request дополнительно проходит Contractors valid
 
 `access_assignments` хранятся и проверяются на matching scope/validity как кандидаты. Self-service context ownership/availability реализованы. B1 evaluator проверяет внутреннюю цепочку Identity и доверенный Zone/Region descriptor, но production grant source пока остаётся deny-all до route integration с authoritative target ancestry; contractor chain также остаётся будущей dependency. Assignment, role-permission mapping и выбранный context сами по себе не открывают permission-protected endpoint.
 
-`AUTH-SCOPE-01` B1 / ADR-013 реализует внутренний Identity `IEffectiveGrantEvaluator` для прямой проверки одного доверенного Zone/Region target. Он проверяет ACTIVE INTERNAL пользователя, собственный действующий INTERNAL context, assignment validity, активную роль, canonical role-permission и scope; использует только Identity persistence и не подключён к production `IPermissionGrantSource`. B2-B1 реализует отдельный Identity Application `IEffectiveScopeProvider` для immutable distinct permission-specific scope descriptors `TerritorialZone`/`Region`, используя ту же Identity eligibility query. Provider не принимает target и не разрешает Identity читать Sites hierarchy; composite/unsupported assignments не преобразуются в более широкий descriptor. B2-B2 добавляет Sites Application потребителя этих контрактов: scoped list composition явно запрашивает `sites.read`, а прямые target checks передают Identity только trusted descriptor, спроецированный Sites resolver. PostgreSQL/provider/evaluator composition регрессии прошли; HTTP route integration не реализована и production routes остаются deny-by-default. Site scope, C1, capabilities, Development bootstrap и contractor grants не реализованы.
+`AUTH-SCOPE-01` B1 / ADR-013 ввёл Identity `IEffectiveGrantEvaluator`; B2-B1 добавил `IEffectiveScopeProvider` с общей Identity eligibility query для immutable distinct permission-specific `TerritorialZone`/`Region` descriptors. Provider не принимает target и не читает Sites hierarchy; composite/unsupported assignments не преобразуются в более широкий descriptor. Исходный B2-B2 передавал Identity trusted Region projection из Sites resolver и публиковал scoped read store; этот handoff заменён B2-R1 по ADR-016. HTTP route integration не реализована, production routes остаются deny-by-default. Site scope, C1, capabilities, Development bootstrap и contractor grants не реализованы.
+
+ADR-016 / B2-R1 реализует уточнение после review F1/F2: Identity остаётся источником точных effective scopes для permission; Sites решает покрытие своей иерархии. Публичный Identity evaluator теперь принимает только target kind + один ID и проверяет exact Zone/Region scope, без Region parent или Zone → Region expansion. Sites direct service получает business target ID, читает Region parent из Sites и запрашивает `IEffectiveScopeProvider`. Exact eligibility B1 сохраняется; composite Zone+Region assignment не упрощается до exact scope. Реализация ожидает независимой проверки B2 перед интеграцией.
 
 `GET /api/v1/me/contexts` и `POST /api/v1/me/context` — узкий own-context bootstrap alongside `GET /api/v1/me`: authenticated + ACTIVE local profile + strict owner/availability. `identity.contexts.read` не требуется в этих self-service маршрутах из-за bootstrap circular dependency; canonical permission сохранён для будущего permission-controlled доступа к contexts. Исключение не применяется к admin/other Identity endpoints.
 
@@ -106,7 +108,7 @@ Contractor request дополнительно проходит Contractors valid
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
 - `IPermissionGrantSource` принимает локальный user ID и canonical permission ID; текущая production реализация deny-by-default.
-- `IEffectiveGrantEvaluator` authorizes one trusted target; B2-B1 `IEffectiveScopeProvider` returns immutable exact permission-specific Zone/Region descriptors for Sites list queries, reusing shared Identity eligibility semantics. B2-B2 adds the Sites Application consumer/composition and persistence contracts; Geography HTTP routes are not integrated until C1.
+- `IEffectiveGrantEvaluator` checks exact Zone/Region target IDs only; it cannot accept Region parent evidence. `IEffectiveScopeProvider` returns immutable exact permission-specific Zone/Region data, reusing shared Identity eligibility semantics. Sites derives target coverage from its own persistence. Geography HTTP routes are not integrated until C1.
 - `IWorkingContextAuditWriter` — Audit-owned cross-module contract для durable `WorkingContextSelected` и `WorkingContextApplied`; Identity не пишет в Audit schema напрямую.
 
 Planned subsequent contracts: `IWorkingContext`, `IAuthorizationService`, `UserReference`, `WorkingContextReference`. Текущий Domain `AccessScope` не является публичным контрактом для business modules.

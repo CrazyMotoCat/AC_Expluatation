@@ -6,6 +6,11 @@ SOURCE_OF_TRUTH: Owner contract supplied for this phase, ADR-007, ADR-013,
 refining ADR-015, and the current Identity/Sites module contracts.
 BASELINE_SHA: `a3167e85115875c48737f7af10007366e2beaa69`
 
+Later trust-boundary refinement: ADR-016 and
+`phase-b2r0-trust-boundary-contract.md` supersede the caller-supplied trusted
+Region parent and public scope-bearing read-store handoffs described below.
+The exact Identity scope derivation and Sites SQL coverage rules remain frozen.
+
 ## Purpose and boundary
 
 Freeze the Identity-owned list-scope contract needed for efficient

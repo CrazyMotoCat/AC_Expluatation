@@ -816,3 +816,225 @@ CAPABILITIES: NOT_STARTED
 DEV_BOOTSTRAP: NOT_STARTED
 NEXT_ACTION: none for B1. Stop here; B2 requires a separate task and planning.
 DO_NOT_REPEAT: Do not start B2 or another business task in this continuation.
+
+---
+
+## Phase B2 independent review and integration checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B2 — INDEPENDENT SECURITY REVIEW + MAIN INTEGRATION
+STATUS: BLOCKED — independent review found open HIGH and MEDIUM authorization-boundary findings
+CHECKPOINT_STATUS: SAFE — source is recoverable and verified locally; integration is blocked by findings
+BASELINE_SHA: a3167e85115875c48737f7af10007366e2beaa69
+BRANCH: codex/auth-scope-01-b2
+SOURCE_B2_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88
+SOURCE_B2_PARENT: a3167e85115875c48737f7af10007366e2beaa69
+LAST_SAFE_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88 — tested source commit; not cleared for integration
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT — fetched origin; main and origin/main remain at baseline; source is one child commit; Site checkpoint ref is unchanged; current dirty paths are task review checkpoints only
+RESUME_SAFE: YES — Git matches the owner-provided B2 source commit and expected topology; prior B2-A checkpoint was stale and is reconciled here
+
+COMPLETED:
+- B2 source commit is present at the exact supplied SHA, directly on the published baseline.
+- B2-A contract, ADR-015, Identity effective-scope provider/shared query, and Sites scoped-query/trusted-target implementation are present in the source commit; security approval remains pending.
+- Fetched origin and verified `main == origin/main == a3167e85115875c48737f7af10007366e2beaa69` and Site checkpoint branch `4d230e7c8192614954b7d106014bfaaf75669207`.
+- Independent read-only review completed. No B2 source files or refs were changed.
+
+VERIFIED:
+- `git fetch origin`: PASS.
+- Branch topology and source parent: PASS; B2 is exactly one commit ahead of baseline.
+- `git ls-remote origin refs/heads/main`: PASS; remote main is still baseline.
+- Current B2 tracked/untracked worktree was clean before writing this checkpoint.
+- `dotnet build Exploitation.sln --configuration Release`: PASS, 0 warnings/errors.
+- `dotnet test Exploitation.sln --configuration Release`: exit 0; no test cases were discovered/output, so executable harnesses were run directly.
+- Identity unit checks: PASS.
+- Architecture checks: PASS.
+- Identity PostgreSQL/Testcontainers checks: PASS, including B1/B2 grant/scope matrix and validity boundaries.
+- Sites PostgreSQL/Testcontainers checks: PASS, including trusted target resolution, Zone/Region SQL filtering, empty scopes, permission isolation, spoofed parent denial and direct/create-parent composition.
+- Sites API regression checks: PASS; Authentication/OIDC and working-context security checks: PASS.
+- `git diff --check` on source and current worktree: PASS.
+- Secret hygiene: PASS — `.env` is ignored and untracked; no secret-pattern additions in the B2 diff (values suppressed).
+- Model drift: NOT APPLICABLE — B2 adds no schema or migration.
+- Independent security review: FAIL — F1 HIGH and F2 MEDIUM below; no route-level exploitability proven, but the frozen B2 application-boundary criterion is not met.
+
+SECURITY_FINDINGS:
+- F1 / HIGH — public `TrustedAuthorizationScope` constructor and `ForRegion(zoneId, regionId)` allow an application caller to forge the authoritative parent passed to the registered Identity evaluator. Sites resolver path is safe, but bypass is not prevented. Evidence: `TrustedAuthorizationScope.cs`, `EffectiveGrantRequest.cs`, `EffectiveGrantEvaluator.cs`, `IdentityModuleRegistration.cs`. Minimal remediation requires revising the target-trust handoff contract or narrowing evaluator access.
+- F2 / MEDIUM — public `ScopedGeographyReadRequest` and registered `IScopedGeographyReadStore` accept caller-fabricated scope IDs; the store treats a caller-supplied `sites.read` string as proof. Evidence: `ScopedGeographyReadRequest.cs`, `IScopedGeographyReadStore.cs`, `ScopedGeographyReadStore.cs`, `SitesModuleRegistration.cs`. Minimal remediation requires making the scope/permission handoff trusted and preventing direct use of the raw store from an untrusted application caller.
+- F1 and F2 are service-level findings; no production HTTP route exposes these paths in B2. Integration requires zero open HIGH/MEDIUM findings.
+- OPEN_LOW: `docs/context/sites.context.md` still identifies its SOURCE_VERSION as B2-A although its content includes B2-B2. This metadata drift does not change runtime behavior.
+- ADR-014/ADR-015 numbering: PASS. B2 source diff is B2-only; no Geography route behavior, Site scope, capabilities, DEV bootstrap, contractor-positive logic, frontend, or migration changes.
+
+UNCOMMITTED:
+- `.agent/tasks/AUTH-SCOPE-01/state.md` — review status/checkpoint only.
+- `.agent/tasks/AUTH-SCOPE-01/agents/b2-security-review.md` — independent reviewer handoff only.
+
+DECISIONS:
+- Review only the exact diff `a3167e8..2f5ca8b`; preserve the B2-A contract and the supplied phase boundaries.
+- Do not amend source commit `2f5ca8b`; if a bounded defect is proven, make a separate remediation commit and re-review it.
+- Keep production Geography routes unchanged and stop before C1.
+
+PENDING:
+- Owner decision on the trusted target and effective-scope handoff boundary; frozen contract changes require explicit decision/ADR.
+- Remediate F1/F2 and re-review before any fast-forward or push.
+- Hosted CI, remote B2 SHA publication, and main integration were not attempted because review criteria failed.
+
+BLOCKERS: Open F1 HIGH and F2 MEDIUM require a trust-boundary contract resolution before integration.
+FILES_CHANGED:
+- `.agent/tasks/AUTH-SCOPE-01/state.md`
+- `.agent/tasks/AUTH-SCOPE-01/agents/b2-security-review.md`
+
+NEXT_ACTION: Owner decides whether to authorize an ADR-level change to make target and list-scope evidence unforgeable across the Identity/Sites application boundary; then remediate F1/F2 and repeat independent review before integration.
+DO_NOT_REPEAT: Do not redo B1/B2 implementation without a proven defect. Do not change Geography HTTP behavior, implement Site scope, capabilities, DEV bootstrap, contractor-positive authorization, frontend work, or C1. Do not touch the Site checkpoint branch.
+
+---
+
+## Phase B2-R0 trust-boundary remediation contract freeze — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-R0 — TRUST BOUNDARY REMEDIATION CONTRACT FREEZE
+STATUS: CONTRACT_FROZEN; B2 BLOCKED_PENDING_REMEDIATION
+B2: BLOCKED_PENDING_REMEDIATION
+BASELINE_MAIN: a3167e85115875c48737f7af10007366e2beaa69
+B2_BRANCH: codex/auth-scope-01-b2
+SOURCE_B2_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88
+LAST_SAFE_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88 — tested source; not cleared for integration
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT — HEAD/parent, main, origin/main and Site checkpoint ref match the prior review checkpoint; dirty files before B2-R0 were the recorded review state and reviewer handoff only
+RESUME_SAFE: YES — no unexpected Git drift was found before documentation edits
+SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d106014bfaaf75669207 — unchanged
+
+COMPLETED:
+- Created Accepted ADR-016 as the owner-approved B2-R0 contract, refining the affected ADR-013/ADR-015 handoffs without editing either accepted ADR.
+- Froze `.agent/tasks/AUTH-SCOPE-01/phase-b2r0-trust-boundary-contract.md` with Identity/Sites ownership, direct/list/create-parent flows, fail-closed behavior, and B2-R1A…R1D sequence.
+- Synchronized security, Identity/Sites module and context docs, ADR index, backlog pointer, and the historical B2-A contract pointer. Corrected the Sites context SOURCE_VERSION drift.
+- Preserved existing B2 source, independent review handoff, published main and Site checkpoint.
+
+DECISIONS:
+- Callers provide business target IDs and authenticated context, not Region parent evidence or effective scope collections.
+- Identity derives exact effective scopes for permission P; Sites resolves authoritative target facts and evaluates Sites target coverage.
+- Public Sites direct/list application services call `IEffectiveScopeProvider` internally. Raw scoped SQL store is an internal implementation detail; its permission string is not grant evidence.
+- B1 exact-scope and Identity eligibility semantics remain; Sites evaluates Zone → Region hierarchy. Region creation requires exact `sites.create` Zone coverage after Sites parent lookup.
+- ADR-016 changes the required future contract only. Existing B2 code remains vulnerable at the public application boundary until remediation and independent review.
+
+F1: CONTRACT_RESOLVED_PENDING_CODE — public caller-supplied Region parent must be removed from hierarchical authorization.
+F2: CONTRACT_RESOLVED_PENDING_CODE — public caller-supplied effective scopes/permission must be removed from Sites list authorization.
+OPEN_CRITICAL: 0
+OPEN_HIGH: 1
+OPEN_MEDIUM: 1
+B2_R1: NOT_STARTED
+C1: NOT_STARTED
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+IMPLEMENTATION_CHANGED: NO
+DOCUMENTATION_IMPACT: YES — authorization contract and module boundaries changed
+DOCUMENTATION_SYNC: PASS — ADR-016/index, security, Identity/Sites module and context, backlog and task contracts aligned; no schema or API change requiring database/OpenAPI edits
+DOCS_GATES: PASS — tracked `git diff --check`, new-file whitespace, local references, ADR numbering and secret hygiene
+CHECKPOINT_UPDATED: YES
+MAIN_MODIFIED: NO
+PUSH: NONE
+MERGE: NONE
+UNCOMMITTED: prior B2 review state and reviewer handoff, plus B2-R0 documentation/checkpoint files; see `git status --short` for exact current paths
+PENDING: B2-R1 code remediation, structural security/PostgreSQL checks, independent review, then a separate integration decision
+NEXT_ACTION: B2-R1 — remediate F1/F2 according to ADR-016. Do not start automatically.
+DO_NOT_REPEAT: Do not amend the B2 source commit, merge/push, start C1, touch the Site checkpoint, change schema, add migrations, or change runtime in B2-R0.
+
+---
+
+## Phase B2-R1 atomic checkpoint 1 — exact Identity target and Sites direct authorization (2026-09-27)
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-R1 — R1-A/B
+STATUS: IN_PROGRESS; F1 implementation remediated pending structural review
+BASELINE_MAIN: a3167e85115875c48737f7af10007366e2beaa69
+BRANCH: codex/auth-scope-01-b2
+LAST_SAFE_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88
+RESUME_GUARD: PASS — fetch completed; HEAD/parent, main, origin/main, Site ref and all pre-existing B2-R0 dirty paths matched the checkpoint
+B2_R1_STEP_1: DONE
+F1_IMPLEMENTATION: REMEDIATED_PENDING_REVIEW
+IDENTITY_HIERARCHY_EVALUATION: REMOVED
+SITES_DIRECT_AUTH: IMPLEMENTED
+CALLER_SUPPLIED_REGION_PARENT: NOT_ACCEPTED
+VERIFIED: Identity Infrastructure Release build; Sites Infrastructure Release build; Identity domain checks; Identity PostgreSQL/Testcontainers checks; Sites PostgreSQL/Testcontainers checks — all PASS
+UNCOMMITTED: B2-R0 docs/review files plus R1-A/B Identity/Sites source and focused tests
+DECISION: Keep public B1 evaluator for exact Zone/Region scope only; Sites direct service owns persisted parent coverage via IEffectiveScopeProvider.
+NEXT_ACTION: R1-C — replace public scoped read store with an authorized Sites list service and rerun focused PostgreSQL checks.
+DO_NOT_REPEAT: Do not rework the accepted ADR-016 contract, start C1, touch Site checkpoint, merge or push.
+
+---
+
+## Phase B2-R1 atomic checkpoint 2 — authorized Sites lists (2026-09-27)
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-R1 — R1-C
+STATUS: IN_PROGRESS; F2 implementation remediated pending structural review
+LAST_SAFE_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88
+B2_R1_STEP_2: DONE
+F2_IMPLEMENTATION: REMEDIATED_PENDING_REVIEW
+AUTHORIZED_LIST_SERVICE: IMPLEMENTED — public IAuthorizedGeographyReadService
+CALLER_SUPPLIED_EFFECTIVE_SCOPES_PUBLIC: FORBIDDEN
+RAW_SCOPED_STORE: PRIVATE_METHODS_IN_INTERNAL_INFRASTRUCTURE_SERVICE
+LIST_PERMISSION: sites.read FIXED_BY_OPERATION
+VERIFIED: Sites Infrastructure Release build PASS; Sites PostgreSQL/Testcontainers direct/list matrix PASS, including F1 spoofed parent, F2 empty/wrong-permission/duplicate/unsupported scopes
+UNCOMMITTED: B2-R0 docs/review plus R1-A/B/C source and tests
+NEXT_ACTION: R1-D — structural contract tests, security review, documentation sync and full validation.
+DO_NOT_REPEAT: Do not reintroduce a public scope-bearing Sites read store, merge/push or start C1.
+
+---
+
+## Phase B2-R1 final remediation checkpoint — 2026-09-27
+
+TASK: AUTH-SCOPE-01
+PHASE: B2-R1 — TRUST BOUNDARY REMEDIATION
+STATUS: IMPLEMENTATION_COMPLETE_AWAITING_INDEPENDENT_INTEGRATION_REVIEW
+BASELINE_MAIN: a3167e85115875c48737f7af10007366e2beaa69
+BRANCH: codex/auth-scope-01-b2
+SOURCE_B2_COMMIT: 2f5ca8b8b4f5ff2827eaef0f807bfa7812863a88
+SOURCE_B2_PARENT: a3167e85115875c48737f7af10007366e2beaa69
+LAST_SAFE_COMMIT: remediation commit at HEAD after this checkpoint is committed; do not amend source B2 commit
+B2_R1_STEP_1: DONE
+B2_R1_STEP_2: DONE
+B2_R1_STEP_3: DONE
+F1: CLOSED
+F2: CLOSED
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+ADR_016_IMPLEMENTED: YES
+B2: IMPLEMENTATION_COMPLETE_AWAITING_INDEPENDENT_REVIEW
+C1: NOT_STARTED
+
+COMPLETED:
+- Identity exact target contract accepts kind + one ID; exact evaluator retains the B1 Identity eligibility query and no longer performs Zone → Region coverage.
+- Sites direct authorization reads Zone existence / persisted Region parent and internally requests effective scopes for the exact permission. Region creation parent check uses `sites.create` and exact Zone coverage.
+- Public Sites authorized list service requests `sites.read` scopes internally; private Sites SQL methods filter Zone/Region rows server-side. The optional Region Zone filter only narrows results. Scope-bearing public request/store and raw DI entry were removed.
+- Structural architecture tests cover public contract shape, exact Identity target, Sites provider composition, internal SQL implementation/DI and cross-module DB boundaries.
+- Independent read-only security review recorded in `agents/b2-r1-security-review.md`: F1/F2 closed; no open CRITICAL/HIGH/MEDIUM/LOW findings. Separate post-commit integration review remains the next action.
+
+VERIFIED:
+- Identity and Sites Infrastructure Release builds: PASS.
+- Full solution Release build: PASS, zero warnings/errors.
+- `dotnet test Exploitation.sln --configuration Release --no-build`: exit 0; no conventional cases discovered, so executable harnesses were run.
+- Identity and Sites domain checks: PASS.
+- Identity PostgreSQL/Testcontainers: PASS, including exact scope, user/context/assignment validity, permission isolation, provider and contractor fail-closed.
+- Sites PostgreSQL/Testcontainers: PASS, including F1 forged-parent denial, persisted-parent/Region coverage, F2 list scopes, empty/wrong permission, duplicates, unsupported scopes, Zone filter narrowing and server-side SQL.
+- Sites API regression: PASS; OIDC/permission/working-context regression: PASS.
+- Architecture/public-contract checks: PASS.
+- Changed C# whitespace verification: PASS.
+- Documentation impact: YES; documentation sync: PASS for Identity/Sites modules and contexts, security, ADR index, backlog and task checkpoint. No DB or HTTP contract change requiring database/OpenAPI edits.
+- Diff/Markdown/reference and secret gates: PASS (see staged diff review before commit).
+
+SCOPE:
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NOT_APPLICABLE — EF mappings unchanged
+PRODUCTION_ROUTE_INTEGRATION_CHANGED: NO
+SITE_TARGET: NOT_IMPLEMENTED
+IDENTITY_TO_SITES_DB: NONE
+SITES_TO_IDENTITY_DB: NONE
+SITE_CHECKPOINT_BRANCH: codex/task-02.03.03-site-b1 at 4d230e7c8192614954b7d106014bfaaf75669207 — unchanged
+MAIN_MODIFIED: NO
+PUSH: NONE
+MERGE: NONE
+UNCOMMITTED_BEFORE_TASK_COMMIT: B2-R0 contract/ADR/docs/review handoff plus B2-R1 source/tests/docs/checkpoints only
+DECISION: Keep ADR-016 unchanged; preserve the original B2 source commit and create one separate narrow remediation commit.
+NEXT_ACTION: Independent B2 remediation security/integration review before publication. Do not start C1 or integrate/push automatically.
+DO_NOT_REPEAT: Do not redo passing B2-R1 gates without a relevant code change, reopen ADR-016, touch Site checkpoint, merge, push or start C1.
