@@ -1303,15 +1303,19 @@ INACTIVE classes, ordered by rank ASC then code ASC. Each row contains only
 global reference list with no Zone/Region filtering. The route has no runtime
 management operations; a working context does not grant permission.
 
-## TASK-02.03.03 — Site API contract (frozen; HTTP API not implemented)
+## TASK-02.03.03 — Site API contract (frozen; SITE-API-01 implemented locally)
 
-The first Site CRUD slice is specified by the routes and base Site DTO below;
-none of these Site routes is implemented. The B1 domain/persistence
+SITE-API-01 implements the seven production Site routes locally using the
+frozen DTO contract below; publication requires a separate review. The B1 domain/persistence
 foundation and SITE-AUTH-01 authorization foundation are published on main.
 Identity supports exact Site scopes; Sites owns authoritative Site → Region
 → Zone coverage, create-parent checks and authorized SQL lists. These were
-verified independently under ADR-017. Production HTTP integration still
-covers Zone/Region only; wiring the Site routes is a separate phase.
+verified independently under ADR-017. Site HTTP integration uses the same
+canonical authenticated subject/context resolution as Zone/Region, the
+published Sites target/create-parent checks and authorized list service.
+Mutations call Application handlers and the existing atomic B1 command store.
+Site frontend, capabilities, DEV bootstrap and contractor-positive access
+remain unimplemented. No schema change or migration is included.
 
 | Operation | Route | Permission and target | Body | Success |
 |---|---|---|---|---|

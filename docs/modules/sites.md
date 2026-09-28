@@ -135,8 +135,8 @@ migration, and internal atomic command persistence. SITE-AUTH-01
 implements exact Identity Site scope, Sites authoritative Site target/create
 coverage and a SQL-filtered paginated Site list. PostgreSQL and architecture
 checks and independent SITE-AUTH-01R review pass; the foundation is published.
-No Site HTTP route is implemented. Published production routes still support
-TerritorialZone and Region only.
+SITE-API-01 implements the seven Site HTTP routes locally; publication awaits
+separate security/integration review. Published Zone/Region routes are unchanged.
 Site is the Sites-owned child of exactly one
 Region. Site ID is UUIDv7. Required code is trimmed, invariant-uppercase,
 globally unique, immutable, at most 50 characters and matches
@@ -165,7 +165,7 @@ changes only name, SiteType, address and timezone. Every mutable command
 requires `expectedRowVersion`; stale writes return
 `409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
 
-The future API uses `GET /api/v1/sites` (paginated),
+The locally implemented Site API uses `GET /api/v1/sites` (paginated),
 `GET /api/v1/sites/{siteId}`, `POST /api/v1/sites`,
 `PUT /api/v1/sites/{siteId}`, explicit `activate`/`deactivate` POST commands
 and `PUT /api/v1/sites/{siteId}/criticality`. List filters are `regionId`,
@@ -186,7 +186,7 @@ needs `sites.change_criticality` covering the Site without additionally
 requiring `sites.change`. First production support is INTERNAL user/context
 only; contractors remain fail-closed. The authorization foundation is
 published after independent SITE-AUTH-01R review and post-integration gates;
-Site HTTP CRUD remains a separate phase. Identity keeps scopes exact; Sites
+SITE-API-01 HTTP CRUD uses this published foundation. Identity keeps scopes exact; Sites
 resolves Site → Region → Zone. Site is a published exact effective-scope kind. The existing
 Identity assignment schema already has `site_id`; no migration was needed.
 The published authorized list obtains fixed `sites.read` scopes internally and

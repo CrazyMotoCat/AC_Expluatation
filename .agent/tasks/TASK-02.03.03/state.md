@@ -552,3 +552,160 @@ task is to implement Site HTTP API using this published authorization foundation
 DO_NOT_REPEAT: no new Site HTTP API work in this session; no refactor,
 migration, capabilities, DEV bootstrap, frontend, positive contractor path,
 Zone/Region production-route change, accepted contract rewrite or force push.
+
+## SITE-API-01 atomic checkpoint 1
+TASK: TASK-02.03.03
+PHASE: SITE-API-01 — PRODUCTION SITE HTTP API
+STATUS: IN_PROGRESS / UNCOMMITTED
+BASELINE_SHA: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+LAST_SAFE_COMMIT: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+BRANCH: codex/task-02.03.03-site-api
+REPOSITORY_GUARD: PASS — fetch; HEAD/main/origin/main exact baseline; initial clean
+TASK_RESUME: SAFE — prior published checkpoint is historical; actual published Git baseline matches owner request
+SITE_B1: PUBLISHED
+SITE_AUTHORIZATION: PUBLISHED
+SITE_API_01_STEP_1: DONE
+SITE_LIST_ROUTE: PASS
+SITE_GET_ROUTE: PASS
+LIST_IDOR: PASS
+DIRECT_IDOR: PASS
+COUNT_LEAKAGE: NONE
+VERIFIED: affected API Release build zero warnings/errors; SitesApiChecks PostgreSQL HTTP harness PASS including original C1 and focused Site list/GET/filter/count/paging/DTO checks
+UNCOMMITTED: Site endpoint/read handler/read projection/registrations; additive canonical request authorization methods; Site HTTP tests and architecture boundary assertion; this checkpoint
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+NEXT_ACTION: implement create and ordinary update through B1 command store and Application handlers
+DO_NOT_REPEAT: no contract redesign, ADR change, Zone/Region behavior change, frontend, capabilities, DEV bootstrap, contractor-positive path, merge or push
+
+## SITE-API-01 atomic checkpoint 2
+SITE_API_01_STEP_2: DONE
+SITE_CREATE_ROUTE: PASS
+SITE_UPDATE_ROUTE: PASS
+CREATE_PARENT_CONCEALMENT: PASS
+DENIED_MUTATION_SIDE_EFFECTS: NONE
+VERIFIED: affected API Release build PASS; PostgreSQL HTTP Site create/update matrix PASS, including normalized global duplicate, missing/inactive references, immutable fields, inactive-reference retention, invalid DTO, stale version and state/version/audit snapshots
+UNCOMMITTED: checkpoint 1 paths plus create/update Application handlers, SiteReferenceKind for exact frozen HTTP error mapping, two corresponding Criticality exceptions in B1 store, expanded HTTP tests
+LAST_SAFE_COMMIT: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+NEXT_ACTION: implement and verify lifecycle and independent criticality permission routes
+DO_NOT_REPEAT: frozen contracts/B1/auth architecture remain unchanged; no migrations/frontend/capabilities/DEV bootstrap/merge/push
+
+## SITE-API-01 atomic checkpoint 3
+SITE_API_01_STEP_3: DONE
+SITE_ACTIVATE: PASS
+SITE_DEACTIVATE: PASS
+SITE_CRITICALITY: PASS
+CRITICALITY_PERMISSION_ISOLATION: PASS
+VERIFIED: PostgreSQL HTTP harness PASS for all seven routes, no DELETE/duplicates, DTO/OpenAPI fields, lifecycle/criticality concealment, stale/invalid versions, failed transaction effects and frozen before/after audit payloads. Separate real Identity provider HTTP factory PASS for direct/list/create/criticality, revocation, contractor, JWT/role/UserType/context-only, foreign context and forged DTO/query authority.
+UNCOMMITTED: all SITE-API-01 source/tests/registrations/checkpoint paths only; logs are in TEMP
+LAST_SAFE_COMMIT: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+NEXT_ACTION: independent read-only Site HTTP security review; full Release/harness/model-drift/formatting/docs gates
+DO_NOT_REPEAT: do not redo published authorization review or contracts; no schema/migration/frontend/capabilities/DEV bootstrap/positive contractors/merge/push
+
+## SITE-API-01 atomic checkpoint 4 and local commit handoff
+TASK: TASK-02.03.03
+PHASE: SITE-API-01 — PRODUCTION SITE HTTP API
+STATUS: IMPLEMENTED_LOCALLY_VERIFIED / LOCAL_COMMIT_READY
+SITE_API_01_STEP_4: DONE
+ATOMIC_CHECKPOINT_1: DONE
+ATOMIC_CHECKPOINT_2: DONE
+ATOMIC_CHECKPOINT_3: DONE
+ATOMIC_CHECKPOINT_4: DONE
+BASELINE_SHA: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+BRANCH: codex/task-02.03.03-site-api
+LAST_SAFE_COMMIT: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4 before the single local implementation commit containing this checkpoint
+SITE_B1: PUBLISHED
+SITE_AUTHORIZATION: PUBLISHED
+SITE_HTTP_API: IMPLEMENTED LOCALLY / VERIFIED; NOT_PUBLISHED
+SITE_LIST: PASS
+SITE_GET: PASS
+SITE_CREATE: PASS
+SITE_UPDATE: PASS
+SITE_ACTIVATE: PASS
+SITE_DEACTIVATE: PASS
+SITE_CRITICALITY: PASS
+SITE_DELETE: ABSENT
+PERMISSIONS: list/get sites.read; create sites.create; update/lifecycle sites.change; criticality sites.change_criticality only
+LIST_FILTERS: regionId/siteTypeId/criticalityClassId/status/q
+LIST_ORDER: code ASC, id ASC
+PAGINATION: page 1 default; pageSize 50 default/max 200; canonical items/page/pageSize/totalCount/totalPages
+TARGET_CONCEALMENT: PASS — missing/out-of-scope 403 GEOGRAPHY_ACCESS_DENIED on all five direct routes
+CREATE_PARENT_CONCEALMENT: PASS — same 403 for missing/inaccessible Region
+IDOR: DENIED
+FORGED_PARENT: IMPOSSIBLE via published target service
+FORGED_ANCESTOR: IMPOSSIBLE via authoritative Site/Region join
+FORGED_SCOPES: IMPOSSIBLE at HTTP/list public boundary
+EMPTY_SCOPE: EMPTY_RESULT
+COUNT_LEAKAGE: NONE
+BUSINESS_FILTER_AUTH_COMPOSITION: PASS
+DENIED_MUTATION_STATE_CHANGE: NONE
+DENIED_MUTATION_ROW_VERSION: NONE
+DENIED_MUTATION_AUDIT: NONE
+OPTIMISTIC_CONCURRENCY: PASS
+DUPLICATE_CODE_MAPPING: PASS — 409 SITE_CODE_ALREADY_EXISTS
+REFERENCE_ELIGIBILITY: PASS
+REGION_SERIALIZATION: PASS — unchanged B1 locked path and both PostgreSQL race orderings
+AUDIT_ATOMICITY: PASS — B1 and HTTP injected-failure rollback
+CONTRACTOR: FAIL_CLOSED — list empty/direct commands denied with real persisted assignments
+SITE_F1: CLOSED / REGRESSION_PASS
+SITE_F2: CLOSED / REGRESSION_PASS
+F1: CLOSED / REGRESSION_PASS
+F2: CLOSED / REGRESSION_PASS
+C1_REGRESSION: PASS
+SERVER_SIDE_FILTERING: PASS
+QUERY_SHAPE: unchanged published one scope query + authorized SQL count/bounded page; direct hierarchy + scope query; canonical request-level subject/context queries additionally
+N_PLUS_ONE: NONE by source/SQL inspection; no load benchmark claimed
+IDENTITY_SITES_DB_DEPENDENCY: NONE
+SITES_IDENTITY_DB_DEPENDENCY: NONE
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NONE — Sites and Identity
+POSTGRESQL_TESTS: PASS
+API_TESTS: PASS — production HTTP/PostgreSQL and separate real Identity factory
+OIDC_REGRESSION: PASS
+WORKING_CONTEXT_REGRESSION: PASS
+ARCHITECTURE_CHECKS: PASS
+RELEASE_BUILD: PASS — zero warnings/errors
+DOTNET_TEST: PASS — exit 0, executable harnesses explicitly run; no discovery claim
+EXPLICIT_HARNESSES: PASS — all 11
+FORMATTING: PASS — changed handwritten C# only
+MARKDOWN_REFERENCES: PASS
+DIFF_HYGIENE: PASS
+SECRET_HYGIENE: PASS
+SECURITY_REVIEW: PASS — independent read-only source review and final reconciliation, see site-api-01-review.md
+SECURITY_FINDINGS: NONE_ACTIONABLE
+HIGHEST_SEVERITY: NONE
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: reviewer did not independently rerun harnesses; primary runtime evidence above; existing source-scan robustness limitation unchanged; no hosted CI for local-only work
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS
+CHECKPOINT_UPDATED: YES
+COMPLETED: all seven HTTP routes through published subject/target/list and B1 handlers; negative/security/business/audit/route regressions; independent review; full local gates; docs sync
+UNCOMMITTED: only reviewed SITE-API-01 source/tests/docs/checkpoint/review paths; explicit staging and one authorized local commit next
+LOCAL_COMMIT: the single local implementation commit containing this checkpoint, parent exact BASELINE_SHA; resolve actual SHA with git rev-parse HEAD
+POST_COMMIT_EXPECTED: clean codex/task-02.03.03-site-api; main/origin/main unchanged at BASELINE_SHA; no push
+FRONTEND: NOT_IMPLEMENTED
+CAPABILITIES: NOT_IMPLEMENTED
+DEV_BOOTSTRAP: NOT_IMPLEMENTED
+CONTRACTOR_POSITIVE: NOT_SUPPORTED
+MAIN_MODIFIED: NO
+PUSH: NONE
+BLOCKERS: NONE for local implementation; publication requires separate owner-authorized review
+NEXT_ACTION: Independent SITE-API-01 security/integration review before publication
+RECOMMENDED_MODEL_NEXT: gpt-6-sol
+RECOMMENDED_EFFORT_NEXT: high
+DO_NOT_REPEAT: do not reopen frozen contracts or repeat passing gates without a source change; no migration/schema/ADR-017 change, frontend, capabilities, DEV bootstrap, positive contractors, Zone/Region production semantics, merge or push
+
+## SITE-API-01 single-commit checkpoint
+STATUS: LOCAL_VERIFIED_IMPLEMENTATION_COMMIT
+CHECKPOINT_STATUS: SAFE
+LOCAL_COMMIT: current HEAD on codex/task-02.03.03-site-api containing this checkpoint; parent 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+LAST_SAFE_COMMIT: current implementation HEAD on codex/task-02.03.03-site-api; resolve git rev-parse HEAD and verify parent against BASELINE_SHA
+UNCOMMITTED: NONE after the single authorized implementation commit
+WORKTREE: CLEAN after commit (post-commit Git assertion required and reported to owner)
+MAIN: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4 unchanged
+ORIGIN_MAIN: same, no push
+NEXT_ACTION: Independent SITE-API-01 security/integration review before publication
+DO_NOT_REPEAT: Then STOP; no merge/push/frontend or adjacent phase

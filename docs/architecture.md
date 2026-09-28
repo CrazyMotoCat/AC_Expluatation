@@ -491,8 +491,10 @@ coordinates or commissioning/closure timestamps are part of the Site
 contract. Site ownership and target-aware scope are documented in
 `modules/sites.md` and ADR-014. The Site B1 domain/persistence foundation is
 published on main. SITE-AUTH-01 / ADR-017 also publishes exact Identity Site
-scopes and Sites-owned direct/create/list authorization. Site HTTP routes
-remain unimplemented; production HTTP integration currently covers Zone/Region.
+scopes and Sites-owned direct/create/list authorization. SITE-API-01 implements
+Site HTTP routes locally using that foundation and B1 mutation paths; separate
+security/integration review precedes publication. Published Zone/Region routes
+remain unchanged. Site frontend/capabilities/DEV bootstrap remain unimplemented.
 
 ## 10.2. SiteType
 

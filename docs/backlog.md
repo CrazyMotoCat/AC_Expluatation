@@ -716,14 +716,16 @@ Phase A: owner decisions OD-01 through OD-10 are frozen in Sites module,
   published on main: Site domain and persistence, additive migration,
   parent/reference invariants and durable Site Audit binding/delivery
   compatibility. SITE-AUTH-01 exact Site scopes and Sites-owned authorization
-  foundation are also published. Site HTTP/API remains unimplemented;
+  foundation are also published. SITE-API-01 Site HTTP/API is implemented
+  locally and verified; separate security/integration review precedes publication;
   frontend is a separate task.
 Sites owns `sites.sites` in the Territorial Zone → Region → Site hierarchy.
 The first backend slice has required immutable globally unique canonical code,
 required name/Region/SiteType/SiteCriticalityClass/address/timezone,
 `ACTIVE`/`INACTIVE` lifecycle, no move or DELETE, optimistic row version,
 paginated scoped reads, explicit criticality command and durable Site audit
-obligations. Published production HTTP routes support Zone/Region only.
+obligations. Published production HTTP routes support Zone/Region; the seven
+Site routes are locally implemented by SITE-API-01.
 Site CRUD may now use the published exact Site-scope and Sites-owned
 target/list foundation; contractor grants stay closed.
 SITE-AUTH-00 / ADR-017 freezes that extension under ADR-015/016: Identity
@@ -732,7 +734,7 @@ direct coverage and SQL-filtered lists. The existing assignment schema has
 `site_id`, so no migration was needed. SITE-AUTH-01 implements the exact
 Identity Site scopes and Sites-owned direct/create/list foundation, published
 after SITE-AUTH-01R independent review and regression gates. Site HTTP routes
-remain unimplemented and are the next separately authorized phase.
+are implemented locally by SITE-API-01 and await independent publication review.
 TASK-02.03.04 owns the later Site card UI.
 
 Acceptance Criteria:
