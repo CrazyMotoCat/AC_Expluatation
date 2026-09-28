@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01 local exact Site scope; C1 published)
+SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01R published exact Site scope; C1 published)
 MODULE: Identity
 
 ## PURPOSE
@@ -35,11 +35,11 @@ Role/permission persistence добавлена `TASK-01.02.01`: unique codes, op
 
 `TASK-01.03.01` добавила assignment persistence: пять nullable scope dimensions (хотя бы одно обязательно), exact-match eligibility, validity `[valid_from, valid_to)`, обязательный конечный срок `DELEGATION`, отзыв без удаления с actor/time и optimistic `row_version`, restrictive FK и unique index для точных активных дубликатов при одинаковом `valid_from`.
 
-SITE-AUTH-01 локально добавляет exact `Site/siteId` к общим
+SITE-AUTH-01 публикует exact `Site/siteId` в общих
 `IEffectiveScopeProvider`/`IEffectiveGrantEvaluator` и общей eligibility
 query без миграции: `site_id` уже хранится. Identity не расширяет Site в
 Region/Zone; иерархию и покрытие вычисляет Sites. PostgreSQL проверки
-прошли локально; foundation ожидает независимую review/publication. Site
+прошли; foundation опубликован после независимого SITE-AUTH-01R review. Site
 HTTP API не реализован, contractor-positive grant остаётся закрыт.
 
 `TASK-01.03.02` добавила owned `user_contexts` с `[valid_from, valid_to)`, active flag, finite delegation, restrictive User FK и optimistic `row_version`. Выбор context request-scoped, не persisted grant/selected flag.
@@ -140,7 +140,7 @@ Identity не должен знать все бизнес-правила дру�
 - `ExternalIdentityKey` (`issuer + subject`)
 - local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
 - `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
-- Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region`/`Site` descriptors; C1 Geography routes consume it through Sites application services. Site foundation is implemented locally pending publication; Site HTTP routes are absent.
+- Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region`/`Site` descriptors; C1 Geography routes consume it through Sites application services. Site foundation is published after SITE-AUTH-01R review; Site HTTP routes are absent.
 - API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
 - `GET /api/v1/me/contexts`, `POST /api/v1/me/context` для собственных available contexts; request header `X-Work-Context-Id` validated by API
 - Browser frontend использует public OIDC Authorization Code + PKCE, единый session provider и Bearer/context pipeline; выбранный context browser-session scoped, повторно сверяется со списком available contexts; capabilities API пока не реализован

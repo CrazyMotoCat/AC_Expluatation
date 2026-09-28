@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01 local foundation; C1 and Site B1 published)
+SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01R, C1 and Site B1 published)
 
 ## Purpose
 
@@ -68,7 +68,7 @@ Region is Sites-owned and belongs to exactly one Territorial Zone. Its canonical
 
 Region API routes are `GET /api/v1/regions`, `GET /api/v1/regions/{id}`, `POST /api/v1/regions`, `PUT /api/v1/regions/{id}`, and explicit `activate`/`deactivate` commands. List supports an optional `territorialZoneId` filter. PUT changes only `name` and `timezone` and requires `expectedRowVersion`; parent, code and status are immutable through PUT. Reads use `sites.read`, creation uses `sites.create` on the authoritative parent Zone, and update/lifecycle commands use `sites.change`. C1 integrates Sites-owned direct target coverage and authorized lists using Identity `IEffectiveScopeProvider` plus Sites SQL filtering.
 
-Under the frozen B2-A list contract, Territorial Zone rows match only effective TerritorialZone IDs. Region rows match effective Region IDs or have a persisted `territorial_zone_id` in the effective TerritorialZone set. This is downward Zone → Region coverage only; Region scope never returns its parent Zone. An empty or unsupported scope set returns an empty result or contributes no IDs, never an unfiltered query; duplicate scope inputs do not duplicate business rows. Filtering occurs in Sites PostgreSQL queries. Sites does not query Identity persistence. The target resolver reads Zone existence or the Region's persisted parent without an ACTIVE filter and does not authorize. Direct target checks combine these facts with Identity effective scopes inside Sites. C1 enables only Zone/Region HTTP route integration; SITE-AUTH-01 adds local Site authorization services without HTTP routes.
+Under the frozen B2-A list contract, Territorial Zone rows match only effective TerritorialZone IDs. Region rows match effective Region IDs or have a persisted `territorial_zone_id` in the effective TerritorialZone set. This is downward Zone → Region coverage only; Region scope never returns its parent Zone. An empty or unsupported scope set returns an empty result or contributes no IDs, never an unfiltered query; duplicate scope inputs do not duplicate business rows. Filtering occurs in Sites PostgreSQL queries. Sites does not query Identity persistence. The target resolver reads Zone existence or the Region's persisted parent without an ACTIVE filter and does not authorize. Direct target checks combine these facts with Identity effective scopes inside Sites. C1 enables only Zone/Region HTTP route integration; SITE-AUTH-01 publishes Site authorization services without HTTP routes.
 The C1 HTTP response is a transport DTO containing only `id`, `territorialZoneId`, `code`, `name`, `timezone`, `status`, `createdAt`, `updatedAt`, and `rowVersion`; no DELETE route is exposed. Stale authorized update and lifecycle writes return `OPTIMISTIC_CONCURRENCY_CONFLICT`. C1-OD-01 makes absent and out-of-scope direct Zone/Region targets and Region-create parent Zones indistinguishable as 403; unauthenticated requests return 401. Lists with no effective scopes return 200 `[]`.
 
 ADR-016 / B2-R1 implements the remediation boundary after F1/F2 review. Public Sites direct operations accept user/context, canonical permission and only a Zone or Region ID; Sites loads the authoritative Region parent and obtains exact scopes through Identity `IEffectiveScopeProvider` before evaluating coverage. Region creation uses the Zone ID as business input and requires `sites.create` Zone coverage. Public `IAuthorizedGeographyReadService` lists obtain fixed `sites.read` scopes internally, then apply normalized IDs in Sites SQL. The raw SQL methods and concrete service are internal to Sites Infrastructure; no public scope-bearing read request/store or permission-string evidence remains. C1 integrates these services into Geography HTTP routes, without changing the global target-blind grant source.
@@ -131,10 +131,10 @@ concerns future Site changes, not reference catalog management.
 
 Owner decisions OD-01 through OD-10 are frozen. The Phase B1 foundation is
 published on main: Site domain aggregate, Sites-owned table and additive
-migration, and internal atomic command persistence. SITE-AUTH-01 locally
+migration, and internal atomic command persistence. SITE-AUTH-01
 implements exact Identity Site scope, Sites authoritative Site target/create
 coverage and a SQL-filtered paginated Site list. PostgreSQL and architecture
-checks pass locally; independent review and publication remain pending.
+checks and independent SITE-AUTH-01R review pass; the foundation is published.
 No Site HTTP route is implemented. Published production routes still support
 TerritorialZone and Region only.
 Site is the Sites-owned child of exactly one
@@ -185,11 +185,11 @@ update/lifecycle need `sites.change` covering the Site; criticality change
 needs `sites.change_criticality` covering the Site without additionally
 requiring `sites.change`. First production support is INTERNAL user/context
 only; contractors remain fail-closed. The authorization foundation is
-implemented and verified locally, awaiting independent review/publication
-before Site HTTP CRUD. Identity keeps scopes exact; Sites resolves Site →
-Region → Zone. Site is not yet a published effective-scope kind. The existing
+published after independent SITE-AUTH-01R review and post-integration gates;
+Site HTTP CRUD remains a separate phase. Identity keeps scopes exact; Sites
+resolves Site → Region → Zone. Site is a published exact effective-scope kind. The existing
 Identity assignment schema already has `site_id`; no migration was needed.
-The local authorized list obtains fixed `sites.read` scopes internally and
+The published authorized list obtains fixed `sites.read` scopes internally and
 filters in Sites SQL before count/pagination: exact Site, parent Region or
 ancestor Zone. Empty scopes yield a `200` empty page. Missing and out-of-scope
 direct Sites or create parent Regions share `403 GEOGRAPHY_ACCESS_DENIED`;

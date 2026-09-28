@@ -499,3 +499,56 @@ re-fetch and integrate with --ff-only if origin/main is still the exact baseline
 DO_NOT_REPEAT: no Site HTTP API, frontend, capabilities, DEV bootstrap,
 contractor-positive access, migration, production Zone/Region route changes,
 ADR decision rewrite, amend, squash, cherry-pick, merge commit or force push.
+
+## SITE-AUTH-01R publication checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-AUTH-01R — independent review and integration
+STATUS: SITE_AUTH_PUBLISHED_ON_LOCAL_MAIN / PUSH_AND_HOSTED_CI_PENDING
+CHECKPOINT_STATUS: SAFE
+BRANCH: main
+BASELINE_SHA: 4307ac3412f2c7da73290b76e4ee5358d1f8053c
+SOURCE_SITE_AUTH_COMMIT: cb05c9a61aac413bd3481802d04873fe9f36491b
+REMEDIATION_COMMIT: 6ea9fe9a6b0628203a39d68d21c1644d483da87d
+LAST_SAFE_COMMIT: 6ea9fe9a6b0628203a39d68d21c1644d483da87d
+SITE_B1: PUBLISHED
+SITE_AUTH_00: CONTRACT_FROZEN
+SITE_AUTH_01: PUBLISHED on local main by fast-forward
+ADR_017: IMPLEMENTED
+IDENTITY_SITE_SCOPE: PUBLISHED
+SITES_SITE_AUTH: PUBLISHED
+AUTHORIZED_SITE_LIST: PUBLISHED
+SITE_HTTP_API: NOT_STARTED / NOT_IMPLEMENTED
+COMPLETED: independent review and bounded test/docs remediation; main
+fast-forward; final publication documentation sync.
+VERIFIED: on main all 11 explicit Release harnesses PASS, including Identity
+Site exact scopes, real provider direct/create/list, SITE-F1/SITE-F2 and
+original F1/F2, C1 API, Site B1 persistence/Region races/audit, OIDC/contexts;
+Release build zero warnings/errors, dotnet test exit 0, Identity/Sites EF
+drift NONE, changed-C# formatting/diff/Markdown/secret hygiene PASS.
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: one nonblocking structural-test source-scan robustness limitation.
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — foundation published, Site HTTP absent; no
+Accepted ADR decision change, no schema/migration/frontend/route changes.
+UNCOMMITTED: narrow publication docs/checkpoint/report only; clean after
+the publication-status commit containing this checkpoint.
+DECISIONS: source commit preserved; separate remediation commit; --ff-only;
+contract ADR-017 unchanged; ordinary push only if baseline remote unchanged.
+BLOCKERS: NONE — authenticated GitHub Actions browser access verified.
+PENDING: ordinary main push and exact-final-SHA hosted CI; do not infer PASS
+from the earlier baseline run or from local tests.
+HOSTED_CI: NOT_YET_VERIFIED_AT_CHECKPOINT
+FILES_CHANGED: publication status in architecture/API/backlog/security,
+Identity/Sites module docs and capsules, ADR index/non-normative ADR-017
+status, review report and this checkpoint.
+NEXT_ACTION: commit publication-status docs, fetch/verify origin/main remains
+the exact baseline, push main normally and verify backend/frontend/required
+checks for the exact final SHA; then STOP. After completion, the next separate
+task is to implement Site HTTP API using this published authorization foundation.
+DO_NOT_REPEAT: no new Site HTTP API work in this session; no refactor,
+migration, capabilities, DEV bootstrap, frontend, positive contractor path,
+Zone/Region production-route change, accepted contract rewrite or force push.

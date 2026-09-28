@@ -151,9 +151,12 @@ frontend and Site HTTP routes are outside SITE-AUTH-00.
 Site B1 persistence is **published**. Site authorization is **contract
 frozen, not implemented**. Site HTTP API is **not implemented**.
 
-## Implementation status (2026-09-28; non-normative)
+## Implementation status (2026-09-28; non-normative, updated by SITE-AUTH-01R)
 
 SITE-AUTH-01 implements exact Identity Site scopes, Sites-owned direct/create
-coverage and the authorized Site SQL list locally. PostgreSQL, security and
-architecture checks pass. Independent publication review remains pending;
-Site HTTP API is still not implemented. The decision above is unchanged.
+coverage and the authorized Site SQL list, published on main by fast-forward
+after independent SITE-AUTH-01R review. PostgreSQL, security, architecture and
+post-integration regression checks pass, including real-provider list and
+create-parent composition. Site HTTP API is still not implemented. The
+historical contract-only statements and the decision above are unchanged;
+this dated implementation status supersedes their former runtime status.

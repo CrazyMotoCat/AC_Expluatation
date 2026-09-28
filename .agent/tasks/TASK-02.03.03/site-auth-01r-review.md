@@ -2,12 +2,12 @@
 
 TASK: TASK-02.03.03
 PHASE: SITE-AUTH-01R — INDEPENDENT REVIEW + INTEGRATION
-STATUS: REVIEW_PASS / INTEGRATION_PENDING
+STATUS: REVIEW_PASS / INTEGRATED_ON_MAIN / PUSH_PENDING_AT_CHECKPOINT
 EXECUTION_MODE: BALANCED / T3
 BASELINE_SHA: 4307ac3412f2c7da73290b76e4ee5358d1f8053c
 SOURCE_SITE_AUTH_COMMIT: cb05c9a61aac413bd3481802d04873fe9f36491b
-FINAL_SITE_AUTH_SHA: PENDING_TEST_DOC_REMEDIATION_COMMIT
-FINAL_MAIN_SHA: PENDING
+FINAL_SITE_AUTH_SHA: 6ea9fe9a6b0628203a39d68d21c1644d483da87d
+FINAL_MAIN_SHA: publication-status commit containing this report; resolve main
 
 ## Scope and independent assessment
 
@@ -143,7 +143,9 @@ DIFF_HYGIENE: PASS — git diff --check
 MARKDOWN_REFERENCES: PASS — changed-file Markdown links resolve; ADR IDs unique
 SECRET_HYGIENE: PASS — scoped key/token pattern scan, no secret values printed
 DOCS_IMPACT: YES
-DOCUMENTATION_SYNC: PASS for local foundation; final publication status pending
+DOCUMENTATION_SYNC: PASS — published foundation, unimplemented Site HTTP API;
+Identity/Sites modules and capsules, API/backlog/architecture/security, ADR index
+and dated ADR-017 implementation status synchronized; ADR decisions unchanged
 
 Initial PostgreSQL attempts failed because Docker Desktop was stopped.
 Starting Docker Desktop restored the engine; both affected harnesses then
@@ -153,18 +155,22 @@ synthetic local tooling connection string and matching Release build.
 ## Integration and hosted verification
 
 INTEGRATION_METHOD: FAST_FORWARD_ONLY
-FAST_FORWARD: PENDING
-POST_INTEGRATION_GATES: PENDING
-PUSHED: PENDING
-REMOTE_SHA: PENDING
-HOSTED_CI: NOT_YET_VERIFIED
-HOSTED_CI_RUN: PENDING
-REPOSITORY_STATE: SAFE_WITH_CHECKPOINT
-GIT_STATE: DIRTY_EXPECTED_TEST_DOCS
+FAST_FORWARD: PASS — exact baseline to 6ea9fe9a6b0628203a39d68d21c1644d483da87d
+POST_INTEGRATION_GATES: PASS — all 11 explicit harnesses, Release build,
+dotnet test, Identity/Sites drift and diff hygiene rerun on main; secret scan PASS
+PUSHED: PENDING_AT_CHECKPOINT — ordinary push after final fetch guard
+REMOTE_SHA: baseline until push; must equal final main after fetch
+HOSTED_CI: NOT_YET_VERIFIED_AT_CHECKPOINT
+HOSTED_CI_RUN: final-SHA run to verify after push; authenticated browser available
+REPOSITORY_STATE: SAFE_WITH_CHECKPOINT; clean after publication-status commit
+GIT_STATE: DIRTY_EXPECTED_PUBLICATION_DOCS_AT_CHECKPOINT
 
-NEXT_ACTION: commit the bounded reviewed test/docs remediation, re-fetch and
-fast-forward main only if origin/main remains the exact publication baseline.
-After publication, implement Site HTTP API only in a separately authorized task.
+NEXT_ACTION: commit narrow publication-status docs, fetch and verify origin/main
+still equals the exact baseline, push normally, then inspect hosted jobs for
+the exact final main SHA. These fields describe the checkpoint before push;
+the completion response must supply the actual final SHA and hosted run evidence.
+After publication verification, implement Site HTTP API only in a separately
+authorized task.
 
 DO_NOT_REPEAT: no Site endpoints, frontend, capabilities, DEV bootstrap,
 contractor-positive grants, schema/migrations, Zone/Region production-route

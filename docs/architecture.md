@@ -490,9 +490,9 @@ For the TASK-02.03.03 first slice, `address_text` is required and no
 coordinates or commissioning/closure timestamps are part of the Site
 contract. Site ownership and target-aware scope are documented in
 `modules/sites.md` and ADR-014. The Site B1 domain/persistence foundation is
-published on main; Site HTTP routes and production Site authorization remain
-unimplemented. Published target-aware authorization currently covers
-Zone/Region only.
+published on main. SITE-AUTH-01 / ADR-017 also publishes exact Identity Site
+scopes and Sites-owned direct/create/list authorization. Site HTTP routes
+remain unimplemented; production HTTP integration currently covers Zone/Region.
 
 ## 10.2. SiteType
 

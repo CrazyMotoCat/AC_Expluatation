@@ -29,10 +29,10 @@ Rejected
 | ADR-011 | Durable audit obligation for module-owned business mutations | Accepted |
 | ADR-012 | Transaction-safe concurrency for organizational hierarchy | Accepted |
 | ADR-013 | Target-aware production authorization for geographic data | Accepted |
-| ADR-014 | Site target authorization | Accepted; refined by ADR-017; Site production authorization pending |
+| ADR-014 | Site target authorization | Accepted; refined by ADR-017; Site authorization foundation published; Site HTTP API pending |
 | ADR-015 | Identity scope provider for geographic list filtering | Accepted; refines ADR-013 |
 | ADR-016 | Enforced authorization composition at Sites boundaries | Accepted; refines ADR-013 and ADR-015; B2 and C1 Geography routes integrated |
-| ADR-017 | Site authorization under enforced Sites composition | Accepted; refines ADR-014 under ADR-015/016; foundation implemented locally, publication pending; Site HTTP API absent |
+| ADR-017 | Site authorization under enforced Sites composition | Accepted; refines ADR-014 under ADR-015/016; foundation published after SITE-AUTH-01R review; Site HTTP API absent |
 
 ## Правило для Codex и разработчиков
 
