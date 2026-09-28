@@ -108,7 +108,7 @@ ADR-016 / B2-R1 реализует уточнение после review F1/F2: I
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
 - `IPermissionGrantSource` принимает локальный user ID и canonical permission ID; текущая production реализация deny-by-default.
-- `IEffectiveGrantEvaluator` checks exact Zone/Region target IDs only; it cannot accept Region parent evidence. `IEffectiveScopeProvider` returns immutable exact permission-specific Zone/Region data, reusing shared Identity eligibility semantics. Sites derives target coverage from its own persistence. C1 Geography HTTP routes use the Sites services; unrelated routes remain on target-blind denial.
+- `IEffectiveGrantEvaluator` checks exact Zone/Region/Site target IDs only; it cannot accept parent evidence. `IEffectiveScopeProvider` returns immutable exact permission-specific Zone/Region/Site data, reusing shared Identity eligibility semantics. Sites derives target coverage from its own persistence. C1 Geography HTTP routes use the Sites services; the Site foundation is implemented locally pending publication, and Site HTTP routes remain absent. Unrelated routes remain on target-blind denial.
 - `IWorkingContextAuditWriter` — Audit-owned cross-module contract для durable `WorkingContextSelected` и `WorkingContextApplied`; Identity не пишет в Audit schema напрямую.
 
 Planned subsequent contracts: `IWorkingContext`, `IAuthorizationService`, `UserReference`, `WorkingContextReference`. Текущий Domain `AccessScope` не является публичным контрактом для business modules.

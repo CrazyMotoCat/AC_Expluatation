@@ -140,7 +140,7 @@ Identity не должен знать все бизнес-правила дру�
 - `ExternalIdentityKey` (`issuer + subject`)
 - local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
 - `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
-- Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region` descriptors; C1 Geography routes consume it only through Sites application services
+- Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region`/`Site` descriptors; C1 Geography routes consume it through Sites application services. Site foundation is implemented locally pending publication; Site HTTP routes are absent.
 - API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
 - `GET /api/v1/me/contexts`, `POST /api/v1/me/context` для собственных available contexts; request header `X-Work-Context-Id` validated by API
 - Browser frontend использует public OIDC Authorization Code + PKCE, единый session provider и Bearer/context pipeline; выбранный context browser-session scoped, повторно сверяется со списком available contexts; capabilities API пока не реализован

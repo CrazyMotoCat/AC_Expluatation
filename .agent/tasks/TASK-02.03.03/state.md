@@ -458,3 +458,44 @@ ORIGIN_MAIN: same
 PUSH: NONE
 NEXT_ACTION: Independent SITE-AUTH-01 security/integration review before
 publication; do not start Site HTTP API, merge or push automatically.
+
+## SITE-AUTH-01R independent review and bounded remediation checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-AUTH-01R — independent review and main integration
+STATUS: REVIEW_PASS / PREINTEGRATION_GATES_PASS
+CHECKPOINT_STATUS: SAFE
+BASELINE_SHA: 4307ac3412f2c7da73290b76e4ee5358d1f8053c
+SOURCE_SITE_AUTH_COMMIT: cb05c9a61aac413bd3481802d04873fe9f36491b
+LAST_SAFE_COMMIT: cb05c9a61aac413bd3481802d04873fe9f36491b
+COMPLETED: exact cumulative diff review; separate read-only adversarial review;
+bounded real-provider two-Zone list/revocation/create-parent test expansion;
+stale current runtime/status docs corrected; independent remediation re-review.
+VERIFIED: all 11 explicit Release harnesses PASS; Release solution build zero
+warnings/errors; dotnet test exit 0; Identity/Sites model drift NONE; four
+infrastructure/smoke-contract scripts PASS; changed-C# whitespace, diff,
+Markdown references/ADR uniqueness and scoped secret hygiene PASS.
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS for local foundation; publication status pending.
+SITE_F1: CLOSED
+SITE_F2: CLOSED
+F1: CLOSED
+F2: CLOSED
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: source-scan portions of structural regression tests have a documented
+nonblocking robustness limitation; current code inspected directly.
+UNCOMMITTED: expanded RealProviderSiteAuthorizationChecks, four affected
+current-status docs, review report, reviewer handoff and this checkpoint only.
+DECISIONS: ADR-017 frozen contract unchanged; remediation is tests/docs only.
+BLOCKERS: NONE
+PENDING: reviewed remediation commit; re-fetch/fast-forward; post-integration
+gates; final publication docs/checkpoint; normal push; exact-SHA hosted CI.
+FILES_CHANGED: see .agent/tasks/TASK-02.03.03/site-auth-01r-review.md and git diff.
+NEXT_ACTION: commit only the bounded reviewed test/docs remediation, then
+re-fetch and integrate with --ff-only if origin/main is still the exact baseline.
+DO_NOT_REPEAT: no Site HTTP API, frontend, capabilities, DEV bootstrap,
+contractor-positive access, migration, production Zone/Region route changes,
+ADR decision rewrite, amend, squash, cherry-pick, merge commit or force push.
