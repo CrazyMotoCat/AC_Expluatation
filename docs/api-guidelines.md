@@ -1326,7 +1326,8 @@ verified independently under ADR-017. Site HTTP integration uses the same
 canonical authenticated subject/context resolution as Zone/Region, the
 published Sites target/create-parent checks and authorized list service.
 Mutations call Application handlers and the existing atomic B1 command store.
-Site frontend, capabilities, DEV bootstrap and contractor-positive access
+SITE-UI-01 implements the Site management frontend locally; independent
+review is pending. Capabilities, DEV bootstrap and contractor-positive access
 remain unimplemented. No schema change or migration is included.
 
 | Operation | Route | Permission and target | Body | Success |

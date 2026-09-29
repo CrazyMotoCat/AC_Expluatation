@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01R, C1 and Site B1 published)
+SOURCE_VERSION: 2026-09-29 (SITE-UI-01 locally implemented)
 
 ## Purpose
 
@@ -199,6 +199,15 @@ convention: default 50, maximum 200, with `items`, `page`, `pageSize`,
 `totalCount`, `totalPages`. The base Site response contains only `id`,
 `code`, `name`, `regionId`, `siteTypeId`, `criticalityClassId`, `address`,
 `timezone`, `status`, `rowVersion`.
+
+SITE-UI-01 adds frontend Site management at `/sites`, `/sites/new` and
+`/sites/{siteId}`. The list delegates filters and pagination to the published
+API and resolves Region, SiteType and criticality labels from backend data.
+Create and ordinary edit use separate field sets; lifecycle and criticality
+are separate commands. Catalogs and Site data are scoped in the shared query
+cache by user and working context. The frontend does not decide authorization;
+403 remains a neutral unavailable response. This UI has local verification
+only pending independent review and is not a hosted publication claim.
 
 ADR-014, as refined by ADR-017 under ADR-015/016, freezes Site target
 authorization. Zone scope covers descendant Sites, Region scope covers Sites

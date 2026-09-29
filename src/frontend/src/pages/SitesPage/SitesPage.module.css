@@ -1,0 +1,48 @@
+.page { display: grid; gap: 1.25rem; }
+.page h1 { margin: 0; color: #173b35; font-size: clamp(1.7rem, 3vw, 2.3rem); }
+.page h2 { margin: 0 0 .75rem; color: #173b35; font-size: 1.15rem; }
+.pageHeading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.pageHeading p { margin: .35rem 0 0; color: #5d716d; }
+.eyebrow { margin: 0 0 .3rem !important; color: #277464 !important; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.primaryLink, .page button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.55rem; padding: .55rem .9rem; border: 0; border-radius: .45rem; color: white; background: #1f6b5c; font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; }
+.page button:hover, .primaryLink:hover { background: #165347; }
+.page button:disabled { opacity: .55; cursor: not-allowed; }
+.page .secondaryButton { border: 1px solid #afc2bd; color: #244840; background: white; }
+.page .secondaryButton:hover { background: #edf5f2; }
+.backLink { color: #206859; font-weight: 650; text-decoration: none; }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .9rem; padding: 1rem; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
+.filters label, .form label, .dialog label { display: grid; gap: .4rem; color: #36524c; font-size: .9rem; font-weight: 650; }
+.filters input, .filters select, .form input, .form select, .form textarea, .dialog select { width: 100%; min-height: 2.5rem; padding: .55rem .65rem; border: 1px solid #afc2bd; border-radius: .4rem; color: #17211f; background: white; font: inherit; }
+.form { display: grid; gap: 1rem; width: min(42rem, 100%); }
+.form textarea { resize: vertical; }
+.form input[readonly] { color: #5d716d; background: #f3f6f5; }
+.formActions { display: flex; flex-wrap: wrap; gap: .65rem; }
+.tableWrap { overflow-x: auto; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
+.table { width: 100%; border-collapse: collapse; text-align: left; }
+.table th, .table td { padding: .8rem .75rem; border-bottom: 1px solid #e2e9e6; vertical-align: top; }
+.table th { color: #36524c; background: #f6f9f8; font-size: .82rem; white-space: nowrap; }
+.table a { color: #1f6b5c; font-weight: 700; }
+.activeStatus, .inactiveStatus { display: inline-block; padding: .2rem .5rem; border-radius: 999px; font-size: .8rem; white-space: nowrap; }
+.activeStatus { color: #195b45; background: #e5f4eb; }
+.inactiveStatus { color: #785b19; background: #fff3d5; }
+.pagination { display: flex; justify-content: space-between; align-items: center; gap: .75rem; color: #526761; }
+.pagination > div { display: flex; gap: .5rem; }
+.emptyState, .formPanel { padding: 1.25rem; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
+.emptyState p { margin-bottom: 0; color: #5d716d; }
+.details { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .8rem; margin: 0; }
+.details div { padding: 1rem; border: 1px solid #d7e0dd; border-radius: .65rem; background: white; }
+.details dt { color: #60736e; font-size: .8rem; }
+.details dd { margin: .35rem 0 0; font-weight: 600; overflow-wrap: anywhere; }
+.conflictReview { padding: 1rem; border: 1px solid #d2b15d; border-radius: .65rem; background: #fff9e9; }
+.conflictReview p { color: #624c17; }
+.conflictReview dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .65rem; margin: 0; }
+.conflictReview dt { color: #78642f; font-size: .8rem; }
+.conflictReview dd { margin: .25rem 0 0; font-weight: 650; overflow-wrap: anywhere; }
+.error { padding: .85rem 1rem; border: 1px solid #e0aaa5; border-radius: .5rem; color: #842d25; background: #fff0ee; }
+.error p { margin: 0 0 .5rem; }
+.page .error button { margin-top: .5rem; }
+.fieldError { color: #842d25; font-size: .82rem; font-weight: 500; }
+.success { padding: .75rem 1rem; border-radius: .5rem; color: #195b45; background: #e5f4eb; }
+.dialogBackdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 1rem; background: #10221f88; }
+.dialog { display: grid; gap: 1rem; width: min(30rem, 100%); padding: 1.35rem; border-radius: .8rem; background: white; box-shadow: 0 1rem 4rem #00150f44; }
+@media (max-width: 42rem) { .pageHeading, .pagination { align-items: flex-start; flex-direction: column; } }

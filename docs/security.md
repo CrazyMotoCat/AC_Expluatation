@@ -299,7 +299,9 @@ PostgreSQL HTTP harness, включая real Identity provider. List получ�
 фиксированные sites.read scopes только через authorized service; direct
 routes вызывают Sites-owned проверки до Application mutation handlers.
 Criticality требует только sites.change_criticality. Независимый security/integration
-review и post-integration gates пройдены. Site frontend/capabilities/DEV bootstrap
+review и post-integration gates пройдены. SITE-UI-01 добавляет локально
+проверенный Site management frontend; независимый review ожидает выполнения
+до push. Frontend не определяет authorization. Capabilities и DEV bootstrap
 не реализованы; contractor-positive access не поддерживается.
 
 Успешный `POST /api/v1/me/context` возможен только после durable Audit-owned `WorkingContextSelected` по context ID из body; заголовок на этом POST игнорируется. На остальных `/api/v1` запросах валидный `X-Work-Context-Id` означает request-scoped применение context и требует durable `WorkingContextApplied` до endpoint, даже без предшествующего POST. Отказ в validation или сбой Audit не позволяет endpoint выполниться. Audit-событие не является authorization state. Identity grant/state не мутирует, поэтому cross-module transaction не требуется.

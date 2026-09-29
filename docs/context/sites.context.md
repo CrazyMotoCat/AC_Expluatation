@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-29 (SITE-REF-AUTH-01 locally implemented; publication pending)
+SOURCE_VERSION: 2026-09-29 (SITE-UI-01 locally implemented)
 MODULE: Sites
 
 ## PURPOSE
@@ -196,9 +196,13 @@ valid. ACTIVE/INACTIVE transitions and all mutable commands use optimistic
 commissioning/closure timestamps are included. Creation serializes with
 Region deactivation by locking the Region row. See `modules/sites.md` and
 `api-guidelines.md` for the frozen API contract. Phase B1 domain/persistence
-foundation and Site authorization are published on main; HTTP/API
-is published after independent SITE-API-01R review. Site frontend, capabilities and DEV bootstrap
-remain unimplemented; contractor-positive authorization is not supported.
+foundation, Site authorization and HTTP/API are published on main after their
+independent reviews. SITE-UI-01 implements local Site management views for
+list, detail, create, ordinary edit, lifecycle and separate criticality change.
+It uses the shared authenticated client and user/context-scoped query keys;
+the backend remains authoritative for every authorization decision. Capabilities
+and DEV bootstrap remain unimplemented; contractor-positive authorization is
+not supported. SITE-UI-01 awaits independent review before push.
 
 ## PUBLIC CONTRACTS
 

@@ -718,7 +718,9 @@ Phase A: owner decisions OD-01 through OD-10 are frozen in Sites module,
   compatibility. SITE-AUTH-01 exact Site scopes and Sites-owned authorization
   foundation are also published. SITE-API-01 Site HTTP/API is published
   after independent SITE-API-01R review and post-integration verification;
-  frontend is a separate task.
+  management frontend is implemented locally by SITE-UI-01; independent
+  review is required before push. Capabilities and DEV bootstrap remain
+  unimplemented.
 Sites owns `sites.sites` in the Territorial Zone → Region → Site hierarchy.
 The first backend slice has required immutable globally unique canonical code,
 required name/Region/SiteType/SiteCriticalityClass/address/timezone,
@@ -735,7 +737,9 @@ direct coverage and SQL-filtered lists. The existing assignment schema has
 Identity Site scopes and Sites-owned direct/create/list foundation, published
 after SITE-AUTH-01R independent review and regression gates. Site HTTP routes
 are published by SITE-API-01 after independent SITE-API-01R publication review.
-TASK-02.03.04 owns the later Site card UI.
+TASK-02.03.04 continues to own the broader Site card UI (locations, assets
+summary and responsible-directions placeholder); SITE-UI-01 is the management
+surface for the published Site CRUD API.
 
 Acceptance Criteria:
 

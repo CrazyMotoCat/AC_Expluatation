@@ -75,6 +75,26 @@ describe("canonical session", () => {
         expect(storage.get("exploitation:context:user-1")).toBe(context.id);
     });
 
+    it("does not restore a late context-A query response after switching to context B", async () => {
+        const { service, api, client } = fixture();
+        const secondContext = { ...context, id: "0199e000-0000-7000-8000-000000000002", name: "West" };
+        vi.mocked(api.contexts).mockResolvedValue({ contexts: [context, secondContext], appliedContextId: null });
+        vi.mocked(api.selectContext).mockImplementation((contextId) => Promise.resolve(contextId === context.id ? context : secondContext));
+        await service.bootstrap(false);
+        await service.selectContext(context.id);
+
+        let resolveLate!: (value: string[]) => void;
+        const pending = client.fetchQuery({ queryKey: ["sites", "user-1", context.id, "list"], queryFn: () =>
+            new Promise<string[]>((resolve) => { resolveLate = resolve; }) }).catch(() => undefined);
+        await Promise.resolve();
+        await service.selectContext(secondContext.id);
+        resolveLate(["context-a-data"]);
+        await pending;
+
+        expect(service.getContextId()).toBe(secondContext.id);
+        expect(client.getQueryData(["sites", "user-1", context.id, "list"])).toBeUndefined();
+    });
+
     it("restores only a context still returned by the backend", async () => {
         const { service, storage } = fixture();
         storage.set("exploitation:context:user-1", "unknown");
@@ -93,6 +113,21 @@ describe("canonical session", () => {
         expect(service.getState().status).toBe("unauthenticated");
         expect(service.getContextId()).toBeNull();
         expect(client.getQueryData(["scoped-records"])).toBeUndefined();
+    });
+
+    it("does not restore a late protected query after logout", async () => {
+        const { service, client } = fixture();
+        await service.bootstrap(false);
+        let resolveLate!: (value: string[]) => void;
+        const pending = client.fetchQuery({ queryKey: ["sites", "user-1", context.id, "references"], queryFn: () =>
+            new Promise<string[]>((resolve) => { resolveLate = resolve; }) }).catch(() => undefined);
+        await Promise.resolve();
+        await service.logout();
+        resolveLate(["protected-reference-data"]);
+        await pending;
+
+        expect(service.getState().status).toBe("unauthenticated");
+        expect(client.getQueryData(["sites", "user-1", context.id, "references"])).toBeUndefined();
     });
 
     it("renews an expired access token and redirects to logout", async () => {

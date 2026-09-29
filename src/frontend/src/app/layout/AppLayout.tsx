@@ -40,6 +40,9 @@ export function AppLayout() {
                 <NavLink className={getNavigationClassName} to="/system">
                     {appText.systemNavigationLabel}
                 </NavLink>
+                <NavLink className={getNavigationClassName} to="/sites">
+                    Объекты
+                </NavLink>
             </nav>
 
             <main className={styles.content}>

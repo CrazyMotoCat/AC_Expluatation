@@ -957,3 +957,109 @@ NEXT_PRODUCT_ACTION: resume SITE-UI-01 from the clean published baseline in its 
 STOP: do not resume SITE-UI-01 in this phase.
 DO_NOT_REPEAT: no frontend work, schema/migration, permission or geography semantic changes,
 grant-source change, capabilities, DEV bootstrap, force push, squash or merge commit.
+
+## SITE-UI-01 implementation checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-UI-01 — Site management frontend
+STATUS: SITE_UI_01_IMPLEMENTED_LOCALLY_VERIFIED_REVIEW_PENDING
+CHECKPOINT_STATUS: SAFE_WITH_CHECKPOINT
+RESUME: SAFE; fresh explicit SITE-UI-01 task supersedes the historical
+SITE-REF-AUTH-01 STOP marker. Repository state was reconciled before edits.
+BASELINE_SHA: 173bbfc036eec7a8fb5bdf6e7691836aeb0001e7
+LAST_SAFE_COMMIT: the single local SITE-UI-01 commit on main; resolve current
+HEAD with Git after finalization.
+BRANCH: main
+WORKSPACE: C:/Users/mvideo/.codex/worktrees/site-ref-auth/АС Эксплуатация
+REPOSITORY_STATE_GUARD: SAFE / CLEAN_BASELINE at expected main and origin/main
+INITIAL_GIT_STATE: main == origin/main == BASELINE_SHA; main worktree clean;
+feat/frontend-geography and detached primary checkout clean and unchanged.
+
+COMPLETED:
+- Site list with backend filters, page/pageSize and server total metadata;
+  backend-driven Region/SiteType/criticality labels; ordinary empty state.
+- Site details, create and ordinary edit; current inactive SiteType retained;
+  new SiteType/Criticality choices limited to ACTIVE; code/Region read-only on edit.
+- Activate/deactivate and separate criticality dialog use current rowVersion.
+- Conflict handling does not retry; current detail is refetched and edit draft
+  stays visible beside the latest server fields for reconciliation.
+- Shared authenticated API client only; protected query keys include user and
+  working context; query AbortSignal is forwarded; no local authorization model.
+- Responsive styles, semantic labels/errors, safe error mapping and submit locks.
+- Sites module/context, architecture, API/security status summaries, backlog and
+  task checkpoint synchronized; no backend contract/schema change.
+
+VERIFIED:
+- Frontend: `npx tsc --noEmit`, `npm run lint`, `npm test` (37 tests),
+  `npm run build`, `npm audit`: PASS; zero audit vulnerabilities.
+- Backend/full repository without containers: Release solution build, `dotnet test`
+  command exit 0 (no test discovery output; explicit harnesses run separately),
+  Identity/Sites domain checks, architecture checks, OIDC authentication checks,
+  DevScripts/CI workflow/DatabaseMigrator/API smoke contract checks: PASS.
+- `git diff --cached --check`: PASS immediately before the atomic local commit;
+  staged whitespace check had no errors.
+- Backend/source boundary review: no backend code/tests, schema or migration changes;
+  no roles/UserType/JWT/scope authorization, capabilities endpoint, raw API client,
+  existence probe or hard-coded reference IDs/labels.
+- Frontend session tests prove context-switch and logout cache isolation, including
+  late query completion. Local Site UI security review: PASS; open Critical/High/
+  Medium findings = 0. Independent review remains pending by task design.
+
+BLOCKED_BY_ENVIRONMENT:
+- PostgreSQL/Testcontainers persistence/API harnesses and backend API live smoke:
+  Docker Engine unavailable (`docker info` cannot connect to Docker Desktop Linux
+  engine). No schema/backend code changed.
+- Live DEV OIDC/browser smoke: `src/frontend/.env.local` and root `.env` absent;
+  no real configured DEV OIDC environment is available. Auth was not bypassed.
+
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — module/context/backlog and current architecture/API/
+security implementation summaries reflect local UI and pending independent review;
+backend API contract, database and ADR decisions unchanged.
+UNCOMMITTED: NONE after the one atomic local commit. No package/dependency,
+lockfile, backend or migration edits.
+LOCAL_COMMIT: CREATED_ON_MAIN; parent BASELINE_SHA; local main ahead by 1.
+ORIGIN_MAIN_SHA: 173bbfc036eec7a8fb5bdf6e7691836aeb0001e7
+WORKTREE: CLEAN after commit; verify with Git.
+PUSH: NONE
+
+SITE_UI_01_STEP_1: DONE
+SITE_UI_01_STEP_2: DONE
+SITE_UI_01_STEP_3: DONE
+SITE_UI_01_STEP_4: DONE
+SITE_API_CLIENT: PASS
+SITE_LIST / DETAIL / CREATE / EDIT / LIFECYCLE / CRITICALITY: PASS
+REFERENCE_LABELS / FILTERS / SERVER_PAGINATION / EMPTY_STATE: PASS
+INACTIVE_REFERENCE_RETENTION: PASS
+CONCURRENCY_UX / CONCEALMENT / ERROR_MAPPING / DOUBLE_SUBMIT: PASS
+CONTEXT_ISOLATION / LATE_RESPONSE / LOGOUT_CACHE_CLEAR / NEW_SESSION: PASS
+AUTHORIZATION_SOURCE: BACKEND_ONLY
+FRONTEND_PERMISSION_INFERENCE: NONE
+SECURITY_REVIEW: PASS locally; independent review pending
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+TYPECHECK: PASS
+LINT: PASS
+FRONTEND_TESTS: PASS (37)
+FRONTEND_BUILD: PASS
+NPM_AUDIT: PASS (0 vulnerabilities)
+BACKEND_BUILD: PASS
+BACKEND_REGRESSION: partial PASS; Docker-dependent checks blocked as above
+LIVE_SMOKE: BLOCKED_BY_ENVIRONMENT
+BACKEND_CODE_CHANGED: NO
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+
+DECISIONS:
+- Work only in the physical worktree on `main`; preserve `feat/frontend-geography`
+  and the detached primary checkout.
+- The frozen API contract and existing shared session/query architecture remain
+  authoritative; do not add capability or client permission logic.
+- Create the single atomic local commit on main after deliberate staging and staged
+  diff inspection. Do not push.
+
+NEXT_ACTION: independent SITE-UI-01 review of the local main commit before push.
+DO_NOT_REPEAT: do not touch feat/frontend-geography or detached primary; do not
+change backend/API/schema/migrations; do not add capabilities or DEV bootstrap;
+do not push, create a branch, or begin TASK-02.03.04.
