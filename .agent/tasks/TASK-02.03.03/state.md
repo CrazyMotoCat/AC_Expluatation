@@ -709,3 +709,41 @@ MAIN: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4 unchanged
 ORIGIN_MAIN: same, no push
 NEXT_ACTION: Independent SITE-API-01 security/integration review before publication
 DO_NOT_REPEAT: Then STOP; no merge/push/frontend or adjacent phase
+
+## SITE-API-01R preintegration checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-API-01R — FINAL ADVERSARIAL REVIEW + MAIN INTEGRATION
+STATUS: INDEPENDENT_REVIEW_PASS / PREINTEGRATION_GATES_PASS
+CHECKPOINT_STATUS: SAFE
+BASELINE_SHA: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+SOURCE_SITE_API_COMMIT: b4b5dbce2dbd1c344d1caf643c981f31b663f233
+LAST_SAFE_COMMIT: b4b5dbce2dbd1c344d1caf643c981f31b663f233
+BRANCH: codex/task-02.03.03-site-api
+REPOSITORY_STATE_GUARD: SAFE / CLEAN_BASELINE before review; both worktrees clean
+TASK_RESUME: SAFE — latest implementation checkpoint matches exact SHA/parent and clean Git
+COMPLETED: exact candidate inspection; independent read-only security review;
+tests-only real-provider full matrix/count/filter/forged body-query-header extension.
+VERIFIED: all 11 explicit Release harnesses PASS; Site HTTP rerun after final extension;
+full Release build zero warnings/errors; dotnet test exit 0; Site/Identity EF drift NONE;
+four infrastructure/smoke-contract scripts PASS; changed-C# formatting/diff/Markdown
+references/scoped secret hygiene PASS. See site-api-01r-review.md for evidence.
+DECISIONS: frozen contract/ADR/auth architecture unchanged; no production defect;
+separate tests-only remediation commit without amending source; --ff-only integration.
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: nonblocking source-text assertion robustness; runtime proof is independent.
+UNCOMMITTED: RealSiteListMatrixChecks.cs; invocation in RealSiteHttpChecks.cs;
+this checkpoint, review report and reviewer handoff only.
+DOCS_IMPACT: YES — review/test evidence and later publication status
+DOCUMENTATION_SYNC: PASS for preintegration truth; publication status pending integration
+BLOCKERS: NONE — Docker running; authenticated GitHub Actions access verified
+PENDING: commit remediation; fetch/ff main; post-integration gates; publication docs;
+normal push and exact-final-SHA hosted CI.
+NEXT_ACTION: commit reviewed tests/evidence, fetch and fast-forward only if origin/main
+still equals exact BASELINE_SHA.
+DO_NOT_REPEAT: no frontend/capabilities/DEV bootstrap/contractor-positive work,
+schema/migration/ADR contract or Zone/Region semantics change, amend/squash/cherry-pick,
+merge commit/force push; do not start another product phase after publication.
