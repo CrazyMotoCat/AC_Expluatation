@@ -1,12 +1,12 @@
 # FRONTEND-GEOGRAPHY RECONCILIATION — GEO-UI-01
 
-STATUS: LOCAL_COMMIT_CREATED_INDEPENDENT_REVIEW_PASS
+STATUS: PUBLISHED
 CHECKPOINT_STATUS: SAFE
-PHASE: GEO-UI-01 complete; explicit GEO-UI-01R publication workflow active
-LAST_SAFE_COMMIT: 4adae34dfef99f3bc0b6fe53bbbfdcbd8d74fc6b
+PHASE: GEO-UI-01 published; GEO-UI-01R owns final publication/retirement evidence
+LAST_SAFE_COMMIT: 94831f6ec5b6afc8ab118d0ed42fd2cadd2e08d1
 PUBLISHED_BASELINE: 70d78d7615fd4abbae5a38f65315e27e5831aa81
 GEO_RECON_00: COMPLETE
-GEO_UI_01: LOCAL_COMMIT_REVIEWED
+GEO_UI_01: PUBLISHED
 CURRENT_PHASE_STATE: ../GEO-UI-01R/state.md
 
 ## COMPLETED
@@ -98,12 +98,15 @@ CURRENT_PHASE_STATE: ../GEO-UI-01R/state.md
 
 - Candidate files were committed atomically at 4adae34; the resumed main was
   clean and exactly one ahead of origin/main. Parent is PUBLISHED_BASELINE.
-- Current changes belong only to the authorized GEO-UI-01R review/publication
-  documentation checkpoint; see CURRENT_PHASE_STATE for exact ownership.
+- Candidate and reviewed documentation were normally published at 94831f6.
+  Run 36577605158 passed exact-SHA backend/frontend/required checks; legacy
+  worktree/local/remote branch retired afterward. No pending product source.
+- GEO-UI-01R owns the final narrow documentation checkpoint transition and
+  its final exact-SHA verification; see CURRENT_PHASE_STATE.
 
 ## PENDING
 
-- GEO-UI-01R ordinary publication, exact-SHA CI and historical retirement.
+- No GEO-UI-01 product work remains. Final metadata CI belongs to GEO-UI-01R.
 
 BLOCKERS: NONE
 NEXT_ACTION: Follow ../GEO-UI-01R/state.md for the authorized publication phase.

@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-29 (GEO-UI-01R reviewed candidate 4adae34, based on 70d78d7)
+SOURCE_VERSION: 2026-09-29 (GEO-UI-01R published 94831f6; source 4adae34)
 MODULE: Sites
 
 ## PURPOSE
@@ -271,7 +271,7 @@ the published `70d78d7` baseline after independent security review.
 
 ## GEOGRAPHY READ UI
 
-GEO-UI-01 adds local main list routes `/geography/territorial-zones` and
+GEO-UI-01 adds published main list routes `/geography/territorial-zones` and
 `/geography/regions` on the existing shell/session foundation. Lists use the
 published backend-filtered GETs, shared authenticated client and AbortSignal.
 One complete Region DTO/loader and unfiltered user/context key are shared
@@ -281,8 +281,9 @@ and fall back to `Зона недоступна` without detail probing or block
 rows on Zone-list failure. No Geography mutations/details or frontend grants.
 Current session generation, selection ordering and protected-query cleanup
 are unchanged. See `src/frontend/GEOGRAPHY.md` for reconciliation history;
-GEO-UI-01R independent commit/range review is PASS; ordinary main publication
-and exact-SHA hosted CI are pending. Historical refs remain intact until PASS.
+GEO-UI-01R independent commit/range review and exact-SHA CI at 94831f6 are PASS.
+Historical Geography worktree/local/remote branch were retired after CI PASS;
+their SHAs and rejected historical auth/session code remain recorded.
 
 ## TOP_TEST_RISKS
 

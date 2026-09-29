@@ -210,8 +210,8 @@ Region selection is checked against the active Region options loaded for the
 current context. Mutation callbacks are bound to the session generation that
 started the request. The frontend does not decide authorization; 403 remains a
 neutral unavailable response. Site UI was independently reviewed and is
-included in published baseline `70d78d7`; the new Geography candidate below
-has its own review/publication boundary.
+included in published baseline `70d78d7`; Geography was published separately
+after GEO-UI-01R independent review and exact-SHA CI.
 
 GEO-UI-01 reimplements Geography read/list views on the current frontend at
 `/geography/territorial-zones` and `/geography/regions`. Both use the published
@@ -228,9 +228,10 @@ The existing Site API resource paths were narrowly corrected to avoid adding
 `/api/v1` twice; shared client base URL semantics are unchanged. Reconciliation
 history and verification are recorded in
 [`src/frontend/GEOGRAPHY.md`](../../src/frontend/GEOGRAPHY.md). This phase is a
-reviewed main candidate: GEO-UI-01R independent commit/range review PASS;
-publication is authorized, with exact-SHA hosted CI still pending. Historical
-Geography refs remain intact until that publication gate passes.
+published main behavior after GEO-UI-01R independent commit/range review PASS
+and exact-SHA hosted CI PASS at `94831f6`. The historical Geography worktree
+and local/remote branch were retired only after that gate; the source SHAs and
+reimplementation decision remain documented in the reconciliation record.
 
 ADR-014, as refined by ADR-017 under ADR-015/016, freezes Site target
 authorization. Zone scope covers descendant Sites, Region scope covers Sites

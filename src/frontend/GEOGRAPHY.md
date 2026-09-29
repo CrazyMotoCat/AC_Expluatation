@@ -3,8 +3,9 @@
 The candidate `4adae34dfef99f3bc0b6fe53bbbfdcbd8d74fc6b` is implemented
 directly on `main`, based on published baseline
 `70d78d7615fd4abbae5a38f65315e27e5831aa81`. GEO-UI-01R independent review
-of that exact commit/range is PASS. Ordinary publication is authorized;
-exact-SHA hosted CI and historical branch retirement remain pending.
+of that exact commit/range is PASS. Ordinary publication and exact-SHA hosted
+CI are PASS at `94831f6ec5b6afc8ab118d0ed42fd2cadd2e08d1`; the historical
+branch/worktree were retired only after that gate.
 
 ## Routes and published contracts
 
@@ -48,8 +49,9 @@ implemented. Backend/schema/migrations and package dependencies are unchanged.
 
 ## Reconciliation history
 
-Historical `feat/frontend-geography` remains read-only and unchanged until
-ordinary main publication and exact-SHA hosted CI PASS:
+Historical `feat/frontend-geography` was inspected read-only and remained
+unchanged until ordinary main publication and exact-SHA hosted CI PASS. Its
+secondary worktree and local/remote refs have now been removed. Recorded SHAs:
 
 - Remote: `a48fa4b9a6f4804875daf0fee6e9e03e22818725`.
 - Local: `df1559d3d89d8d8cfa3bda673c82003ce684ed07`.
@@ -101,6 +103,15 @@ exercise real session/query/transport races; browser QA separately covers
 mounted interactions. Live backend/OIDC browser QA is not claimed.
 
 The original GEO-UI-01 no-push boundary is superseded only for this explicit
-GEO-UI-01R publication/retirement phase. A normal push, exact final-SHA backend,
-frontend and required-check CI PASS must precede retirement of the recorded
-historical branch/worktree. See [the current phase checkpoint](../../.agent/tasks/GEO-UI-01R/state.md).
+GEO-UI-01R publication/retirement phase. Normal push PASS, main matched origin
+at `94831f6`; [Build pipeline #33](https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36577605158)
+verified that full SHA with successful backend, frontend and required checks.
+Only then was the clean historical worktree removed normally. Local `-d`
+refused solely because reimplemented history was not an ancestor; after the
+authorized SHA/transfer/CI recheck, local `-D` and normal remote deletion
+completed. Main and the unchanged clean detached primary checkout remain.
+
+This final documentation checkpoint is a separate narrow main commit. Its
+exact SHA is resolved from Git and must pass hosted CI too; final run evidence
+is recorded by the GEO-UI-01R completion gate. See
+[the current phase checkpoint](../../.agent/tasks/GEO-UI-01R/state.md).
