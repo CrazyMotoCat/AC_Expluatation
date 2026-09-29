@@ -1063,3 +1063,134 @@ NEXT_ACTION: independent SITE-UI-01 review of the local main commit before push.
 DO_NOT_REPEAT: do not touch feat/frontend-geography or detached primary; do not
 change backend/API/schema/migrations; do not add capabilities or DEV bootstrap;
 do not push, create a branch, or begin TASK-02.03.04.
+
+## SITE-UI-01R bounded remediation checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-UI-01R — independent frontend security review and publication
+STATUS: SITE_UI_REMEDIATED_INDEPENDENT_REVIEW_PENDING
+CHECKPOINT_STATUS: SAFE_WITH_CHECKPOINT
+BASELINE_SHA: 173bbfc036eec7a8fb5bdf6e7691836aeb0001e7
+SOURCE_SITE_UI_COMMIT: 6ea1abee0a05df27b119717c6738db4c393e826b
+BRANCH: main
+WORKSPACE: C:/Users/mvideo/.codex/worktrees/site-ref-auth/АС Эксплуатация
+LAST_SAFE_COMMIT: 6ea1abee0a05df27b119717c6738db4c393e826b
+ORIGIN_MAIN: 173bbfc036eec7a8fb5bdf6e7691836aeb0001e7
+WORKTREE: source commit clean before remediation; current remediation paths below
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT / DIRTY_EXPECTED
+
+REVIEW_FINDINGS_AND_REMEDIATION:
+- SITE-UI-RACE-01 MEDIUM: Site mutation callbacks previously identified a
+  session by user/context only and could repopulate detail cache after the same
+  user/context logged in again. SessionService now exposes its monotonic session
+  generation and a current-session check. Site form/detail mutation callbacks
+  capture a generation with TanStack `onMutate` and gate UI/cache writes on it.
+  Added a delayed response regression check across logout and same-user/context
+  reauthentication.
+- SITE-UI-RACE-02 LOW: Create form could retain a Region ID in local form state
+  after context changed, despite current-context Region options being cleared.
+  Create now requires the selected Region to be active in the currently loaded
+  Region results and clears invalid selection. Added focused coverage.
+- Backend authority remains unchanged; no backend/API/schema/migration work.
+
+VERIFIED_AFTER_REMEDIATION:
+- Frontend typecheck, lint, all 39 tests, production build and npm audit pass;
+  npm audit reports 0 vulnerabilities.
+- Backend Release build passes with 0 warnings/errors.
+- `dotnet test Exploitation.sln -c Release --no-build` exits 0 with no test
+  discovery output; explicit harnesses were run separately.
+- Identity/Sites domain, Architecture, Authentication/OIDC checks pass.
+- DevScripts, CI workflow, DatabaseMigrator configuration/registration and API
+  bootstrap smoke contract checks pass.
+- `git diff --check` passes; changed-file secret hygiene found no credential
+  assignments. Frontend ESLint is the changed TypeScript format gate.
+- PostgreSQL/Testcontainers and Docker-dependent API/migration smoke harnesses
+  are blocked: Docker CLI cannot connect to
+  `npipe:////./pipe/dockerDesktopLinuxEngine` (pipe not found).
+- Live OIDC/browser smoke is blocked: root `.env` and
+  `src/frontend/.env.local` are absent; authentication was not bypassed.
+
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — Sites module/context and security documentation now
+describe current-context Region validation and generation-bound Site mutation
+callbacks. Frozen backend contracts and ADRs are unchanged.
+UNCOMMITTED: Site session guard, Site region validation, two frontend regression
+tests, security/Sites docs, this checkpoint.
+PUSH: NONE
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0 after local remediation; independent follow-up review pending
+
+NEXT_ACTION: independently review the remediation diff and focused race proofs;
+then stage only reviewed remediation paths, inspect the staged diff and commit
+as a new main commit. If review passes, record final status in a separate narrow
+docs/checkpoint commit, re-fetch, verify unchanged origin baseline and push main
+normally; verify hosted CI for exact final SHA.
+DO_NOT_REPEAT: do not amend 6ea1abee; do not push until independent review PASS;
+do not alter backend/API/schema/ADR, branch/worktree, feat/frontend-geography or
+detached primary checkout; do not start another product phase.
+
+## SITE-UI-01R independent review completion checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-UI-01R — independent frontend security review and publication
+STATUS: INDEPENDENT_REVIEW_PASS / PUBLICATION_PENDING
+CHECKPOINT_STATUS: SAFE_WITH_CHECKPOINT
+BASELINE_SHA: 173bbfc036eec7a8fb5bdf6e7691836aeb0001e7
+SOURCE_SITE_UI_COMMIT: 6ea1abee0a05df27b119717c6738db4c393e826b
+REMEDIATION_COMMIT: 571c330ead3cf979a7bde7c64de0aca75ef27d1f
+REVIEW_DOCS_COMMIT: create this narrow docs/checkpoint commit; resolve after commit
+BRANCH: main
+LAST_SAFE_COMMIT: 571c330ead3cf979a7bde7c64de0aca75ef27d1f
+ORIGIN_MAIN: 173bbfc036eec7a8fb5bdf6e7691836aeb0001e7
+LOCAL_MAIN_AHEAD: 2 before this docs/checkpoint commit
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT / DIRTY_EXPECTED (docs only)
+
+INDEPENDENT_REVIEW: PASS after bounded remediation; reviewer found no remaining
+source-level publication blocker. Full report: `site-ui-01r-review.md`.
+FINDINGS: SITE-UI-RACE-01 MEDIUM fixed by generation-bound session checks for
+Site form/detail mutations; SITE-UI-RACE-02 LOW fixed by validating create
+Region selection against current-context active options. OPEN_CRITICAL=0,
+OPEN_HIGH=0, OPEN_MEDIUM=0. Regression checks pass. Review notes the mutation
+race test is a service-level predicate/cache-effect test rather than a mounted
+React component test; primary independently inspected callback wiring.
+
+FINAL_REVIEWED_SCOPE: frontend Site pages/API/session guard, focused frontend
+tests, Sites module/context and security docs, task checkpoint. No backend,
+schema, migration, dependency, capability or DEV bootstrap changes.
+ROUTES: `/sites`, `/sites/new`, `/sites/{siteId}` in shared authenticated shell.
+SITE_LIST/DETAIL/CREATE/EDIT/LIFECYCLE/CRITICALITY: PASS
+REFERENCE_DATA: backend Regions, SiteType and Criticality catalogs; human labels
+from server; inactive current references retained; inactive new choices excluded.
+FILTERS/PAGINATION: backend parameters and totals; filter resets page to 1.
+AUTHORIZATION: backend only; no role/UserType/JWT/scope inference.
+403/401/409/DOUBLE_SUBMIT/ERROR_HYGIENE: PASS by source/tests; no stale
+mutation retry; current detail invalidated after optimistic conflict.
+CONTEXT_ISOLATION/LATE_QUERY/LOGOUT_CACHE/NEW_SESSION: PASS by shared cache
+cleanup, user/context keys, AbortSignal propagation, generation-bound mutation
+callbacks and regression harnesses.
+FEAT_FRONTEND_GEOGRAPHY: unchanged; detached primary checkout unchanged.
+
+LOCAL_GATES_AFTER_REMEDIATION: frontend typecheck, lint, 39 tests, production
+build, npm audit (0 vulnerabilities), Release solution build, Identity/Sites
+domain, Architecture, Authentication, DevScripts, CI workflow, DatabaseMigrator
+configuration and API bootstrap contract harnesses PASS; `git diff --check` PASS.
+POSTGRESQL_HARNESSES: BLOCKED_BY_ENVIRONMENT; Docker Engine pipe
+`npipe:////./pipe/dockerDesktopLinuxEngine` is absent. Candidate and remediation
+change no backend code/schema; hosted backend job remains required.
+LIVE_OIDC_SMOKE: BLOCKED_BY_ENVIRONMENT; root `.env` and
+`src/frontend/.env.local` are absent. OIDC was not bypassed.
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — module/context/security statements match the
+generation and Region selection guards; no API contract or ADR change.
+PUSH: NONE
+HOSTED_CI: NOT_YET_VERIFIED
+
+NEXT_ACTION: commit this review/checkpoint documentation separately, then
+immediately fetch and verify origin/main remains the expected baseline and main
+contains only the candidate plus reviewed remediation/status commits. Push main
+normally; verify backend, frontend and required checks for the exact final SHA.
+STOP after exact-SHA hosted CI PASS.
+DO_NOT_REPEAT: do not amend candidate/remediation; no force push, rebase, branch,
+worktree, backend change, capabilities, DEV bootstrap, phase expansion or
+feat/frontend-geography merge.
