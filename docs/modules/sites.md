@@ -82,7 +82,7 @@ IDs. The values are an initial set, not an enum. Code is immutable and
 globally unique; `ACTIVE`/`INACTIVE` replaces the earlier provisional
 `is_active` column. Creation starts ACTIVE, hard delete is blocked by the
 database, and inactive rows remain readable for historical references.
-`GET /api/v1/reference/site-types` requires `sites.read`, returns all types
+`GET /api/v1/reference/site-types` uses the catalog authorization below, returns all types
 ordered by code, and exposes only id, code, name, description and status.
 No SiteType mutation API, additional permission or audit obligation exists in
 that reference task. Full administration is deferred to a separate future
@@ -104,15 +104,10 @@ the read API; `TASK-02.03.03` Phase A rejects them for new assignments.
 Migration `20260926064400_AddSiteCriticalityClasses` creates the table,
 constraints, identity/delete guard and four migration-owned seed rows.
 
-The implemented `GET /api/v1/reference/site-criticality-classes` requires an
-authenticated active local user with canonical `sites.read`. It returns
-`id`, `code`, `name`, `rank`, `description`, `status` for both statuses, ordered
-by rank ASC then code ASC, without paging or filtering. Expected responses
-are 200, 401 and 403. This global reference list has no Zone/Region target
-filtering. ADR-013 target-aware scope still applies to target business
-resources; AUTH-SCOPE-01 B1 is not a catalog prerequisite. Current production
-grant evaluation may still deny access until implemented. Role name, UserType,
-JWT claims, working context and frontend state do not themselves grant access.
+The implemented `GET /api/v1/reference/site-criticality-classes` uses the catalog
+authorization below. It returns `id`, `code`, `name`, `rank`, `description`,
+`status` for both statuses, ordered by rank ASC then code ASC, without paging
+or geographic filtering. Expected responses are 200, 401 and 403.
 No management route or mutation audit action is in this task; future management
 must define audit actions using the established durable Sites obligation.
 
@@ -124,8 +119,37 @@ must define audit actions using the established durable Sites obligation.
 - sites.manage_locations
 - sites.change_criticality
 
-The criticality catalog read uses `sites.read`; `sites.change_criticality`
-concerns Site changes, not reference catalog management.
+### Site reference catalog authorization — SITE-REF-AUTH-01
+
+SITE-REF-OD-01: SiteType and SiteCriticalityClass are global Sites-owned
+reference catalogs, not geographic targets. Reading either requires an ACTIVE
+INTERNAL local user, a valid owned INTERNAL working context and at least one
+current effective assignment for any one of `sites.read`, `sites.create`,
+`sites.change`, `sites.change_criticality`, with exact TerritorialZone, Region
+or Site scope. All four empty results, unsupported/composite assignments,
+contractor/external users or contexts, wrong context and expired/future/revoked
+assignments deny access. Authentication failure is 401; catalog denial is 403
+with the existing error envelope. Invalid context headers keep their existing
+validation response. Authorized reads return the complete existing catalog,
+including INACTIVE values for history labels. New assignments still require ACTIVE values.
+
+SITE-REF-OD-02: Catalog access implies no Site permission. `sites.create`,
+`sites.change` and `sites.change_criticality` do not imply `sites.read`; no
+Site/Region/Zone visibility or mutation authorization changes.
+
+SITE-REF-OD-03: `ISiteReferenceCatalogAuthorizationService.CanReadAsync` accepts
+only authenticated local user ID and working context ID (plus cancellation).
+It requests the fixed four permissions sequentially through the existing
+Identity `IEffectiveScopeProvider`, stops at the first supported non-empty
+result and performs at most four checks. No caller-provided permission,
+effective scope collection or geographic ID is accepted as catalog evidence.
+Provider exceptions deny immediately; request cancellation propagates. No
+hierarchy expansion or cross-module DB access occurs. Only these two GET routes
+replace the legacy permission wiring; the global production grant source
+remains deny-by-default. No schema/migration, new grant engine, capability or
+reference mutation route is introduced. This bounded composition uses the
+existing authorization model/contracts and does not require a new ADR.
+
 
 ## Site CRUD — TASK-02.03.03 contract and Phase B1 foundation
 

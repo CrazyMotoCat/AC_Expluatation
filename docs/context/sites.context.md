@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-29 (SITE-API-01R, SITE-AUTH-01R, C1 and Site B1 published)
+SOURCE_VERSION: 2026-09-29 (SITE-REF-AUTH-01 locally implemented; publication pending)
 MODULE: Sites
 
 ## PURPOSE
@@ -84,7 +84,7 @@ Its UUIDv7 ID and canonical immutable code identify the type; name is mutable.
 `ACTIVE`/`INACTIVE` replaces the earlier provisional `is_active` column;
 creation starts ACTIVE, hard delete is forbidden, and inactive rows remain
 readable for history. The current API is only
-`GET /api/v1/reference/site-types` under `sites.read`, ordered by code.
+`GET /api/v1/reference/site-types` under SITE-REF-AUTH-01 catalog authorization, ordered by code.
 Mutation API, mutation permissions and audit obligations are deferred to a
 separate management task. `TASK-02.03.03` Phase A now requires ACTIVE type
 for a new or changed Site assignment; existing Site references remain valid.
@@ -101,10 +101,26 @@ mechanism. Code is canonical, immutable and unique; nullable description
 follows SiteType. ACTIVE/INACTIVE classes are both readable, with no hard
 delete; `TASK-02.03.03` Phase A rejects inactive classes for new assignments.
 The global GET `/api/v1/reference/site-criticality-classes` uses
-`sites.read`, returns id/code/name/rank/description/status, and orders by rank
-then code. It has no geographic target filtering; AUTH-SCOPE-01 B1 is not a
-prerequisite, while production grants may remain deny-by-default. No runtime
+SITE-REF-AUTH-01 catalog authorization, returns id/code/name/rank/description/status,
+and orders by rank then code. It has no geographic target filtering. No runtime
 catalog management or mutation audit is included in TASK-02.03.02.
+
+## REFERENCE CATALOG AUTHORIZATION
+
+SITE-REF-OD-01: both global catalogs require ACTIVE INTERNAL local user,
+valid owned INTERNAL context and any current effective assignment for one of
+sites.read / sites.create / sites.change / sites.change_criticality with exact
+TerritorialZone, Region or Site scope. Empty scopes, contractor/external,
+wrong context and future/expired/revoked assignments deny (403); authentication
+failure is 401. Both ACTIVE and INACTIVE catalog entries remain globally readable.
+SITE-REF-OD-02: catalog access grants no Site operation or geographic visibility;
+permissions remain independent. New reference assignments require ACTIVE values.
+SITE-REF-OD-03: Sites Application ISiteReferenceCatalogAuthorizationService accepts
+only authenticated local user/context IDs; fixed permissions are requested internally
+via Identity IEffectiveScopeProvider (sequential, maximum four, stop at first match).
+No caller permission/scope/target evidence, hierarchy expansion or cross-schema access.
+Provider exception denies; cancellation propagates. Only the two reference GETs
+switch composition; global grants and existing Site/Zone/Region authorization stay unchanged.
 
 ## INVARIANTS
 

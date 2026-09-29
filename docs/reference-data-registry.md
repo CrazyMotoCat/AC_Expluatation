@@ -151,7 +151,7 @@ inactive type for a new or changed Site assignment is forbidden by the
 `TASK-02.03.03` Phase A contract; an existing Site may retain it.
 
 `TASK-02.03.01` supplies persistence, deterministic seed and a read endpoint
-under `sites.read`. A management API, mutation permissions and audit
+under SITE-REF-AUTH-01 catalog authorization (Sites module contract). A management API, mutation permissions and audit
 obligations for SiteType are deferred to a separate future task.
 
 ## 4.3. Site Criticality
@@ -180,7 +180,7 @@ classes remain valid for existing references and visible in the read catalog;
 new Site assignments reject them under the `TASK-02.03.03` Phase A contract.
 `TASK-02.03.02`
 implements a read-only `GET /api/v1/reference/site-criticality-classes` under
-`sites.read`, returning both statuses. Runtime management, mutation audit
+SITE-REF-AUTH-01 catalog authorization (Sites module contract), returning both statuses. Runtime management, mutation audit
 actions and mutation permissions are not included. Extensions require an
 explicit future migration/release or separate management task. Phase B
 persistence and migration are implemented; the read API is implemented in Phase C.

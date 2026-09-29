@@ -1348,3 +1348,29 @@ Codex не имеет права самостоятельно:
 # 95. Главный принцип безопасности
 
 > В АС «Эксплуатация» доступ определяется не тем, знает ли пользователь ID объекта, а тем, имеет ли он право выполнить конкретное действие над конкретной сущностью в конкретном рабочем контексте и в конкретный момент времени.
+
+
+## Sites global reference catalogs — SITE-REF-AUTH-01
+
+SITE-REF-OD-01: SiteType and SiteCriticalityClass are global Sites-owned
+catalogs, not geographic targets. Both reference GETs require an ACTIVE
+INTERNAL local user, valid owned INTERNAL context and a current effective
+assignment for any one of sites.read, sites.create, sites.change,
+sites.change_criticality with exact TerritorialZone/Region/Site scope.
+Absence of a relevant assignment, unsupported/composite scope, future/expired/revoked
+assignment, wrong context, contractor/external user/context and provider failure
+all deny access. Authentication failure is 401; catalog denial is 403.
+
+SITE-REF-OD-02: catalog access grants no Site operation and no geographic
+visibility. Permissions remain independent; a tiny Site scope intentionally
+permits the same complete catalog, including inactive historical labels.
+New reference assignments still require ACTIVE values.
+
+SITE-REF-OD-03: the Sites Application catalog service accepts only local user
+and context IDs, requests its fixed four permissions from IEffectiveScopeProvider
+sequentially, and stops at the first supported non-empty scope set. At most
+four checks; no arbitrary permission API, raw scope injection, target evidence,
+hierarchy evaluator or cross-module DB access. Provider exceptions deny without
+trying fallback permissions; cancellation propagates. Only the two catalog
+GET routes replace legacy wiring. No production grant-source enablement,
+Site/Zone/Region policy change, contractor-positive access, schema or migration.

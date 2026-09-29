@@ -843,3 +843,47 @@ DO_NOT_REPEAT: implementation/review/local gates are complete; do not rerun them
 without new source changes, start frontend/capabilities/DEV bootstrap or another
 backend feature. If resuming only final metadata verification, inspect Git and
 the exact current-SHA hosted run, then STOP.
+
+
+## SITE-REF-AUTH-01 backend checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-REF-AUTH-01
+STATUS: PASS / LOCALLY_COMPLETE / PUBLICATION_PENDING
+CHECKPOINT_STATUS: SAFE
+BASELINE_SHA: e099be23554c34b9d668b5297437a5f54af9d8d5
+LAST_SAFE_COMMIT: e099be23554c34b9d668b5297437a5f54af9d8d5
+BRANCH: codex/task-02.03.03-site-ref-auth
+WORKSPACE: C:/Users/mvideo/.codex/worktrees/site-ref-auth/АС Эксплуатация
+REPOSITORY_STATE_GUARD: SAFE / CLEAN_BASELINE at branch creation
+TASK_RESUME: SAFE; historical final metadata resolves to baseline; separate backend phase authorized
+EXECUTION_MODE: BALANCED; primary implementation; independent read-only security reviewer before commit
+COMPLETED: fixed-set Sites catalog authorization service; narrow two-route integration;
+real-provider PostgreSQL/HTTP authorization matrix and service failure/bounded query checks
+VERIFIED: full Release build PASS (zero warnings/errors); all 11 explicit harnesses PASS;
+dotnet test exit 0; Sites/Identity EF model drift NONE; formatting/diff/Markdown/secret hygiene PASS.
+See site-ref-auth-01-validation.md for commands and catalog/negative/regression mapping.
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS
+UNCOMMITTED: NONE after the single local commit containing this checkpoint.
+FILES_CHANGED: Sites Application authorization service/interface; two catalog endpoints;
+API/module DI; catalog test matrix and adapted reference scope/context assertions; architecture checks;
+Sites module/context, API/security/reference registry docs; validation/security reports; this checkpoint
+PENDING: independent publication review; no push/merge authorized
+DECISIONS: SITE-REF-OD-01 global catalogs need any one current exact Sites assignment;
+SITE-REF-OD-02 no permission implication or Site-operation grant;
+SITE-REF-OD-03 only user/context input; fixed four permissions through existing Identity provider.
+No new ADR: bounded Sites composition under existing Identity contracts; no model/boundary/schema change.
+Provider exception denies immediately; cancellation propagates. ACTIVE/INACTIVE catalog DTO/data unchanged.
+BLOCKERS: NONE
+SECURITY_REVIEW: PASS; independent read-only review, OPEN_CRITICAL/HIGH/MEDIUM/LOW = 0
+LOCAL_COMMIT: the single commit containing this checkpoint; resolve git rev-parse HEAD
+COMMIT_PARENT: e099be23554c34b9d668b5297437a5f54af9d8d5
+WORKTREE: CLEAN after the single local commit; Git status is authoritative
+MAIN_MODIFIED: NO
+SITE_UI_BRANCH: preserved unchanged in original checkout with its six expected documentation paths
+PUSH: NONE
+HOSTED_CI: not run for this local branch; no new hosted-CI PASS claimed
+NEXT_ACTION: Independent review/publication of SITE-REF-AUTH-01, then resume SITE-UI-01 from the published baseline.
+DO_NOT_REPEAT: no SITE-UI changes; no global grant-source enablement, Site/Zone/Region semantics,
+schema/migrations, contractor-positive access, capabilities, reference CRUD, push or merge.

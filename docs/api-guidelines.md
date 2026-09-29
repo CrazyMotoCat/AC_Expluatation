@@ -1291,17 +1291,29 @@ GET /reference/units
 Или module-owned resource endpoints.
 
 `TASK-02.03.01` implements the module-owned read route
-`GET /api/v1/reference/site-types`. It requires `sites.read` and returns an
+`GET /api/v1/reference/site-types`. It uses Sites catalog authorization and returns an
 array ordered by canonical code. Each row exposes `id`, `code`, `name`,
 `description` and `status`; inactive rows remain visible for historical
 references. No SiteType mutation route is included in this task.
 
 `TASK-02.03.02` implements `GET /api/v1/reference/site-criticality-classes`
-under canonical `sites.read`. It returns an unpaged array of both ACTIVE and
+under Sites catalog authorization. It returns an unpaged array of both ACTIVE and
 INACTIVE classes, ordered by rank ASC then code ASC. Each row contains only
 `id`, `code`, `name`, `rank`, nullable `description` and `status`. This is a
 global reference list with no Zone/Region filtering. The route has no runtime
 management operations; a working context does not grant permission.
+
+SITE-REF-AUTH-01 / SITE-REF-OD-01 through OD-03 authorize these two global
+catalog GETs for an ACTIVE INTERNAL user in a valid owned INTERNAL context
+with a current effective exact TerritorialZone/Region/Site assignment for any
+one of sites.read, sites.create, sites.change, sites.change_criticality.
+The Sites application service accepts only authenticated user/context IDs and
+queries that fixed set through Identity (maximum four sequential checks).
+Authentication failure returns 401; denied catalog access returns 403, never
+200 with an empty catalog. Existing context-header validation is unchanged.
+Successful catalog arrays, DTO fields, ordering and inactive inclusion are
+unchanged. Catalog access grants no Site operation or geographic visibility;
+no permission implication, geographic filtering or global grant-source change.
 
 ## TASK-02.03.03 — Site API contract (frozen; SITE-API-01 published)
 
