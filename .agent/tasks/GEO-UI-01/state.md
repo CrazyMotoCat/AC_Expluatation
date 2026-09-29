@@ -1,9 +1,13 @@
 # FRONTEND-GEOGRAPHY RECONCILIATION — GEO-UI-01
 
-STATUS: VERIFIED_READY_FOR_LOCAL_COMMIT
+STATUS: LOCAL_COMMIT_CREATED_INDEPENDENT_REVIEW_PASS
 CHECKPOINT_STATUS: SAFE
-PHASE: final gates PASS; authorized single local commit transition
-LAST_SAFE_COMMIT: 70d78d7615fd4abbae5a38f65315e27e5831aa81
+PHASE: GEO-UI-01 complete; explicit GEO-UI-01R publication workflow active
+LAST_SAFE_COMMIT: 4adae34dfef99f3bc0b6fe53bbbfdcbd8d74fc6b
+PUBLISHED_BASELINE: 70d78d7615fd4abbae5a38f65315e27e5831aa81
+GEO_RECON_00: COMPLETE
+GEO_UI_01: LOCAL_COMMIT_REVIEWED
+CURRENT_PHASE_STATE: ../GEO-UI-01R/state.md
 
 ## COMPLETED
 
@@ -92,22 +96,22 @@ LAST_SAFE_COMMIT: 70d78d7615fd4abbae5a38f65315e27e5831aa81
 
 ## UNCOMMITTED
 
-- Above task-owned files are ready for deliberate staging and one main commit.
-- Once this checkpoint is in the GEO-UI-01 commit, expected worktree is clean;
-  resolve the atomic candidate SHA using git log -1 --format=%H -- this file.
-  Parent must be LAST_SAFE_COMMIT; main must be exactly one ahead of origin/main.
+- Candidate files were committed atomically at 4adae34; the resumed main was
+  clean and exactly one ahead of origin/main. Parent is PUBLISHED_BASELINE.
+- Current changes belong only to the authorized GEO-UI-01R review/publication
+  documentation checkpoint; see CURRENT_PHASE_STATE for exact ownership.
 
 ## PENDING
 
-- Deliberate staging, staged diff review and single local commit on main.
-- After that: independent commit/range review before ordinary push + exact-SHA CI.
+- GEO-UI-01R ordinary publication, exact-SHA CI and historical retirement.
 
 BLOCKERS: NONE
-NEXT_ACTION: Review the atomic local GEO-UI-01 main commit after the authorized commit transition.
+NEXT_ACTION: Follow ../GEO-UI-01R/state.md for the authorized publication phase.
 
 ## DO_NOT_REPEAT
 
 - Do not create branches/worktrees, merge/cherry-pick historical Geography,
-  replace session infrastructure, push, or retire the historical worktree.
+  replace session infrastructure or start another product phase. The original
+  no-push/no-retirement instruction is superseded by explicit GEO-UI-01R only.
 - Original chat cwd is a different detached checkout; use the existing main
   checkout at C:/Users/mvideo/.codex/worktrees/site-ref-auth/АС Эксплуатация.

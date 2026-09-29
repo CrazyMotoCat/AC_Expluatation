@@ -1,8 +1,10 @@
 # GEO-UI-01 — Geography read/list UI
 
-The local candidate is implemented directly on `main`, based on published
-baseline `70d78d7615fd4abbae5a38f65315e27e5831aa81`. Publication and exact-SHA
-hosted CI are deferred until independent review of the single local commit.
+The candidate `4adae34dfef99f3bc0b6fe53bbbfdcbd8d74fc6b` is implemented
+directly on `main`, based on published baseline
+`70d78d7615fd4abbae5a38f65315e27e5831aa81`. GEO-UI-01R independent review
+of that exact commit/range is PASS. Ordinary publication is authorized;
+exact-SHA hosted CI and historical branch retirement remain pending.
 
 ## Routes and published contracts
 
@@ -46,7 +48,8 @@ implemented. Backend/schema/migrations and package dependencies are unchanged.
 
 ## Reconciliation history
 
-Historical `feat/frontend-geography` remains read-only and unchanged:
+Historical `feat/frontend-geography` remains read-only and unchanged until
+ordinary main publication and exact-SHA hosted CI PASS:
 
 - Remote: `a48fa4b9a6f4804875daf0fee6e9e03e22818725`.
 - Local: `df1559d3d89d8d8cfa3bda673c82003ce684ed07`.
@@ -90,7 +93,14 @@ are recorded in [the checkpoint](../../.agent/tasks/GEO-UI-01/state.md).
 Independent read-only pre-commit security/documentation review PASS with zero
 open Critical/High/Medium/Low findings; 29 focused and all 68 frontend tests
 were independently rerun. See [the review record](../../.agent/tasks/GEO-UI-01/agents/geo_security_review.md).
-After the single atomic main commit,
-the owner workflow performs independent commit/range review, then an ordinary
-push and exact-SHA hosted CI. This task does not push or retire historical
-branches/worktrees. Hosted CI for this candidate is not claimed.
+GEO-UI-01R separately reviewed the atomic candidate/range and independently
+reran all 68 tests and typecheck: PASS, zero open findings. The primary reran
+frontend gates, browser QA, Release backend build, all eleven named backend
+harnesses and four infrastructure/contract scripts: PASS. Static React tests
+exercise real session/query/transport races; browser QA separately covers
+mounted interactions. Live backend/OIDC browser QA is not claimed.
+
+The original GEO-UI-01 no-push boundary is superseded only for this explicit
+GEO-UI-01R publication/retirement phase. A normal push, exact final-SHA backend,
+frontend and required-check CI PASS must precede retirement of the recorded
+historical branch/worktree. See [the current phase checkpoint](../../.agent/tasks/GEO-UI-01R/state.md).

@@ -718,8 +718,8 @@ Phase A: owner decisions OD-01 through OD-10 are frozen in Sites module,
   compatibility. SITE-AUTH-01 exact Site scopes and Sites-owned authorization
   foundation are also published. SITE-API-01 Site HTTP/API is published
   after independent SITE-API-01R review and post-integration verification;
-  management frontend is implemented locally by SITE-UI-01; independent
-  review is required before push. Capabilities and DEV bootstrap remain
+  management frontend is published by SITE-UI-01 after independent review
+  in baseline `70d78d7`. Capabilities and DEV bootstrap remain
   unimplemented.
 Sites owns `sites.sites` in the Territorial Zone → Region → Site hierarchy.
 The first backend slice has required immutable globally unique canonical code,

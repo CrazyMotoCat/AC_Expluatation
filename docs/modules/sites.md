@@ -228,7 +228,9 @@ The existing Site API resource paths were narrowly corrected to avoid adding
 `/api/v1` twice; shared client base URL semantics are unchanged. Reconciliation
 history and verification are recorded in
 [`src/frontend/GEOGRAPHY.md`](../../src/frontend/GEOGRAPHY.md). This phase is a
-local main candidate pending independent commit review and publication.
+reviewed main candidate: GEO-UI-01R independent commit/range review PASS;
+publication is authorized, with exact-SHA hosted CI still pending. Historical
+Geography refs remain intact until that publication gate passes.
 
 ADR-014, as refined by ADR-017 under ADR-015/016, freezes Site target
 authorization. Zone scope covers descendant Sites, Region scope covers Sites

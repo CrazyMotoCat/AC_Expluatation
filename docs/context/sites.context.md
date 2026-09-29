@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-29 (GEO-UI-01 local main candidate, based on 70d78d7)
+SOURCE_VERSION: 2026-09-29 (GEO-UI-01R reviewed candidate 4adae34, based on 70d78d7)
 MODULE: Sites
 
 ## PURPOSE
@@ -281,7 +281,8 @@ and fall back to `Зона недоступна` without detail probing or block
 rows on Zone-list failure. No Geography mutations/details or frontend grants.
 Current session generation, selection ordering and protected-query cleanup
 are unchanged. See `src/frontend/GEOGRAPHY.md` for reconciliation history;
-publication follows independent review of the local commit and exact-SHA CI.
+GEO-UI-01R independent commit/range review is PASS; ordinary main publication
+and exact-SHA hosted CI are pending. Historical refs remain intact until PASS.
 
 ## TOP_TEST_RISKS
 
