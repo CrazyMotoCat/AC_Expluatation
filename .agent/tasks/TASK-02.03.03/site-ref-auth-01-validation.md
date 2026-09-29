@@ -72,3 +72,23 @@ Independent review is recorded separately before the one authorized local commit
 
 Independent publication review of SITE-REF-AUTH-01; then publish only with new authorization.
 Resume SITE-UI-01 from the published baseline in its preserved branch. No frontend work in this phase.
+
+## SITE-REF-AUTH-01R final review and main integration
+
+Final review revalidated the exact diff `e099be23554c34b9d668b5297437a5f54af9d8d5..563ab4d2f83a8213b7da793e50496db077a48f08`.
+Scope is limited to the two read-only reference GET authorizers, the fixed Sites authorization composition,
+tests, and corresponding task/API/Sites/security/reference documentation. No Site CRUD, Zone/Region,
+global grant source, frontend, schema, migration, dependency, or unrelated route changes were found.
+Final classification: OPEN_CRITICAL=0, OPEN_HIGH=0, OPEN_MEDIUM=0, OPEN_LOW=0.
+
+The candidate was fast-forwarded to local `main` from the exact expected baseline. The post-integration
+verification was repeated on `main` and passed: Release build (0 warnings/errors), `dotnet test` command
+(exit 0; executable harnesses are the substantive checks), all 11 explicit executable harnesses,
+including real PostgreSQL/HTTP catalog, Site, Geography, F1/F2, SITE-F1/SITE-F2 and C1 regressions;
+OIDC/working-context and architecture checks; Sites and Identity pending-model-change checks (none);
+changed-file formatting and `git diff --check`. A first architecture harness invocation used the other
+checkout as its source-scan root; it was rerun from this worktree and passed before integration, then passed
+again from `main`.
+
+No remediation commit was required. No medium-or-higher finding blocks publication. Main push and hosted CI
+are separate gates; this checkpoint does not claim either until the exact final main SHA is directly verified.

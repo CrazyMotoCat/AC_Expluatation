@@ -887,3 +887,69 @@ HOSTED_CI: not run for this local branch; no new hosted-CI PASS claimed
 NEXT_ACTION: Independent review/publication of SITE-REF-AUTH-01, then resume SITE-UI-01 from the published baseline.
 DO_NOT_REPEAT: no SITE-UI changes; no global grant-source enablement, Site/Zone/Region semantics,
 schema/migrations, contractor-positive access, capabilities, reference CRUD, push or merge.
+
+## SITE-REF-AUTH-01R final review and integration checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-REF-AUTH-01R — FINAL SECURITY REVIEW + MAIN INTEGRATION
+STATUS: INTEGRATED / READY_FOR_NORMAL_PUSH
+CHECKPOINT_STATUS: SAFE
+BASELINE_SHA: e099be23554c34b9d668b5297437a5f54af9d8d5
+SOURCE_COMMIT: 563ab4d2f83a8213b7da793e50496db077a48f08
+REMEDIATION_COMMITS: NONE
+FINAL_REF_AUTH_SHA: 563ab4d2f83a8213b7da793e50496db077a48f08
+FINAL_MAIN_SHA: resolve after this status-only checkpoint commit
+LAST_SAFE_COMMIT: current main commit containing this checkpoint; resolve Git HEAD
+INTEGRATION_METHOD: fast-forward only
+COMPLETED: independent final source review; exact candidate diff review; fast-forward;
+post-integration verification on main; publication checkpoint and documentation sync.
+VERIFIED: main advanced from the exact baseline to the exact candidate; Release build,
+all 11 explicit harnesses, dotnet test command, changed-file formatting, diff check,
+Sites and Identity model drift checks PASS. See site-ref-auth-01-validation.md.
+REFERENCE_ENDPOINTS: GET site-types and GET site-criticality-classes only
+FIXED_PERMISSIONS: sites.read; sites.create; sites.change; sites.change_criticality
+SITE_TYPE_REFERENCE_AUTH: PASS
+SITE_CRITICALITY_REFERENCE_AUTH: PASS
+ZONE_SCOPE: PASS
+REGION_SCOPE: PASS
+SITE_SCOPE: PASS
+SITES_READ: catalog allowed; Site operation semantics unchanged
+SITES_CREATE: catalog allowed; Site operation semantics unchanged
+SITES_CHANGE: catalog allowed; Site operation semantics unchanged
+SITES_CHANGE_CRITICALITY: catalog allowed; Site operation semantics unchanged
+NO_SITE_PERMISSION: DENIED
+UNRELATED_PERMISSION: DENIED
+FUTURE_ASSIGNMENT: DENIED
+EXPIRED_ASSIGNMENT: DENIED
+WRONG_CONTEXT: DENIED
+CONTRACTOR: DENIED
+UNAUTHENTICATED: 401
+CALLER_PERMISSION_INPUT: NONE
+CALLER_SCOPE_INPUT: NONE
+F2_STYLE_INJECTION: DENIED
+PERMISSION_IMPLICATION: NONE
+SITE_OPERATION_ESCALATION: NONE
+GLOBAL_GRANT_SOURCE_CHANGED: NO
+SITE_AUTH_CHANGED: NO
+GEOGRAPHY_AUTH_CHANGED: NO
+SITE_F1/SITE_F2/F1/F2/C1_REGRESSION: PASS
+IDENTITY_SITES_DB_DEPENDENCY: NONE
+SITES_IDENTITY_DB_DEPENDENCY: NONE
+SCHEMA_CHANGED: NO
+MIGRATION_CREATED: NO
+MODEL_DRIFT: NONE
+SECURITY_FINDINGS: OPEN_CRITICAL=0; OPEN_HIGH=0; OPEN_MEDIUM=0; OPEN_LOW=0
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS
+SITE_UI_01: BLOCKER_RESOLVED / NOT_RESUMED
+SITE_B1: PUBLISHED
+SITE_AUTH_01: PUBLISHED
+SITE_API_01: PUBLISHED
+FRONTEND: NOT_IMPLEMENTED
+PUSH: pending normal push after final fetch and ancestor verification
+HOSTED_CI: pending direct verification for exact pushed final main SHA; no PASS claimed here
+SITE_UI_BRANCH: unchanged; preserved dirty contract-gap checkpoint remains in its original worktree
+NEXT_ACTION: after normal push and exact-SHA hosted CI PASS, resume SITE-UI-01 from the clean published baseline.
+STOP: do not resume SITE-UI-01 in this phase.
+DO_NOT_REPEAT: no frontend work, schema/migration, permission or geography semantic changes,
+grant-source change, capabilities, DEV bootstrap, force push, squash or merge commit.
