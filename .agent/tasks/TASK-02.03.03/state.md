@@ -797,3 +797,49 @@ exact final SHA backend/frontend/required hosted checks, then STOP. Plan Site fr
 next TASK-02.03.03 product phase only after publication is fully verified.
 DO_NOT_REPEAT: no frontend, capabilities, DEV bootstrap, contractor-positive access,
 new backend feature, schema/migration or accepted ADR rewrite; no force push.
+
+## SITE-API-01R final publication reconciliation
+
+TASK: TASK-02.03.03
+PHASE: SITE-API-01R — FINAL ADVERSARIAL REVIEW + MAIN INTEGRATION
+STATUS: SITE_API_PUBLISHED
+CHECKPOINT_STATUS: SAFE
+SITE_B1: PUBLISHED
+SITE_AUTH_00: CONTRACT_FROZEN
+SITE_AUTH_01: PUBLISHED
+SITE_API_01: PUBLISHED
+SITE_ROUTES: PUBLISHED
+SITE_DELETE: ABSENT
+SOURCE_SITE_API_COMMIT: b4b5dbce2dbd1c344d1caf643c981f31b663f233
+REMEDIATION_COMMIT: d2714658ffbe2c6c6f7d5ed2357a89032eabf079
+FINAL_SITE_API_SHA: d2714658ffbe2c6c6f7d5ed2357a89032eabf079
+PUBLICATION_STATUS_COMMIT: be914f30cac4594cd7c4961c066991a28d857f90
+LAST_SAFE_COMMIT: be914f30cac4594cd7c4961c066991a28d857f90
+COMPLETED: review, remediation, fast-forward, post-integration gates, docs sync,
+normal push and exact-publication-SHA hosted CI.
+VERIFIED: main == origin/main at be914f30cac4594cd7c4961c066991a28d857f90;
+both worktrees clean; Build pipeline #28 backend/frontend/Verify required checks PASS.
+HOSTED_CI_VERIFIED_SHA: be914f30cac4594cd7c4961c066991a28d857f90
+HOSTED_CI_RUN: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36515499758
+FINAL_MAIN_SHA: this final reconciliation metadata commit; resolve main with Git
+FINAL_METADATA_CI: must be checked for this exact commit after its normal push;
+authoritative evidence is the matching GitHub Actions run, not this prior-SHA PASS.
+UNCOMMITTED: only this reconciliation and review-report status; clean after commit
+DECISIONS: no production/test changes after post-integration gates; no skip-CI flag
+BLOCKERS: NONE
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: one nonblocking source-text assertion robustness note
+DOCUMENTATION_SYNC: PASS
+FRONTEND: NOT_IMPLEMENTED
+CAPABILITIES: NOT_IMPLEMENTED
+DEV_BOOTSTRAP: NOT_IMPLEMENTED
+CONTRACTOR_POSITIVE: NOT_SUPPORTED
+NEXT_ACTION: determine the next TASK-02.03.03 product phase only after the exact
+final main SHA has passed hosted CI; no next phase is authorized in SITE-API-01R.
+DO_NOT_REPEAT: implementation/review/local gates are complete; do not rerun them
+without new source changes, start frontend/capabilities/DEV bootstrap or another
+backend feature. If resuming only final metadata verification, inspect Git and
+the exact current-SHA hosted run, then STOP.

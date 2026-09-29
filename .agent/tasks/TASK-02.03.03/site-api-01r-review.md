@@ -183,3 +183,19 @@ HOSTED_CI: NOT_YET_VERIFIED_AT_CHECKPOINT — exact final SHA must be checked;
 authenticated GitHub Actions access confirmed. Earlier baseline run is not evidence.
 NEXT_ACTION: normal push after final fetch/ancestor check, then verify exact final SHA
 backend/frontend/required checks and STOP; no new product phase.
+
+## Final publication reconciliation
+
+PUBLICATION_STATUS_COMMIT: be914f30cac4594cd7c4961c066991a28d857f90
+PUSHED: YES — ordinary push; local main == origin/main; both worktrees clean
+HOSTED_CI: PASS for exact publication-status commit above
+HOSTED_CI_RUN: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36515499758
+HOSTED_CI_BACKEND: PASS
+HOSTED_CI_FRONTEND: PASS
+HOSTED_CI_REQUIRED_CHECKS: PASS
+FINAL_MAIN_SHA: final reconciliation metadata commit containing this section
+FINAL_METADATA_CI: verify its exact SHA after push; do not infer from run #28
+CHECKPOINT_UPDATED: YES
+DOCUMENTATION_SYNC: PASS
+FINAL_BOUNDARIES: no further production/test/schema/contract/frontend changes
+NEXT_ACTION: next product phase only after exact final main hosted CI PASS; STOP
