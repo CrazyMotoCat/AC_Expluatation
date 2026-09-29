@@ -200,9 +200,12 @@ foundation, Site authorization and HTTP/API are published on main after their
 independent reviews. SITE-UI-01 implements local Site management views for
 list, detail, create, ordinary edit, lifecycle and separate criticality change.
 It uses the shared authenticated client and user/context-scoped query keys;
-the backend remains authoritative for every authorization decision. Capabilities
-and DEV bootstrap remain unimplemented; contractor-positive authorization is
-not supported. SITE-UI-01 awaits independent review before push.
+Region assignments are revalidated against active options in the current
+context, and mutation callbacks cannot write after their starting session
+generation ends. The backend remains authoritative for every authorization
+decision. Capabilities and DEV bootstrap remain unimplemented;
+contractor-positive authorization is not supported. SITE-UI-01 awaits
+independent review before push.
 
 ## PUBLIC CONTRACTS
 

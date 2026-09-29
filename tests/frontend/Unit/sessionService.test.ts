@@ -130,6 +130,30 @@ describe("canonical session", () => {
         expect(client.getQueryData(["sites", "user-1", context.id, "references"])).toBeUndefined();
     });
 
+    it("rejects a delayed mutation from a prior session after the same user and context sign in again", async () => {
+        const { service, client } = fixture();
+        await service.bootstrap(false);
+        await service.selectContext(context.id);
+        const generation = service.getSessionGeneration();
+
+        let resolveMutation!: (value: string) => void;
+        const delayedMutation = new Promise<string>((resolve) => { resolveMutation = resolve; }).then((value) => {
+            if (service.isCurrentSession(generation, user.userId, context.id)) {
+                client.setQueryData(["sites", user.userId, context.id, "detail", "site-1"], value);
+            }
+        });
+
+        await service.onUnauthorized();
+        await service.bootstrap(false);
+        await service.selectContext(context.id);
+        expect(service.getState()).toMatchObject({ status: "authenticated", user, contextId: context.id });
+        expect(service.getSessionGeneration()).not.toBe(generation);
+
+        resolveMutation("pre-logout-site-response");
+        await delayedMutation;
+        expect(client.getQueryData(["sites", user.userId, context.id, "detail", "site-1"])).toBeUndefined();
+    });
+
     it("renews an expired access token and redirects to logout", async () => {
         const { service, gateway } = fixture();
         vi.mocked(gateway.getSession).mockResolvedValue({ accessToken: "old", expired: true });

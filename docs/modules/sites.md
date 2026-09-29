@@ -206,8 +206,11 @@ API and resolves Region, SiteType and criticality labels from backend data.
 Create and ordinary edit use separate field sets; lifecycle and criticality
 are separate commands. Catalogs and Site data are scoped in the shared query
 cache by user and working context. The frontend does not decide authorization;
-403 remains a neutral unavailable response. This UI has local verification
-only pending independent review and is not a hosted publication claim.
+Region selection is checked against the active Region options loaded for the
+current context. Mutation callbacks are bound to the session generation that
+started the request. The frontend does not decide authorization; 403 remains a
+neutral unavailable response. This UI has local verification only pending
+independent review and is not a hosted publication claim.
 
 ADR-014, as refined by ADR-017 under ADR-015/016, freezes Site target
 authorization. Zone scope covers descendant Sites, Region scope covers Sites

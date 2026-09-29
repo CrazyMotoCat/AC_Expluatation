@@ -23,14 +23,17 @@ export function SiteDetailPage() {
     const criticalitiesQuery = useQuery({ queryKey: keys.criticalities, queryFn: ({ signal }) => siteApi.criticalities(signal) });
     const site = detailQuery.data;
 
-    function sessionStillMatches() {
+    function captureSession() {
         const current = service.getState();
-        return current.status === "authenticated" && current.user?.userId === (state.user?.userId ?? null)
-            && current.contextId === state.contextId;
+        return { generation: service.getSessionGeneration(), userId: current.user?.userId ?? null, contextId: current.contextId };
     }
 
-    async function refresh(saved?: Site) {
-        if (!sessionStillMatches()) return;
+    function sessionStillMatches(expected: ReturnType<typeof captureSession> | undefined) {
+        return expected !== undefined && service.isCurrentSession(expected.generation, expected.userId, expected.contextId);
+    }
+
+    async function refresh(expected: ReturnType<typeof captureSession> | undefined, saved?: Site) {
+        if (!sessionStillMatches(expected)) return;
         if (saved) queryClient.setQueryData(keys.detail(siteId), saved);
         await Promise.all([
             queryClient.invalidateQueries({ queryKey: keys.detail(siteId) }),
@@ -40,16 +43,17 @@ export function SiteDetailPage() {
 
     function mutationOptions(successMessage: string) {
         return {
-            onSuccess: async (saved: Site) => {
-                if (!sessionStillMatches()) return;
-                setOperationError(""); setOperationSuccess(successMessage); await refresh(saved);
+            onMutate: captureSession,
+            onSuccess: async (saved: Site, _variables: unknown, expected: ReturnType<typeof captureSession> | undefined) => {
+                if (!sessionStillMatches(expected)) return;
+                setOperationError(""); setOperationSuccess(successMessage); await refresh(expected, saved);
             },
-            onError: async (error: unknown) => {
-                if (!sessionStillMatches()) return;
+            onError: async (error: unknown, _variables: unknown, expected: ReturnType<typeof captureSession> | undefined) => {
+                if (!sessionStillMatches(expected)) return;
                 setOperationError(siteErrorMessage(error, "Операция недоступна."));
                 setOperationSuccess("");
                 const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
-                if (code === "OPTIMISTIC_CONCURRENCY_CONFLICT") await refresh();
+                if (code === "OPTIMISTIC_CONCURRENCY_CONFLICT") await refresh(expected);
             },
             onSettled: () => { submitLock.current = false; },
         };
@@ -62,9 +66,9 @@ export function SiteDetailPage() {
         mutationFn: (id: string) => site ? siteApi.changeCriticality(siteId, { criticalityClassId: id, expectedRowVersion: site.rowVersion })
             : Promise.reject(new Error("Site unavailable")),
         ...mutationOptions("Критичность объекта обновлена."),
-        onSuccess: async (saved) => {
-            if (!sessionStillMatches()) return;
-            setOperationError(""); setOperationSuccess("Критичность объекта обновлена."); setChangingCriticality(false); await refresh(saved);
+        onSuccess: async (saved, _id: string, expected: ReturnType<typeof captureSession> | undefined) => {
+            if (!sessionStillMatches(expected)) return;
+            setOperationError(""); setOperationSuccess("Критичность объекта обновлена."); setChangingCriticality(false); await refresh(expected, saved);
         },
     });
 
@@ -118,7 +122,10 @@ export function SiteDetailPage() {
                 </option>)}
             </select></label>
             <div className={styles.formActions}><button type="button" disabled={!criticalityId || criticalityId === site.criticalityClassId || criticalityMutation.isPending || lifecycleMutation.isPending}
-                onClick={() => { if (submitLock.current) return; submitLock.current = true; criticalityMutation.mutate(criticalityId); }}>Сохранить</button>
+                onClick={() => {
+                    if (submitLock.current) return;
+                    submitLock.current = true; criticalityMutation.mutate(criticalityId);
+                }}>Сохранить</button>
                 <button type="button" className={styles.secondaryButton} onClick={() => setChangingCriticality(false)}>Отмена</button></div>
         </section></div>}
     </section>;

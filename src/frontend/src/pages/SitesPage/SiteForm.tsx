@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../../app/providers/sessionContext";
 import {
-    activeReferences, siteApi, siteErrorMessage, siteQueryKeys,
+    activeReferences, isActiveRegionSelection, siteApi, siteErrorMessage, siteQueryKeys,
     type CreateSiteRequest, type Site, type UpdateSiteRequest,
 } from "../../entities/sites/api";
 import styles from "./SitesPage.module.css";
@@ -17,7 +17,7 @@ interface SiteFormProps {
 }
 
 export function SiteForm({ site, onCancel, onSaved }: SiteFormProps) {
-    const { state } = useSession();
+    const { service, state } = useSession();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const keys = siteQueryKeys(state.user?.userId ?? null, state.contextId);
@@ -34,6 +34,15 @@ export function SiteForm({ site, onCancel, onSaved }: SiteFormProps) {
     const [showConflictReview, setShowConflictReview] = useState(false);
     const submitLock = useRef(false);
 
+    function captureSession() {
+        const current = service.getState();
+        return { generation: service.getSessionGeneration(), userId: current.user?.userId ?? null, contextId: current.contextId };
+    }
+
+    function sessionStillMatches(expected: ReturnType<typeof captureSession> | undefined) {
+        return expected !== undefined && service.isCurrentSession(expected.generation, expected.userId, expected.contextId);
+    }
+
     const regionsQuery = useQuery({ queryKey: keys.regions, queryFn: ({ signal }) => siteApi.regions(signal) });
     const typesQuery = useQuery({ queryKey: keys.siteTypes, queryFn: ({ signal }) => siteApi.siteTypes(signal) });
     const criticalitiesQuery = useQuery({ queryKey: keys.criticalities, queryFn: ({ signal }) => siteApi.criticalities(signal) });
@@ -47,13 +56,18 @@ export function SiteForm({ site, onCancel, onSaved }: SiteFormProps) {
         mutationFn: (request: CreateSiteRequest | UpdateSiteRequest) => creating
             ? siteApi.create(request as CreateSiteRequest)
             : siteApi.update(site.id, request as UpdateSiteRequest),
-        onSuccess: async (saved) => {
+        onMutate: captureSession,
+        onSuccess: async (saved, _request, expected: ReturnType<typeof captureSession> | undefined) => {
+            if (!sessionStillMatches(expected)) return;
             await queryClient.invalidateQueries({ queryKey: keys.lists });
+            if (!sessionStillMatches(expected)) return;
             await queryClient.invalidateQueries({ queryKey: ["sites", ...keys.sessionContext, "detail", saved.id] });
+            if (!sessionStillMatches(expected)) return;
             if (creating) navigate(`/sites/${saved.id}`);
             else onSaved?.(saved);
         },
-        onError: async (error) => {
+        onError: async (error, _request, expected: ReturnType<typeof captureSession> | undefined) => {
+            if (!sessionStillMatches(expected)) return;
             const message = siteErrorMessage(error, "Не удалось сохранить объект.");
             setFormError(message);
             const codeValue = typeof error === "object" && error !== null && "code" in error ? String(error.code) : "";
@@ -85,6 +99,11 @@ export function SiteForm({ site, onCancel, onSaved }: SiteFormProps) {
         }
         if (!siteTypeId || (creating && (!regionId || !criticalityClassId))) {
             setFormError("Выберите регион, тип объекта и класс критичности.");
+            return;
+        }
+        if (creating && !isActiveRegionSelection(regionsQuery.data ?? [], regionId)) {
+            setRegionId("");
+            setFormError("Выберите активный регион из текущего рабочего контекста.");
             return;
         }
         submitLock.current = true;

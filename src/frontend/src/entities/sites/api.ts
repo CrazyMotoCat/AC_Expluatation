@@ -170,3 +170,7 @@ export function siteReferenceLabel(items: SiteReference[], id: string) {
 export function activeReferences(items: SiteReference[], currentId?: string) {
     return items.filter((item) => item.status === "ACTIVE" || item.id === currentId);
 }
+
+export function isActiveRegionSelection(regions: Region[], selectedId: string) {
+    return regions.some((region) => region.id === selectedId && region.status === "ACTIVE");
+}

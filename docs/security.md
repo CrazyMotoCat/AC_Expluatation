@@ -201,6 +201,11 @@ Local profile provisioning выполняется поверх validated princip
 - token audience validation;
 - issuer validation.
 
+Protected frontend query data is cancelled and cleared when a session ends.
+Site management mutation callbacks are bound to the session generation that
+started them, so a delayed response from an older login cannot repopulate Site
+data after the same user signs in again.
+
 ---
 
 # 9. Authorization model

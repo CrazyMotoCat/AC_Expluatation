@@ -1,5 +1,5 @@
 import {
-    activeReferences, changeSiteFilter, siteApi, siteErrorMessage, siteQueryKeys, siteReferenceLabel,
+    activeReferences, changeSiteFilter, isActiveRegionSelection, siteApi, siteErrorMessage, siteQueryKeys, siteReferenceLabel,
     type SiteFilters,
 } from "../../../src/frontend/src/entities/sites/api";
 import { apiClient } from "../../../src/frontend/src/shared/api/client";
@@ -79,6 +79,16 @@ describe("Site API and protected query contracts", () => {
         expect(siteReferenceLabel(references, "inactive")).toBe("Исторический тип");
         expect(activeReferences(references).map((item) => item.id)).toEqual(["active"]);
         expect(activeReferences(references, "inactive").map((item) => item.id)).toEqual(["active", "inactive"]);
+    });
+
+    it("requires a selected Region to be active in the current context data", () => {
+        const regions = [
+            { id: "active", code: "A", name: "Текущий регион", status: "ACTIVE" as const },
+            { id: "inactive", code: "I", name: "Неактивный регион", status: "INACTIVE" as const },
+        ];
+        expect(isActiveRegionSelection(regions, "active")).toBe(true);
+        expect(isActiveRegionSelection(regions, "inactive")).toBe(false);
+        expect(isActiveRegionSelection(regions, "region-from-old-context")).toBe(false);
     });
 
     it("maps concealment and conflict errors to safe UX without exposing API messages", () => {

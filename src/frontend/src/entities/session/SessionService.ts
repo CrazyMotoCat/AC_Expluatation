@@ -38,6 +38,13 @@ export class SessionService implements ApiAuth {
     ) {}
 
     public getState = () => this.state;
+    public getSessionGeneration = () => this.generation;
+    public isCurrentSession(generation: number, userId: string | null, contextId: string | null) {
+        return this.generation === generation
+            && this.state.status === "authenticated"
+            && this.state.user?.userId === userId
+            && this.contextId === contextId;
+    }
     public subscribe = (listener: () => void) => {
         this.listeners.add(listener);
         return () => { this.listeners.delete(listener); };
