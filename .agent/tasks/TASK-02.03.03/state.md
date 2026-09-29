@@ -892,14 +892,14 @@ schema/migrations, contractor-positive access, capabilities, reference CRUD, pus
 
 TASK: TASK-02.03.03
 PHASE: SITE-REF-AUTH-01R — FINAL SECURITY REVIEW + MAIN INTEGRATION
-STATUS: INTEGRATED / READY_FOR_NORMAL_PUSH
+STATUS: SITE_REF_AUTH_01_PUBLISHED
 CHECKPOINT_STATUS: SAFE
 BASELINE_SHA: e099be23554c34b9d668b5297437a5f54af9d8d5
 SOURCE_COMMIT: 563ab4d2f83a8213b7da793e50496db077a48f08
 REMEDIATION_COMMITS: NONE
 FINAL_REF_AUTH_SHA: 563ab4d2f83a8213b7da793e50496db077a48f08
-FINAL_MAIN_SHA: resolve after this status-only checkpoint commit
-LAST_SAFE_COMMIT: current main commit containing this checkpoint; resolve Git HEAD
+FINAL_MAIN_SHA: this final metadata commit; resolve main with Git
+LAST_SAFE_COMMIT: this final metadata commit; resolve Git HEAD
 INTEGRATION_METHOD: fast-forward only
 COMPLETED: independent final source review; exact candidate diff review; fast-forward;
 post-integration verification on main; publication checkpoint and documentation sync.
@@ -946,10 +946,14 @@ SITE_B1: PUBLISHED
 SITE_AUTH_01: PUBLISHED
 SITE_API_01: PUBLISHED
 FRONTEND: NOT_IMPLEMENTED
-PUSH: pending normal push after final fetch and ancestor verification
-HOSTED_CI: pending direct verification for exact pushed final main SHA; no PASS claimed here
+PUSHED: YES, normal push
+REMOTE_SHA: this final metadata commit after push; resolve origin/main with Git
+HOSTED_CI_VERIFIED_SHA: 61d3774fe5a64b7663ee2ae8abafdd74a7b09dda
+HOSTED_CI_RUN: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36519320502
+FINAL_METADATA_CI: verify exact SHA of this checkpoint commit after its normal push
 SITE_UI_BRANCH: unchanged; preserved dirty contract-gap checkpoint remains in its original worktree
-NEXT_ACTION: after normal push and exact-SHA hosted CI PASS, resume SITE-UI-01 from the clean published baseline.
+NEXT_ACTION: verify exact-SHA hosted CI for this final metadata commit; then stop this phase.
+NEXT_PRODUCT_ACTION: resume SITE-UI-01 from the clean published baseline in its preserved branch.
 STOP: do not resume SITE-UI-01 in this phase.
 DO_NOT_REPEAT: no frontend work, schema/migration, permission or geography semantic changes,
 grant-source change, capabilities, DEV bootstrap, force push, squash or merge commit.
