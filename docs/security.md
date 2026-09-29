@@ -280,8 +280,8 @@ criticality command — `sites.change_criticality` без дополнитель
 Published AUTH-SCOPE supports exact Zone/Region scopes and target-aware
 Zone/Region routes. SITE-AUTH-01 publishes exact Site scope and
 Sites-owned Site target/list coverage after independent SITE-AUTH-01R review,
-without Site HTTP routes in that publication. SITE-API-01 now implements
-Site HTTP routes locally over the published safe composition. The B1
+without Site HTTP routes in that publication. SITE-API-01 now publishes
+Site HTTP routes over the safe composition after SITE-API-01R review. The B1
 domain/persistence foundation is published on main.
 Contractors remain fail-closed.
 
@@ -294,12 +294,12 @@ pagination. Пустой scope set даёт пустую страницу. От�
 возвращают одинаковый `403 GEOGRAPHY_ACCESS_DENIED`; `401` остаётся для
 authentication. Denied mutations не меняют Site, row_version и audit
 obligation. Site authorization foundation опубликован после независимого
-SITE-AUTH-01R review; SITE-API-01 HTTP routes реализованы локально и проверены
+SITE-AUTH-01R review; SITE-API-01 HTTP routes опубликованы после SITE-API-01R и проверены
 PostgreSQL HTTP harness, включая real Identity provider. List получает
 фиксированные sites.read scopes только через authorized service; direct
 routes вызывают Sites-owned проверки до Application mutation handlers.
-Criticality требует только sites.change_criticality. Publication требует
-отдельного security/integration review. Site frontend/capabilities/DEV bootstrap
+Criticality требует только sites.change_criticality. Независимый security/integration
+review и post-integration gates пройдены. Site frontend/capabilities/DEV bootstrap
 не реализованы; contractor-positive access не поддерживается.
 
 Успешный `POST /api/v1/me/context` возможен только после durable Audit-owned `WorkingContextSelected` по context ID из body; заголовок на этом POST игнорируется. На остальных `/api/v1` запросах валидный `X-Work-Context-Id` означает request-scoped применение context и требует durable `WorkingContextApplied` до endpoint, даже без предшествующего POST. Отказ в validation или сбой Audit не позволяет endpoint выполниться. Audit-событие не является authorization state. Identity grant/state не мутирует, поэтому cross-module transaction не требуется.

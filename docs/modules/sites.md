@@ -125,7 +125,7 @@ must define audit actions using the established durable Sites obligation.
 - sites.change_criticality
 
 The criticality catalog read uses `sites.read`; `sites.change_criticality`
-concerns future Site changes, not reference catalog management.
+concerns Site changes, not reference catalog management.
 
 ## Site CRUD — TASK-02.03.03 contract and Phase B1 foundation
 
@@ -135,8 +135,8 @@ migration, and internal atomic command persistence. SITE-AUTH-01
 implements exact Identity Site scope, Sites authoritative Site target/create
 coverage and a SQL-filtered paginated Site list. PostgreSQL and architecture
 checks and independent SITE-AUTH-01R review pass; the foundation is published.
-SITE-API-01 implements the seven Site HTTP routes locally; publication awaits
-separate security/integration review. Published Zone/Region routes are unchanged.
+SITE-API-01 publishes the seven Site HTTP routes after independent
+SITE-API-01R security/integration review. Published Zone/Region routes are unchanged.
 Site is the Sites-owned child of exactly one
 Region. Site ID is UUIDv7. Required code is trimmed, invariant-uppercase,
 globally unique, immutable, at most 50 characters and matches
@@ -165,7 +165,7 @@ changes only name, SiteType, address and timezone. Every mutable command
 requires `expectedRowVersion`; stale writes return
 `409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
 
-The locally implemented Site API uses `GET /api/v1/sites` (paginated),
+The published Site API uses `GET /api/v1/sites` (paginated),
 `GET /api/v1/sites/{siteId}`, `POST /api/v1/sites`,
 `PUT /api/v1/sites/{siteId}`, explicit `activate`/`deactivate` POST commands
 and `PUT /api/v1/sites/{siteId}/criticality`. List filters are `regionId`,

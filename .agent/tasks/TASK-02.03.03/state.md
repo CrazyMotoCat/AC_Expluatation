@@ -747,3 +747,53 @@ still equals exact BASELINE_SHA.
 DO_NOT_REPEAT: no frontend/capabilities/DEV bootstrap/contractor-positive work,
 schema/migration/ADR contract or Zone/Region semantics change, amend/squash/cherry-pick,
 merge commit/force push; do not start another product phase after publication.
+
+## SITE-API-01R publication checkpoint
+
+TASK: TASK-02.03.03
+PHASE: SITE-API-01R — FINAL ADVERSARIAL REVIEW + MAIN INTEGRATION
+STATUS: SITE_API_PUBLISHED_ON_LOCAL_MAIN / PUSH_AND_HOSTED_CI_PENDING
+CHECKPOINT_STATUS: SAFE
+BRANCH: main
+BASELINE_SHA: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
+SOURCE_SITE_API_COMMIT: b4b5dbce2dbd1c344d1caf643c981f31b663f233
+REMEDIATION_COMMIT: d2714658ffbe2c6c6f7d5ed2357a89032eabf079
+FINAL_SITE_API_SHA: d2714658ffbe2c6c6f7d5ed2357a89032eabf079
+LAST_SAFE_COMMIT: d2714658ffbe2c6c6f7d5ed2357a89032eabf079
+FINAL_MAIN_SHA: publication-status commit containing this checkpoint; resolve git rev-parse HEAD
+SITE_B1: PUBLISHED
+SITE_AUTH_00: CONTRACT_FROZEN
+SITE_AUTH_01: PUBLISHED
+SITE_API_01: PUBLISHED on local main by fast-forward
+SITE_ROUTES: PUBLISHED — exactly seven authenticated operations
+SITE_DELETE: ABSENT
+COMPLETED: independent adversarial review; separate tests-only proof remediation;
+main fast-forward; all required post-integration gates; publication documentation sync.
+VERIFIED: on main full Release build zero warnings/errors; dotnet test exit 0;
+all 11 explicit executable harnesses PASS, including real-provider HTTP matrix,
+Site IDOR/403 concealment/criticality-only/denied persisted effects/concurrency/audit,
+SITE-F1/SITE-F2/original F1/F2/C1, B1 Region races, OIDC and working contexts;
+Site/Identity model drift NONE; changed-C# formatting/diff/Markdown/secret hygiene PASS.
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+NOTES: one nonblocking brittle source-text assertion robustness note
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — publication status synchronized; accepted contracts unchanged
+UNCOMMITTED: narrow publication docs/review report/this checkpoint only; clean after commit
+DECISIONS: source preserved; bounded tests-only remediation; fast-forward only; normal push
+BLOCKERS: NONE
+PENDING: final publication docs commit, normal push, exact-final-SHA hosted CI
+HOSTED_CI: NOT_YET_VERIFIED_AT_CHECKPOINT
+FILES_CHANGED: architecture/API/backlog/security/Sites module/capsule/ADR index and
+non-normative ADR-017 implementation status, review report and state only
+FRONTEND: NOT_IMPLEMENTED
+CAPABILITIES: NOT_IMPLEMENTED
+DEV_BOOTSTRAP: NOT_IMPLEMENTED
+CONTRACTOR_POSITIVE: NOT_SUPPORTED
+NEXT_ACTION: fetch/verify expected remote ancestor and push main normally; verify
+exact final SHA backend/frontend/required hosted checks, then STOP. Plan Site frontend /
+next TASK-02.03.03 product phase only after publication is fully verified.
+DO_NOT_REPEAT: no frontend, capabilities, DEV bootstrap, contractor-positive access,
+new backend feature, schema/migration or accepted ADR rewrite; no force push.

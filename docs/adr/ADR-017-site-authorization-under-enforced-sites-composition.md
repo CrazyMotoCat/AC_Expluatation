@@ -160,3 +160,14 @@ post-integration regression checks pass, including real-provider list and
 create-parent composition. Site HTTP API is still not implemented. The
 historical contract-only statements and the decision above are unchanged;
 this dated implementation status supersedes their former runtime status.
+
+## Implementation status (2026-09-29; non-normative, updated by SITE-API-01R)
+
+The seven Site HTTP routes are published on main after independent final
+adversarial review, tests-only real-provider coverage remediation, fast-forward
+integration and post-integration PostgreSQL/security/architecture gates. The
+frozen decision above is unchanged. Site direct/create-parent concealment,
+criticality-only permission, denied mutation side effects and authorized list
+count/filter/pagination are verified through production HTTP. No schema,
+migration, frontend, capabilities, DEV bootstrap or contractor-positive grants
+are introduced. This status supersedes earlier historical HTTP runtime status.

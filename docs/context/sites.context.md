@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-28 (SITE-API-01 locally verified; SITE-AUTH-01R, C1 and Site B1 published)
+SOURCE_VERSION: 2026-09-29 (SITE-API-01R, SITE-AUTH-01R, C1 and Site B1 published)
 MODULE: Sites
 
 ## PURPOSE
@@ -147,7 +147,7 @@ Territorial Zone API maps permissions exactly: list/get → `sites.read`, rename
 
 Region API uses the same permission keys: list/get → `sites.read`, create → `sites.create`, PUT/activate/deactivate → `sites.change`. Region and parent scope checks must not be inferred from an entity ID, role, UserType, JWT claim or working context. C1 routes call Sites-owned direct coverage and an authorized list service that obtains `sites.read` scopes through Identity and filters in Sites PostgreSQL.
 
-`AUTH-SCOPE-01` Phase A / ADR-013 freezes target-aware geographic authorization; B2-A / ADR-015 freezes the list-scope provider and exact list rules. Zone queries match only Zone scope IDs; Region queries match exact Region IDs or the persisted parent Zone scope IDs. Coverage is downward Zone → Region only; Region does not cover a parent Zone. Empty scopes return no rows. Unsupported kinds add no IDs, duplicates do not multiply rows, and the hierarchy predicate is applied in Sites SQL. Sites loads persisted Zone/Region facts and the Region's DB-owned parent without an ACTIVE filter, then evaluates coverage using Identity effective scopes. C1 integrates Geography routes only. Root Zone creation remains closed; SITE-API-01 Site HTTP routes are implemented locally; capabilities, Development bootstrap and contractor grants remain unimplemented. SITE-AUTH-01 Site scope and coverage are published after independent SITE-AUTH-01R review.
+`AUTH-SCOPE-01` Phase A / ADR-013 freezes target-aware geographic authorization; B2-A / ADR-015 freezes the list-scope provider and exact list rules. Zone queries match only Zone scope IDs; Region queries match exact Region IDs or the persisted parent Zone scope IDs. Coverage is downward Zone → Region only; Region does not cover a parent Zone. Empty scopes return no rows. Unsupported kinds add no IDs, duplicates do not multiply rows, and the hierarchy predicate is applied in Sites SQL. Sites loads persisted Zone/Region facts and the Region's DB-owned parent without an ACTIVE filter, then evaluates coverage using Identity effective scopes. C1 integrates Geography routes only. Root Zone creation remains closed; SITE-API-01 Site HTTP routes are published after SITE-API-01R; capabilities, Development bootstrap and contractor grants remain unimplemented. SITE-AUTH-01 Site scope and coverage are published after independent SITE-AUTH-01R review.
 
 ADR-016 / B2-R1 implements the public boundary after F1 HIGH/F2 MEDIUM review. Sites direct authorization accepts only business Zone/Region IDs, loads authoritative Region parent from Sites persistence, requests effective scopes for the exact permission and evaluates coverage locally. Region creation loads the parent Zone and requires exact `sites.create` Zone coverage. Public `IAuthorizedGeographyReadService` lists request fixed `sites.read` scopes internally; SQL filtering is private in an internal Sites Infrastructure implementation. No public scope-bearing read request/store remains. Identity derives scopes; Sites maps them to targets. C1 enables Zone/Region routes while unrelated routes retain target-blind denial. C1-OD-01 returns uniform 403 for absent and out-of-scope direct targets or Region-create parents; no list scopes yield 200 `[]`.
 
@@ -155,9 +155,9 @@ ADR-016 / B2-R1 implements the public boundary after F1 HIGH/F2 MEDIUM review. S
 Site target has authoritative zone, region and site dimensions. Zone scope
 covers descendant Sites, Region scope covers that Region's Sites, and Site
 scope covers only the exact Site. Zone/Region HTTP authorization is published;
-Site HTTP authorization is implemented locally by SITE-API-01. SITE-AUTH-01 publishes exact
+Site HTTP authorization is published by SITE-API-01 after SITE-API-01R. SITE-AUTH-01 publishes exact
 Identity Site scopes and Sites-owned Site → Region → Zone coverage; Site
-HTTP routes are implemented locally by SITE-API-01, pending separate publication review. Persisted `access_assignments.site_id` already
+HTTP routes are published by SITE-API-01 after independent review. Persisted `access_assignments.site_id` already
 exists, so no schema change or migration was needed. Site list scopes are obtained
 internally for `sites.read` and filtered in Sites SQL before count/page;
 empty scopes return an empty page. Direct Site and create-parent absence is
@@ -166,7 +166,7 @@ missing and out-of-scope targets. Denied commands have no state, version or
 audit-obligation effects.
 Scoped list filtering occurs in the backend; create checks `sites.create`
 over the existing parent Region. Site authorization foundation is published
-after independent SITE-AUTH-01R review; Site HTTP CRUD is implemented locally
+after independent SITE-AUTH-01R review; Site HTTP CRUD is published after SITE-API-01R
 and verified using this foundation and the existing B1 mutation paths.
 The first slice serves INTERNAL users/contexts; contractors fail closed.
 
@@ -181,7 +181,7 @@ commissioning/closure timestamps are included. Creation serializes with
 Region deactivation by locking the Region row. See `modules/sites.md` and
 `api-guidelines.md` for the frozen API contract. Phase B1 domain/persistence
 foundation and Site authorization are published on main; HTTP/API
-is implemented locally/verified. Site frontend, capabilities and DEV bootstrap
+is published after independent SITE-API-01R review. Site frontend, capabilities and DEV bootstrap
 remain unimplemented; contractor-positive authorization is not supported.
 
 ## PUBLIC CONTRACTS

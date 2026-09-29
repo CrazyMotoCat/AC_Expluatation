@@ -4,7 +4,7 @@ TASK: TASK-02.03.03
 PHASE: SITE-API-01R — FINAL ADVERSARIAL REVIEW + MAIN INTEGRATION
 BASELINE_SHA: 229887f9f5a1ac00c1ec6d2ddb0c586e774996d4
 SOURCE_SITE_API_COMMIT: b4b5dbce2dbd1c344d1caf643c981f31b663f233
-STATUS: INDEPENDENT_REVIEW_PASS / PREINTEGRATION_GATES_PASS
+STATUS: INDEPENDENT_REVIEW_PASS / MAIN_INTEGRATED / POSTINTEGRATION_GATES_PASS
 
 ## Independent inspection
 
@@ -159,7 +159,27 @@ CAPABILITIES: NOT_IMPLEMENTED
 DEV_BOOTSTRAP: NOT_IMPLEMENTED
 CONTRACTOR_POSITIVE: NOT_SUPPORTED
 
-Integration, post-integration reruns, publication docs, normal push and exact-final-SHA
-hosted CI remain pending at this preintegration checkpoint. No preceding hosted run
-is evidence for the candidate. Integration is fast-forward only; no amend, squash,
-cherry-pick, merge commit or force push.
+## Integration and publication checkpoint
+
+REMEDIATION_COMMITS: d2714658ffbe2c6c6f7d5ed2357a89032eabf079 (tests/evidence only)
+FINAL_SITE_API_SHA: d2714658ffbe2c6c6f7d5ed2357a89032eabf079
+INTEGRATION_METHOD: FAST_FORWARD_ONLY
+FAST_FORWARD: PASS — remote main refetched and unchanged at exact baseline
+POSTINTEGRATION_RELEASE_BUILD: PASS — zero warnings/errors
+POSTINTEGRATION_DOTNET_TEST: PASS — exit 0, no discovery claim
+POSTINTEGRATION_EXPLICIT_HARNESS_COUNT: 11
+POSTINTEGRATION_EXPLICIT_HARNESSES: all eleven listed above PASS on main;
+includes Site routes/real-provider matrix/IDOR/concealment/criticality/denied
+effects/concurrency/audit/SITE-F1/SITE-F2/F1/F2/C1 and architecture.
+POSTINTEGRATION_MODEL_DRIFT: NONE — Sites and Identity
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS — current publication status in architecture/API/backlog/
+security/Sites module/capsule/ADR index, with dated non-normative ADR-017 status;
+Accepted decision text unchanged. Database model and OpenAPI remain consistent.
+CHECKPOINT_UPDATED: YES
+FINAL_MAIN_SHA: resolve the publication-status commit containing this report
+PUSHED: pending normal push at this checkpoint
+HOSTED_CI: NOT_YET_VERIFIED_AT_CHECKPOINT — exact final SHA must be checked;
+authenticated GitHub Actions access confirmed. Earlier baseline run is not evidence.
+NEXT_ACTION: normal push after final fetch/ancestor check, then verify exact final SHA
+backend/frontend/required checks and STOP; no new product phase.
