@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-29 (SITE-UI-01 locally implemented)
+SOURCE_VERSION: 2026-09-29 (GEO-UI-01 local main candidate, based on 70d78d7)
 MODULE: Sites
 
 ## PURPOSE
@@ -197,15 +197,15 @@ commissioning/closure timestamps are included. Creation serializes with
 Region deactivation by locking the Region row. See `modules/sites.md` and
 `api-guidelines.md` for the frozen API contract. Phase B1 domain/persistence
 foundation, Site authorization and HTTP/API are published on main after their
-independent reviews. SITE-UI-01 implements local Site management views for
+independent reviews. SITE-UI-01 implements published Site management views for
 list, detail, create, ordinary edit, lifecycle and separate criticality change.
 It uses the shared authenticated client and user/context-scoped query keys;
 Region assignments are revalidated against active options in the current
 context, and mutation callbacks cannot write after their starting session
 generation ends. The backend remains authoritative for every authorization
 decision. Capabilities and DEV bootstrap remain unimplemented;
-contractor-positive authorization is not supported. SITE-UI-01 awaits
-independent review before push.
+contractor-positive authorization is not supported. SITE-UI-01 is included in
+the published `70d78d7` baseline after independent security review.
 
 ## PUBLIC CONTRACTS
 
@@ -269,7 +269,27 @@ independent review before push.
 - хранить working hours как случайный JSON внутри Site без модели;
 - давать module прямой write access в `sites` schema.
 
+## GEOGRAPHY READ UI
+
+GEO-UI-01 adds local main list routes `/geography/territorial-zones` and
+`/geography/regions` on the existing shell/session foundation. Lists use the
+published backend-filtered GETs, shared authenticated client and AbortSignal.
+One complete Region DTO/loader and unfiltered user/context key are shared
+with Site selectors; filtered Region keys include the URL territorialZoneId.
+The filter is business input only. Parent labels use the authorized Zone list
+and fall back to `Зона недоступна` without detail probing or blocking Region
+rows on Zone-list failure. No Geography mutations/details or frontend grants.
+Current session generation, selection ordering and protected-query cleanup
+are unchanged. See `src/frontend/GEOGRAPHY.md` for reconciliation history;
+publication follows independent review of the local commit and exact-SHA CI.
+
 ## TOP_TEST_RISKS
+
+- Geography protected query isolation across context switch, late response,
+  logout and a new session; Site-selector unfiltered Region cache compatibility;
+- Region URL filter remains business input, never frontend authorization;
+- exact Region scope may hide its parent Zone: safe fallback, no detail probing,
+  and successful Region rows survive supplementary Zone-list failure;
 
 - location from another site;
 - cyclic location move;

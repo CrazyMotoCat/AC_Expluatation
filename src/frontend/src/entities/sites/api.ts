@@ -1,4 +1,6 @@
 import { apiClient } from "../../shared/api/client";
+import { geographyApi, geographyQueryKeys, type Region } from "../geography/api";
+export type { Region } from "../geography/api";
 
 export interface Site {
     id: string;
@@ -29,13 +31,6 @@ export interface SiteFilters {
     status: string;
     page: number;
     pageSize: number;
-}
-
-export interface Region {
-    id: string;
-    code: string;
-    name: string;
-    status: "ACTIVE" | "INACTIVE";
 }
 
 export interface SiteReference {
@@ -86,42 +81,42 @@ function queryString(filters: SiteFilters) {
 
 export const siteApi = {
     list(filters: SiteFilters, signal?: AbortSignal) {
-        return apiClient.request<SitePage>(`/api/v1/sites?${queryString(filters)}`, { signal });
+        return apiClient.request<SitePage>(`/sites?${queryString(filters)}`, { signal });
     },
     get(siteId: string, signal?: AbortSignal) {
-        return apiClient.request<Site>(`/api/v1/sites/${encodeURIComponent(siteId)}`, { signal });
+        return apiClient.request<Site>(`/sites/${encodeURIComponent(siteId)}`, { signal });
     },
     regions(signal?: AbortSignal) {
-        return apiClient.request<Region[]>("/api/v1/regions", { signal });
+        return geographyApi.regions("", signal);
     },
     siteTypes(signal?: AbortSignal) {
-        return apiClient.request<SiteReference[]>("/api/v1/reference/site-types", { signal });
+        return apiClient.request<SiteReference[]>("/reference/site-types", { signal });
     },
     criticalities(signal?: AbortSignal) {
-        return apiClient.request<SiteReference[]>("/api/v1/reference/site-criticality-classes", { signal });
+        return apiClient.request<SiteReference[]>("/reference/site-criticality-classes", { signal });
     },
     create(request: CreateSiteRequest) {
-        return apiClient.request<Site>("/api/v1/sites", {
+        return apiClient.request<Site>("/sites", {
             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request),
         });
     },
     update(siteId: string, request: UpdateSiteRequest) {
-        return apiClient.request<Site>(`/api/v1/sites/${encodeURIComponent(siteId)}`, {
+        return apiClient.request<Site>(`/sites/${encodeURIComponent(siteId)}`, {
             method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request),
         });
     },
     activate(siteId: string, request: LifecycleRequest) {
-        return apiClient.request<Site>(`/api/v1/sites/${encodeURIComponent(siteId)}/activate`, {
+        return apiClient.request<Site>(`/sites/${encodeURIComponent(siteId)}/activate`, {
             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request),
         });
     },
     deactivate(siteId: string, request: LifecycleRequest) {
-        return apiClient.request<Site>(`/api/v1/sites/${encodeURIComponent(siteId)}/deactivate`, {
+        return apiClient.request<Site>(`/sites/${encodeURIComponent(siteId)}/deactivate`, {
             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request),
         });
     },
     changeCriticality(siteId: string, request: ChangeCriticalityRequest) {
-        return apiClient.request<Site>(`/api/v1/sites/${encodeURIComponent(siteId)}/criticality`, {
+        return apiClient.request<Site>(`/sites/${encodeURIComponent(siteId)}/criticality`, {
             method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request),
         });
     },
@@ -134,7 +129,7 @@ export function siteQueryKeys(userId: string | null, contextId: string | null) {
         lists: ["sites", ...sessionContext, "list"] as const,
         list: (filters: SiteFilters) => ["sites", ...sessionContext, "list", filters] as const,
         detail: (siteId: string) => ["sites", ...sessionContext, "detail", siteId] as const,
-        regions: ["sites", ...sessionContext, "regions"] as const,
+        regions: geographyQueryKeys(userId, contextId).regions(),
         siteTypes: ["sites", ...sessionContext, "site-types"] as const,
         criticalities: ["sites", ...sessionContext, "criticalities"] as const,
     };
@@ -171,6 +166,6 @@ export function activeReferences(items: SiteReference[], currentId?: string) {
     return items.filter((item) => item.status === "ACTIVE" || item.id === currentId);
 }
 
-export function isActiveRegionSelection(regions: Region[], selectedId: string) {
+export function isActiveRegionSelection(regions: Pick<Region, "id" | "status">[], selectedId: string) {
     return regions.some((region) => region.id === selectedId && region.status === "ACTIVE");
 }

@@ -15,7 +15,9 @@ const site: Site = {
     id: "site-1", code: "SITE-1", name: "Узел связи", regionId: "region-1", siteTypeId: "type-inactive",
     criticalityClassId: "criticality-1", address: "ул. Примерная, 1", timezone: "Asia/Vladivostok", status: "ACTIVE", rowVersion: 4,
 };
-const regions: Region[] = [{ id: "region-1", code: "R-1", name: "Приморский регион", status: "ACTIVE" }];
+const regions: Region[] = [{ id: "region-1", code: "R-1", name: "Приморский регион", status: "ACTIVE",
+    territorialZoneId: "zone-1", timezone: "Asia/Vladivostok", createdAt: "2026-09-29T00:00:00Z",
+    updatedAt: "2026-09-29T00:00:00Z", rowVersion: 1 }];
 const types: SiteReference[] = [
     { id: "type-active", code: "A", name: "Подстанция", status: "ACTIVE" },
     { id: "type-inactive", code: "I", name: "Существующий тип", status: "INACTIVE" },

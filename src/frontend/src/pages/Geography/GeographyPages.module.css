@@ -1,0 +1,22 @@
+.page { display: grid; gap: 1.25rem; min-width: 0; }
+.page h1 { margin: 0; color: #173b35; font-size: clamp(1.7rem, 3vw, 2.3rem); }
+.pageHeading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.pageHeading p { margin: .35rem 0 0; color: #5d716d; }
+.eyebrow { margin: 0 0 .3rem !important; color: #277464 !important; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.page button { min-height: 2.55rem; padding: .55rem .9rem; border: 0; border-radius: .45rem; color: white; background: #1f6b5c; font: inherit; font-weight: 650; cursor: pointer; }
+.page button:hover { background: #165347; }
+.page button:disabled { opacity: .55; cursor: not-allowed; }
+.filters { display: flex; flex-wrap: wrap; align-items: end; gap: .9rem; padding: 1rem; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
+.filters label { display: grid; gap: .4rem; min-width: 0; color: #36524c; font-size: .9rem; font-weight: 650; }
+.filters select { width: 100%; max-width: 100%; min-height: 2.5rem; padding: .55rem .65rem; border: 1px solid #afc2bd; border-radius: .4rem; color: #17211f; background: white; font: inherit; }
+.tableWrap { min-width: 0; overflow-x: auto; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
+.table { width: 100%; border-collapse: collapse; text-align: left; }
+.table th, .table td { padding: .8rem .75rem; border-bottom: 1px solid #e2e9e6; vertical-align: top; }
+.table th { color: #36524c; background: #f6f9f8; font-size: .82rem; white-space: nowrap; }
+.activeStatus, .inactiveStatus { display: inline-block; padding: .2rem .5rem; border-radius: 999px; font-size: .8rem; white-space: nowrap; }
+.activeStatus { color: #195b45; background: #e5f4eb; }
+.inactiveStatus { color: #785b19; background: #fff3d5; }
+.emptyState { margin: 0; padding: 1.25rem; border: 1px solid #d7e0dd; border-radius: .75rem; color: #5d716d; background: white; }
+.error { padding: .85rem 1rem; border: 1px solid #e0aaa5; border-radius: .5rem; color: #842d25; background: #fff0ee; }
+.error p { margin: 0 0 .5rem; }
+@media (max-width: 42rem) { .pageHeading { align-items: flex-start; flex-direction: column; } }

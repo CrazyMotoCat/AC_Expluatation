@@ -209,8 +209,26 @@ cache by user and working context. The frontend does not decide authorization;
 Region selection is checked against the active Region options loaded for the
 current context. Mutation callbacks are bound to the session generation that
 started the request. The frontend does not decide authorization; 403 remains a
-neutral unavailable response. This UI has local verification only pending
-independent review and is not a hosted publication claim.
+neutral unavailable response. Site UI was independently reviewed and is
+included in published baseline `70d78d7`; the new Geography candidate below
+has its own review/publication boundary.
+
+GEO-UI-01 reimplements Geography read/list views on the current frontend at
+`/geography/territorial-zones` and `/geography/regions`. Both use the published
+authorized list APIs through the canonical authenticated client and forward
+query cancellation signals. The Region `territorialZoneId` URL parameter is
+only a backend business list filter. The common complete Region DTO/loader
+and unfiltered user/context query key are shared with Site selectors; filtered
+Region keys are distinct. Parent labels come only from the authorized Zone
+list; absent parents, pending enrichment and Zone-list failures use
+`Зона недоступна` without blocking Region rows or probing Zone details.
+Geography has no detail/mutation/capability UI or frontend access inference.
+Current session cleanup and late-response protections remain unchanged.
+The existing Site API resource paths were narrowly corrected to avoid adding
+`/api/v1` twice; shared client base URL semantics are unchanged. Reconciliation
+history and verification are recorded in
+[`src/frontend/GEOGRAPHY.md`](../../src/frontend/GEOGRAPHY.md). This phase is a
+local main candidate pending independent commit review and publication.
 
 ADR-014, as refined by ADR-017 under ADR-015/016, freezes Site target
 authorization. Zone scope covers descendant Sites, Region scope covers Sites

@@ -43,6 +43,12 @@ export function AppLayout() {
                 <NavLink className={getNavigationClassName} to="/sites">
                     Объекты
                 </NavLink>
+                <NavLink className={getNavigationClassName} to="/geography/territorial-zones">
+                    Территориальные зоны
+                </NavLink>
+                <NavLink className={getNavigationClassName} to="/geography/regions">
+                    Регионы
+                </NavLink>
             </nav>
 
             <main className={styles.content}>

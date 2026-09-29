@@ -22,7 +22,7 @@ describe("Site API and protected query contracts", () => {
         expect(page.totalCount).toBe(52);
         const [path, init] = request.mock.calls[0] ?? [];
         const url = new URL(path ?? "", "https://app.example.test");
-        expect(url.pathname).toBe("/api/v1/sites");
+        expect(url.pathname).toBe("/sites");
         expect(Object.fromEntries(url.searchParams)).toEqual({
             q: "Станция", regionId: "region-1", siteTypeId: "type-1", criticalityClassId: "criticality-1",
             status: "ACTIVE", page: "2", pageSize: "50",
@@ -42,9 +42,9 @@ describe("Site API and protected query contracts", () => {
         await siteApi.changeCriticality("site-1", { criticalityClassId: "c2", expectedRowVersion: 10 });
 
         expect(request.mock.calls.map(([url, init]) => [String(url), init?.method])).toEqual([
-            ["/api/v1/sites", "POST"], ["/api/v1/sites/site-1", "PUT"],
-            ["/api/v1/sites/site-1/activate", "POST"], ["/api/v1/sites/site-1/deactivate", "POST"],
-            ["/api/v1/sites/site-1/criticality", "PUT"],
+            ["/sites", "POST"], ["/sites/site-1", "PUT"],
+            ["/sites/site-1/activate", "POST"], ["/sites/site-1/deactivate", "POST"],
+            ["/sites/site-1/criticality", "PUT"],
         ]);
         expect(JSON.parse(String(request.mock.calls[0]?.[1]?.body))).toEqual({
             regionId: "r", siteTypeId: "t", criticalityClassId: "c", code: "S-1", name: "Станция", address: "Улица", timezone: "Asia/Vladivostok",
