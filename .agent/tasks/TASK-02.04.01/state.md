@@ -86,8 +86,9 @@ ORIGIN_MAIN_SHA: be416b0ae1733a60bde13c1ffcdfebf934e58be5 (after push and fetch)
 
 ## PUBLICATION CHECKPOINT — 2026-09-30
 - Source commit: `2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62`; remediation commits: none.
-- Review checkpoint commits: `8d352665cf6837864b4dc4453dc6d760af5df465`, `be416b0ae1733a60bde13c1ffcdfebf934e58be5`.
+- Review checkpoint commits: `8d352665cf6837864b4dc4453dc6d760af5df465`, `be416b0ae1733a60bde13c1ffcdfebf934e58be5`, `f130eee472a294466428f01a7a402a00b1270183`.
 - Normal push published `main`; GitHub run #38 (`36703209882`) passed for exact SHA `be416b0ae1733a60bde13c1ffcdfebf934e58be5`: Backend build and tests PASS, Frontend build and tests PASS, Verify required checks PASS. Run: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36703209882
+- GitHub run #39 (`36703664765`) passed for exact SHA `f130eee472a294466428f01a7a402a00b1270183`: Backend build and tests PASS, Frontend build and tests PASS, Verify required checks PASS. Run: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36703664765
 - Git remote reported repository relocation to `CrazyMotoCat/AC_Expluatation`; push and Actions verification succeeded at that canonical location.
 - LocationType/catalog: PUBLISHED. LocationType management, Location instances and tree: NOT_IMPLEMENTED. Assets unchanged.
 
@@ -101,5 +102,5 @@ ORIGIN_MAIN_SHA: be416b0ae1733a60bde13c1ffcdfebf934e58be5 (after push and fetch)
 - DOCS_IMPACT: YES. DOCUMENTATION_SYNC: PASS for Sites module/context, backlog, database, reference/permission registries, API and security docs. No new ADR or architecture/deployment/testing-standard change.
 - Hosted CI: NOT_YET_VERIFIED; push is authorized by LOCATION-TYPE-01R after the final origin guard.
 
-NEXT_ACTION: Commit and normally push this final publication checkpoint, then verify backend, frontend and required checks for that exact final main SHA. Stop after PASS; next task is TASK-02.04.02.
+NEXT_ACTION: Verify backend, frontend and required checks for the final status-checkpoint SHA after its normal push. After exact-SHA PASS, STOP; the next task is TASK-02.04.02.
 DO_NOT_REPEAT: Do not reopen accepted OD-01..04, implement TASK-02.04.02 Location instances/tree, touch Assets, create a branch/worktree, or add runtime LocationType mutation routes.
