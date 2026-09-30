@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-30 (TASK-02.03.04)
+SOURCE_VERSION: 2026-09-30 (TASK-02.04.01)
 MODULE: Sites
 
 ## PURPOSE
@@ -56,7 +56,7 @@ Company
 → Location tree
 ```
 
-Location tree может содержать:
+The future Location tree may use the initial type codes:
 
 ```text
 BUILDING
@@ -64,8 +64,33 @@ FLOOR
 ROOM
 RACK
 AREA
-PLATFORM
 ```
+
+`PLATFORM` is only a future example; TASK-02.04.01 does not seed it.
+The actual Location tree remains TASK-02.04.02 scope.
+
+## LOCATION TYPES
+
+OD-LOCATION-TYPE-01..04: Sites owns a global configurable LocationType
+reference with UUIDv7 ID, immutable canonical globally unique code, required
+trimmed name, optional trimmed description, ACTIVE/INACTIVE status and
+required row version. Code matches `^[A-Z][A-Z0-9_]{0,49}$` after trim and
+uppercase. There is no parent type or generic timestamp. The fixed five
+ACTIVE seeds are BUILDING/Здание, FLOOR/Этаж, ROOM/Помещение, RACK/Стойка
+and AREA/Зона; see the reference registry for stable seed IDs.
+Hard delete and identity changes are blocked in Sites PostgreSQL. Inactive
+types remain readable for historical references; future new/changed Location
+assignments require ACTIVE types. No runtime reference management or Location
+instance exists in this slice.
+
+`GET /api/v1/reference/location-types` returns the unfiltered global catalog
+with id/code/name/description/status, ordered by code then ID. Dedicated
+authorization accepts only local user/context IDs and internally checks the
+fixed `sites.read` or `sites.manage_locations` union via effective scopes.
+ACTIVE INTERNAL user, owned valid INTERNAL context and one current supported
+Zone/Region/Site scope are required; contractor/external, wrong context,
+future/expired, unrelated permission and provider failure deny. No Site or
+Location operation permission is implied.
 
 ## SITE TYPES
 

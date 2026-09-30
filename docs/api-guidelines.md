@@ -1285,6 +1285,7 @@ GET /audit/events
 GET /reference/asset-types
 GET /reference/site-types
 GET /reference/site-criticality-classes
+GET /reference/location-types
 GET /reference/units
 ```
 
@@ -1314,6 +1315,17 @@ Authentication failure returns 401; denied catalog access returns 403, never
 Successful catalog arrays, DTO fields, ordering and inactive inclusion are
 unchanged. Catalog access grants no Site operation or geographic visibility;
 no permission implication, geographic filtering or global grant-source change.
+
+`TASK-02.04.01` publishes `GET /api/v1/reference/location-types` as a global
+read-only Sites catalog. It returns an unpaged array of both ACTIVE and
+INACTIVE rows ordered by code ASC then ID ASC; each row contains only `id`,
+`code`, `name`, nullable `description`, `status`. Authentication failure is
+401; catalog eligibility failure is 403 with the canonical error envelope.
+The fixed read permission union is `sites.read` or `sites.manage_locations`
+with a current supported geographic scope for an ACTIVE INTERNAL user in a
+valid owned INTERNAL context. The catalog is not filtered by that scope, and
+read access implies no other operation. No LocationType mutation endpoint is
+included; Location instances/tree remain TASK-02.04.02 scope.
 
 ## TASK-02.03.03 — Site API contract (frozen; SITE-API-01 published)
 

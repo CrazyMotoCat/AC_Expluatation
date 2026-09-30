@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-30 (TASK-02.03.04)
+SOURCE_VERSION: 2026-09-30 (TASK-02.04.01)
 
 ## Purpose
 
@@ -110,6 +110,41 @@ authorization below. It returns `id`, `code`, `name`, `rank`, `description`,
 or geographic filtering. Expected responses are 200, 401 and 403.
 No management route or mutation audit action is in this task; future management
 must define audit actions using the established durable Sites obligation.
+
+## LocationType — TASK-02.04.01
+
+LOCATION-TYPE-01 / OD-LOCATION-TYPE-01..04 publishes a Sites-owned, global
+configurable reference foundation in `sites.location_types`. It has UUIDv7
+`id`, immutable globally unique canonical `code`, required `name`, nullable
+`description`, ACTIVE/INACTIVE `status` and required `row_version`. Code is
+trimmed, invariant-uppercase, at most 50 and matches
+`^[A-Z][A-Z0-9_]{0,49}$`; name is trimmed and at most 200, description trimmed
+and at most 500. No generic timestamps, parent type or Site scope exist.
+The additive `20260930070529_AddLocationTypes` migration seeds exactly
+BUILDING/Здание, FLOOR/Этаж, ROOM/Помещение, RACK/Стойка and AREA/Зона,
+all ACTIVE with stable UUIDv7 IDs. `PLATFORM` is not seeded. Database guards
+enforce the canonical code, unique index, status, positive row version,
+immutable identity and no hard delete.
+
+`GET /api/v1/reference/location-types` returns both ACTIVE and INACTIVE
+types globally, ordered by code then ID, as `id`, `code`, `name`,
+`description`, `status`. Existing future Locations may retain an inactive
+type; TASK-02.04.02 must require ACTIVE type for new/changed assignments.
+Only this read route exists. Runtime management, UI, mutation audit and
+Location instances/tree remain future work. A later management contract must
+use the Sites durable audit obligation and optimistic row version.
+
+LocationType catalog read has its own fixed Sites authorization composition:
+ACTIVE INTERNAL local user, valid owned INTERNAL context and any current
+effective exact TerritorialZone/Region/Site scope for `sites.read` or
+`sites.manage_locations`. One supported non-empty scope opens the full global
+catalog; rows are not geographically filtered. Wrong context, future/expired
+assignment, unrelated permission, contractor/external identity/context,
+unsupported/empty scope and provider failure deny (403); authentication
+failure is 401. The service obtains both permissions internally through
+Identity `IEffectiveScopeProvider`, stopping on success or provider failure.
+Callers supply no permission or scope evidence. Catalog access implies no
+Site visibility, Location management or LocationType mutation right.
 
 ## Permissions
 

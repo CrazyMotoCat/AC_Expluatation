@@ -1381,3 +1381,23 @@ hierarchy evaluator or cross-module DB access. Provider exceptions deny without
 trying fallback permissions; cancellation propagates. Only the two catalog
 GET routes replace legacy wiring. No production grant-source enablement,
 Site/Zone/Region policy change, contractor-positive access, schema or migration.
+
+## LocationType global catalog — TASK-02.04.01 / OD-LOCATION-TYPE-04
+
+`GET /api/v1/reference/location-types` uses a separate Sites authorization
+composition. It requires an ACTIVE INTERNAL local user, a valid owned INTERNAL
+working context and a current effective assignment for either fixed permission
+`sites.read` or `sites.manage_locations` with a non-empty exact
+TerritorialZone, Region or Site scope. Any such scope opens the complete global
+catalog, including INACTIVE labels, without geographic filtering. This does
+not grant Site read/change, Location management or LocationType mutation.
+
+The public service accepts only authenticated local user ID and working
+context ID. It requests the fixed two permissions internally via Identity
+`IEffectiveScopeProvider`, stopping on the first supported scope. No caller
+permission, scope list or geographic ID is authorization evidence. Empty or
+unsupported scopes, unrelated permissions, wrong context, future/expired
+assignment, contractor/external user/context and provider failure deny (403);
+unauthenticated requests return 401. Provider failure denies without trying
+another permission. SITE-REF-AUTH-01 remains limited to SiteType and
+SiteCriticalityClass with its original four-permission set.

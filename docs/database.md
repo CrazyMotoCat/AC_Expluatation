@@ -908,13 +908,27 @@ ix_locations_site_id_parent_id
 
 ## 7.5. sites.location_types
 
+Sites-owned global configurable reference, introduced by
+`20260930070529_AddLocationTypes` with five fixed UUIDv7 seeds.
+
 ```text
-id
-code
-name
+id                 uuid v7 primary key
+code               varchar(50), required, globally unique, immutable
+name               varchar(200), required
+description        varchar(500), nullable
+status             ACTIVE | INACTIVE
+row_version        bigint, required, >= 1
 ```
 
-Примеры:
+`code` is trimmed and invariant-uppercase before persistence and matches
+`^[A-Z][A-Z0-9_]{0,49}$`; a check constraint protects stored canonical form.
+Name is trimmed and non-empty; description is trimmed when present. A trigger
+rejects hard delete and changes to `id` or `code`. The unique index is
+`ux_location_types_code`. No `created_at`, `updated_at`, Site ID or parent type
+column exists in this phase. The row version is a foundation for a later
+management contract; no runtime mutation route is published.
+
+Initial seed, all ACTIVE:
 
 ```text
 BUILDING
@@ -922,8 +936,11 @@ FLOOR
 ROOM
 RACK
 AREA
-PLATFORM
 ```
+
+`PLATFORM` is a possible future reference value, not an accepted seed.
+Existing future Locations may keep an INACTIVE type reference; new/changed
+Location assignments will require ACTIVE types in TASK-02.04.02.
 
 ---
 

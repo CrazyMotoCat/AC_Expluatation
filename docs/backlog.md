@@ -786,6 +786,15 @@ Acceptance Criteria:
 - configurable;
 - BUILDING/FLOOR/ROOM/RACK/AREA supported.
 
+LOCATION-TYPE-01 owner decisions OD-LOCATION-TYPE-01..04 freeze this slice as
+Sites-owned LocationType persistence with exactly five stable ACTIVE seeds and
+a production read-only global catalog at `GET /api/v1/reference/location-types`.
+The catalog uses its own fixed authorization union: `sites.read` or
+`sites.manage_locations` with a current supported geographic scope in an ACTIVE
+INTERNAL user/context. Runtime reference management, Location instances/tree
+(TASK-02.04.02), UI and Assets remain outside this task. See Sites module,
+reference registry, database and security docs for the exact contract.
+
 ---
 
 ### TASK-02.04.02. Location tree

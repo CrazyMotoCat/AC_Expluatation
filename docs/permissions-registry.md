@@ -151,16 +151,19 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `organization.change` | Organization | Изменение, reparent и lifecycle подразделения | company/organizational-unit (deferred) | INTERNAL | SENSITIVE |
 
 For `TASK-02.03.03`, the Sites rows above are existing codes, not new grants.
-Site list/get require `sites.read` plus target coverage; create uses
+Published Site list/get require `sites.read` plus target coverage; create uses
 `sites.create` plus coverage of the existing parent Region. Ordinary Site
 update and lifecycle use `sites.change` on the Site target. The separate
 criticality command uses `sites.change_criticality` on that target without an
-additional `sites.change` requirement. These are frozen future rules, not
-production-enabled Site grants. Published target-aware operations cover
-TerritorialZone and Region only; Site is not a supported effective-scope kind.
-The Site B1 foundation is local to the resume branch. Site HTTP routes and
-positive Site authorization remain unimplemented; contractor access stays
+additional `sites.change` requirement. Published target-aware operations cover
+TerritorialZone, Region and Site; contractor-positive Site authorization stays
 fail-closed.
+
+For `TASK-02.04.01`, an existing `sites.manage_locations` assignment with a
+current supported Zone/Region/Site scope is one of two fixed eligibility paths
+for reading the global LocationType catalog. This adds no management route,
+new permission, Site visibility or implication between permissions. Runtime
+LocationType management requires a separate future contract.
 
 `CONTRACT*` означает: разрешение возможно только при явном contract scope.
 

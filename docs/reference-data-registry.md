@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A contract freeze)
+SOURCE_VERSION: 2026-09-30 (TASK-02.04.01 LocationType owner decisions)
 
 ## 1. Назначение
 
@@ -184,6 +184,36 @@ SITE-REF-AUTH-01 catalog authorization (Sites module contract), returning both s
 actions and mutation permissions are not included. Extensions require an
 explicit future migration/release or separate management task. Phase B
 persistence and migration are implemented; the read API is implemented in Phase C.
+
+## 4.4. Location Types
+
+Owner: Sites. `LocationType` is a global database-backed configurable reference
+in `sites.location_types`, separate from Site-owned Location instances and their
+tree. LOCATION-TYPE-01 seeds exactly these five ACTIVE values with fixed UUIDv7
+IDs; they are an initial set, not a closed enum:
+
+| Code | Name | Fixed UUIDv7 seed ID |
+|---|---|---|
+| BUILDING | Здание | `0199d36e-0000-7002-8000-000000000001` |
+| FLOOR | Этаж | `0199d36e-0000-7002-8000-000000000002` |
+| ROOM | Помещение | `0199d36e-0000-7002-8000-000000000003` |
+| RACK | Стойка | `0199d36e-0000-7002-8000-000000000004` |
+| AREA | Зона | `0199d36e-0000-7002-8000-000000000005` |
+
+`PLATFORM` is not seeded. ID is UUIDv7. Code is required, trimmed, uppercase,
+immutable, globally unique, at most 50 characters and matches
+`^[A-Z][A-Z0-9_]{0,49}$`. Name is required, trimmed and at most 200;
+description is optional, trimmed and at most 500. Status is ACTIVE/INACTIVE;
+hard delete is forbidden. A required `row_version` is stored for future
+management concurrency. Generic creation/update timestamps and a parent type
+are not part of this model. Inactive values remain readable for existing
+historical references; future new/changed Location assignments require ACTIVE.
+
+The published slice has only `GET /api/v1/reference/location-types`, returning
+the complete global catalog ordered by code then ID. Runtime create/update,
+activate/deactivate, mutation audit and management permission are deferred to
+a separate contract. Catalog read has the fixed permission union described in
+the Sites module and security docs; it grants no Location or Site operation.
 
 ## 5. Units of Measure
 
