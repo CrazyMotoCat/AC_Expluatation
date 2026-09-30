@@ -6,10 +6,10 @@ CHECKPOINT_STATUS: SAFE
 PHASE: SITE-CARD-UI-01R — independent review and publication passed
 LAST_SAFE_COMMIT: 7c355bb8204f0063eed094d9aea72cb287afab00
 BASELINE_SHA: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
-TASK_COMMIT: this atomic local commit; resolve exact SHA with `git rev-parse HEAD`
+TASK_COMMIT: 54e42238a54c07af6ad8b55358bb7a4eeb36b93d
 COMMIT_PARENT: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
 BRANCH: main
-LOCAL_MAIN_AHEAD_BY: 2 before this publication checkpoint commit
+LOCAL_MAIN_AHEAD_BY: 0 at last verification (`4e6c4ff8ca46db8acc1ead83aba88a23d319309f`)
 
 ## COMPLETED
 - Accepted OD-SITE-CARD-01 / 02 / 03 from the owner: Locations and Asset summary use clearly labeled presentation-only availability placeholders; responsible directions remains a placeholder/read model.
@@ -34,12 +34,15 @@ LOCAL_MAIN_AHEAD_BY: 2 before this publication checkpoint commit
 - Independent frontend focused regressions: PASS, 29 tests; full frontend suite independently re-run: PASS, 71 tests.
 - Independent Release build and architecture, Sites domain, Identity domain, and Authentication harnesses: PASS. Docker check confirms PostgreSQL/Sites API Testcontainers are blocked by unavailable Docker Engine.
 - Exact-SHA hosted CI: PASS for `7c355bb8204f0063eed094d9aea72cb287afab00`; GitHub Actions run #35 (`36675735898`): Backend build and tests PASS, Frontend build and tests PASS (71/71), Verify required checks PASS. Browser QA remains blocked by unconfigured local OIDC.
+- Final status-checkpoint exact-SHA hosted CI: PASS for `4e6c4ff8ca46db8acc1ead83aba88a23d319309f`; GitHub Actions run #36 (`36676129484`): Backend build and tests PASS, Frontend build and tests PASS (71/71), Verify required checks PASS.
 
 ## PUBLICATION
 - Source commit: `54e42238a54c07af6ad8b55358bb7a4eeb36b93d`.
 - Review documentation commit: `7c355bb8204f0063eed094d9aea72cb287afab00`.
+- Publication checkpoint commit: `4e6c4ff8ca46db8acc1ead83aba88a23d319309f`.
 - Both commits are on `origin/main`; the source implementation was not amended. No source remediation was required.
 - `7c355bb8204f0063eed094d9aea72cb287afab00` exact-SHA CI run: `https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36675735898`.
+- `4e6c4ff8ca46db8acc1ead83aba88a23d319309f` exact-SHA CI run: `https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36676129484`.
 
 ## UNCOMMITTED
 - None after this publication checkpoint commit is created and pushed.
@@ -65,5 +68,5 @@ LOCAL_MAIN_AHEAD_BY: 2 before this publication checkpoint commit
 - `src/frontend/src/pages/SitesPage/SitesPage.module.css`
 - `tests/frontend/Unit/sites.test.ts`
 
-NEXT_ACTION: Verify the exact-SHA hosted CI run for this publication checkpoint commit, then STOP. Do not begin TASK-02.04.01 in this session.
+NEXT_ACTION: TASK-02.04.01 is next after this phase; STOP here and do not begin it in this session.
 DO_NOT_REPEAT: Do not repeat ASSET-00 cleanup, contract-gap analysis, owner decision resolution, or completed checks unless a relevant source changes; do not start TASK-02.04.01, TASK-02.04.02, EPIC-03, or backend work.
