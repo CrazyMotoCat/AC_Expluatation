@@ -1,15 +1,15 @@
 # TASK-02.03.04 checkpoint — Site card UI
 
 TASK: TASK-02.03.04
-STATUS: IMPLEMENTED_LOCAL_REVIEW_PENDING
+STATUS: REVIEW_PASS_PUBLICATION_PENDING
 CHECKPOINT_STATUS: SAFE
-PHASE: SITE-CARD-UI-01 — complete; independent review is the next phase
-LAST_SAFE_COMMIT: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
+PHASE: SITE-CARD-UI-01R — independent review passed; publication and exact-SHA hosted CI pending
+LAST_SAFE_COMMIT: 54e42238a54c07af6ad8b55358bb7a4eeb36b93d
 BASELINE_SHA: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
 TASK_COMMIT: this atomic local commit; resolve exact SHA with `git rev-parse HEAD`
 COMMIT_PARENT: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
 BRANCH: main
-LOCAL_MAIN_AHEAD_BY: 1
+LOCAL_MAIN_AHEAD_BY: 2 (after review documentation commit)
 
 ## COMPLETED
 - Accepted OD-SITE-CARD-01 / 02 / 03 from the owner: Locations and Asset summary use clearly labeled presentation-only availability placeholders; responsible directions remains a placeholder/read model.
@@ -30,9 +30,13 @@ LOCAL_MAIN_AHEAD_BY: 1
 - Browser QA attempt reached the local app but was blocked by `OIDC клиент не настроен`; component rendering and responsive CSS received static/source review. No authentication bypass was used.
 - Docker Engine unavailable; PostgreSQL/Testcontainers and Sites API harness were not run. No backend code or contract changed.
 - Documentation impact: YES. Documentation sync: PASS for backlog, architecture, Sites module, and Sites context capsule. Checked API/security/testing docs; no change is required because their contracts and security model are unchanged. ADR: NO.
+- Independent review: PASS. Open Critical/High/Medium findings: 0. The only documentation-scope issue was the task-specific card summary in `architecture.md`; removed it because the decision belongs in backlog and Sites module/context documentation. The architecture note still corrects the stale SITE-UI-01 publication status.
+- Independent frontend focused regressions: PASS, 29 tests; full frontend suite independently re-run: PASS, 71 tests.
+- Independent Release build and architecture, Sites domain, Identity domain, and Authentication harnesses: PASS. Docker check confirms PostgreSQL/Sites API Testcontainers are blocked by unavailable Docker Engine.
+- Hosted CI: NOT_YET_VERIFIED. Browser QA remains blocked by unconfigured local OIDC.
 
 ## UNCOMMITTED
-- None. All task changes are included in the single atomic local commit; no push or branch/worktree creation.
+- None after the inspected review documentation commit is created. No source implementation remediation; push remains pending.
 
 ## DECISIONS
 - OD-SITE-CARD-01 ACCEPTED: Locations placeholder until TASK-02.04.01 / TASK-02.04.02 provide a real read contract.
@@ -55,5 +59,5 @@ LOCAL_MAIN_AHEAD_BY: 1
 - `src/frontend/src/pages/SitesPage/SitesPage.module.css`
 - `tests/frontend/Unit/sites.test.ts`
 
-NEXT_ACTION: Independent read-only review of the TASK-02.03.04 local commit before any push.
+NEXT_ACTION: Re-fetch and confirm origin/main remains 8b76ba08cf173e6fd0e49641e63c49da9705ab25, then normally push main and verify hosted CI for the exact pushed SHA.
 DO_NOT_REPEAT: Do not repeat ASSET-00 cleanup, contract-gap analysis, owner decision resolution, or completed checks unless a relevant source changes; do not start TASK-02.04.01, TASK-02.04.02, EPIC-03, or backend work.
