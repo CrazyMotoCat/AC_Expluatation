@@ -4,7 +4,7 @@ TASK: TASK-02.04.01
 PHASE: LOCATION-TYPE-01R — independent review + publication
 STATUS: REVIEW_PASS_WAITING_PUBLICATION
 CHECKPOINT_STATUS: SAFE
-LAST_SAFE_COMMIT: 2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62
+LAST_SAFE_COMMIT: 8d352665cf6837864b4dc4453dc6d760af5df465
 BASELINE_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9
 BRANCH: main
 ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
@@ -22,7 +22,7 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - Build/tests/model drift were not run because no implementation or migration was started.
 
 ## UNCOMMITTED
-- Only this review-checkpoint update is pending a narrow state-only commit. No implementation remediation is required.
+- None. Source and review checkpoint are committed; no implementation remediation is required.
 
 ## DECISIONS
 - Backlog acceptance criteria: `configurable`; BUILDING/FLOOR/ROOM/RACK/AREA supported. No further task-specific rules are stated.
@@ -94,5 +94,5 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - DOCS_IMPACT: YES. DOCUMENTATION_SYNC: PASS for Sites module/context, backlog, database, reference/permission registries, API and security docs. No new ADR or architecture/deployment/testing-standard change.
 - Hosted CI: NOT_YET_VERIFIED; push is authorized by LOCATION-TYPE-01R after the final origin guard.
 
-NEXT_ACTION: Commit this checkpoint update, fetch and verify `origin/main == f50c646d81d0a088c94cc9bd354536448f4ff4f9`, push `main` normally, then verify hosted CI for the exact final SHA.
+NEXT_ACTION: Fetch and verify `origin/main == f50c646d81d0a088c94cc9bd354536448f4ff4f9`, push `main` normally, then verify hosted CI for the exact final SHA.
 DO_NOT_REPEAT: Do not reopen accepted OD-01..04, implement TASK-02.04.02 Location instances/tree, touch Assets, create a branch/worktree, or add runtime LocationType mutation routes.
