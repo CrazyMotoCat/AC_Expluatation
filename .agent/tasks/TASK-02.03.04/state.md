@@ -1,15 +1,15 @@
 # TASK-02.03.04 checkpoint — Site card UI
 
 TASK: TASK-02.03.04
-STATUS: REVIEW_PASS_PUBLICATION_PENDING
+STATUS: PUBLISHED
 CHECKPOINT_STATUS: SAFE
-PHASE: SITE-CARD-UI-01R — independent review passed; publication and exact-SHA hosted CI pending
-LAST_SAFE_COMMIT: 54e42238a54c07af6ad8b55358bb7a4eeb36b93d
+PHASE: SITE-CARD-UI-01R — independent review and publication passed
+LAST_SAFE_COMMIT: 7c355bb8204f0063eed094d9aea72cb287afab00
 BASELINE_SHA: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
 TASK_COMMIT: this atomic local commit; resolve exact SHA with `git rev-parse HEAD`
 COMMIT_PARENT: 8b76ba08cf173e6fd0e49641e63c49da9705ab25
 BRANCH: main
-LOCAL_MAIN_AHEAD_BY: 2 (after review documentation commit)
+LOCAL_MAIN_AHEAD_BY: 2 before this publication checkpoint commit
 
 ## COMPLETED
 - Accepted OD-SITE-CARD-01 / 02 / 03 from the owner: Locations and Asset summary use clearly labeled presentation-only availability placeholders; responsible directions remains a placeholder/read model.
@@ -33,10 +33,16 @@ LOCAL_MAIN_AHEAD_BY: 2 (after review documentation commit)
 - Independent review: PASS. Open Critical/High/Medium findings: 0. The only documentation-scope issue was the task-specific card summary in `architecture.md`; removed it because the decision belongs in backlog and Sites module/context documentation. The architecture note still corrects the stale SITE-UI-01 publication status.
 - Independent frontend focused regressions: PASS, 29 tests; full frontend suite independently re-run: PASS, 71 tests.
 - Independent Release build and architecture, Sites domain, Identity domain, and Authentication harnesses: PASS. Docker check confirms PostgreSQL/Sites API Testcontainers are blocked by unavailable Docker Engine.
-- Hosted CI: NOT_YET_VERIFIED. Browser QA remains blocked by unconfigured local OIDC.
+- Exact-SHA hosted CI: PASS for `7c355bb8204f0063eed094d9aea72cb287afab00`; GitHub Actions run #35 (`36675735898`): Backend build and tests PASS, Frontend build and tests PASS (71/71), Verify required checks PASS. Browser QA remains blocked by unconfigured local OIDC.
+
+## PUBLICATION
+- Source commit: `54e42238a54c07af6ad8b55358bb7a4eeb36b93d`.
+- Review documentation commit: `7c355bb8204f0063eed094d9aea72cb287afab00`.
+- Both commits are on `origin/main`; the source implementation was not amended. No source remediation was required.
+- `7c355bb8204f0063eed094d9aea72cb287afab00` exact-SHA CI run: `https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36675735898`.
 
 ## UNCOMMITTED
-- None after the inspected review documentation commit is created. No source implementation remediation; push remains pending.
+- None after this publication checkpoint commit is created and pushed.
 
 ## DECISIONS
 - OD-SITE-CARD-01 ACCEPTED: Locations placeholder until TASK-02.04.01 / TASK-02.04.02 provide a real read contract.
@@ -59,5 +65,5 @@ LOCAL_MAIN_AHEAD_BY: 2 (after review documentation commit)
 - `src/frontend/src/pages/SitesPage/SitesPage.module.css`
 - `tests/frontend/Unit/sites.test.ts`
 
-NEXT_ACTION: Re-fetch and confirm origin/main remains 8b76ba08cf173e6fd0e49641e63c49da9705ab25, then normally push main and verify hosted CI for the exact pushed SHA.
+NEXT_ACTION: Verify the exact-SHA hosted CI run for this publication checkpoint commit, then STOP. Do not begin TASK-02.04.01 in this session.
 DO_NOT_REPEAT: Do not repeat ASSET-00 cleanup, contract-gap analysis, owner decision resolution, or completed checks unless a relevant source changes; do not start TASK-02.04.01, TASK-02.04.02, EPIC-03, or backend work.
