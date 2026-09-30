@@ -1,10 +1,10 @@
 # TASK-02.04.01 checkpoint — Location types contract check
 
 TASK: TASK-02.04.01
-PHASE: LOCATION-TYPE-01 — foundation implementation
-STATUS: LOCAL_IMPLEMENTATION_READY
+PHASE: LOCATION-TYPE-01R — independent review + publication
+STATUS: REVIEW_PASS_WAITING_PUBLICATION
 CHECKPOINT_STATUS: SAFE
-LAST_SAFE_COMMIT: f50c646d81d0a088c94cc9bd354536448f4ff4f9
+LAST_SAFE_COMMIT: 2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62
 BASELINE_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9
 BRANCH: main
 ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
@@ -22,7 +22,7 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - Build/tests/model drift were not run because no implementation or migration was started.
 
 ## UNCOMMITTED
-- Task-owned LocationType implementation, migration, tests, documentation and this checkpoint are pending one local commit. No push.
+- Only this review-checkpoint update is pending a narrow state-only commit. No implementation remediation is required.
 
 ## DECISIONS
 - Backlog acceptance criteria: `configurable`; BUILDING/FLOOR/ROOM/RACK/AREA supported. No further task-specific rules are stated.
@@ -72,9 +72,19 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - Added Sites LocationType domain, EF configuration with fixed seeds, a single additive Sites migration, read application/store, dedicated fixed-permission catalog authorization, and GET endpoint/OpenAPI wiring.
 - Added focused domain, PostgreSQL persistence and real Identity/PostgreSQL/HTTP catalog matrix checks. No Location entity/tree, Assets code or mutation route was added.
 - Release solution build: PASS, 0 warnings/errors. EF `has-pending-model-changes`: no drift. Docker Desktop was started; SitesPersistenceChecks: PASS and SitesApiChecks: PASS against PostgreSQL Testcontainers.
-- Current task-owned work is uncommitted. Documentation sync, remaining named harnesses, source security review and final diff checks remain.
+- Implementation, tests and documentation were committed in source commit `2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62`.
 
-## FINAL LOCAL VERIFICATION BEFORE COMMIT
+## INDEPENDENT REVIEW CHECKPOINT — 2026-09-30
+- Repository guard after fetch: clean `main`; source commit is exactly one commit over `f50c646d81d0a088c94cc9bd354536448f4ff4f9`; `origin/main` remains at that baseline; one worktree, no extra branch/worktree.
+- Independent code/contract review: no findings. Confirmed Sites ownership; accepted fields/code normalization; five fixed active UUIDv7 seeds with no PLATFORM; no type hierarchy, Location entity/tree, Assets change, mutation endpoint, or runtime audit event.
+- Authorization review: fixed internal permission union `sites.read` / `sites.manage_locations`; provider resolves current eligibility; exact supported non-empty Zone/Region/Site scope; no caller-supplied authority; global unfiltered catalog; errors fail closed. Real PostgreSQL/Identity/HTTP matrix confirms all six allowed combinations and required denied cases.
+- Migration review: additive Sites-owned migration, global unique code index, canonical code/status/UUIDv7/row-version constraints, immutable ID/code and hard-delete protection. PostgreSQL persistence checks PASS.
+- DOCS_IMPACT: YES. DOCUMENTATION_SYNC: PASS; candidate documentation agrees with owner decisions and defers Location management to TASK-02.04.02.
+- Re-run checks: Release build PASS (0 warnings/errors); `dotnet test` exit 0 (no discovered test cases); Identity/Sites domain, Architecture, Authentication, Identity/Audit/Sites PostgreSQL, Sites API, Audit delivery and Organization persistence/API harnesses PASS; infrastructure checks PASS; EF model drift PASS; changed C# formatting, `git diff --check`, and secret scan PASS.
+- Security findings: CRITICAL/HIGH/MEDIUM/LOW = 0/0/0/0. Review decision: PASS; no remediation commit required.
+- Local source commit remains `2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62`; no push yet. Hosted CI is pending exact final SHA.
+
+## FINAL LOCAL VERIFICATION BEFORE PUBLICATION
 - Release solution build: PASS, 0 warnings/errors. `dotnet test`: exit 0 with no discovered cases; executable harnesses were run explicitly.
 - SitesDomainChecks, SitesPersistenceChecks and SitesApiChecks: PASS, including PostgreSQL seeds/constraints, inactive read, six positive catalog grants, denied contexts/assignments/contractor, caller query injection, permission isolation and OpenAPI.
 - IdentityDomainChecks, AuthenticationChecks, IdentityPersistenceChecks, AuditPersistenceChecks, AuditDeliveryChecks, OrganizationPersistenceChecks and OrganizationApiChecks: PASS.
@@ -82,7 +92,7 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - EF `has-pending-model-changes`: no drift. Changed-file `dotnet format whitespace --verify-no-changes`: PASS. `git diff --check`: PASS. Changed-file secret scan: PASS.
 - Source security review: no caller-selected permission/scope, Identity/Assets DB access, mutation route, type hierarchy or Location instance. Open CRITICAL/HIGH/MEDIUM/LOW: 0/0/0/0. Catalog read does not imply Site or Location mutation rights.
 - DOCS_IMPACT: YES. DOCUMENTATION_SYNC: PASS for Sites module/context, backlog, database, reference/permission registries, API and security docs. No new ADR or architecture/deployment/testing-standard change.
-- Hosted CI for the future local commit: UNVERIFIED; no push authorized.
+- Hosted CI: NOT_YET_VERIFIED; push is authorized by LOCATION-TYPE-01R after the final origin guard.
 
-NEXT_ACTION: Independently review the single local TASK-02.04.01 commit before any push.
-DO_NOT_REPEAT: Do not reopen accepted OD-01..04, implement TASK-02.04.02 Location instances/tree, touch Assets, create a branch/worktree, add runtime LocationType mutation routes, or push.
+NEXT_ACTION: Commit this checkpoint update, fetch and verify `origin/main == f50c646d81d0a088c94cc9bd354536448f4ff4f9`, push `main` normally, then verify hosted CI for the exact final SHA.
+DO_NOT_REPEAT: Do not reopen accepted OD-01..04, implement TASK-02.04.02 Location instances/tree, touch Assets, create a branch/worktree, or add runtime LocationType mutation routes.
