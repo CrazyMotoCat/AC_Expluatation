@@ -2,12 +2,12 @@
 
 TASK: TASK-02.04.01
 PHASE: LOCATION-TYPE-01R — independent review + publication
-STATUS: REVIEW_PASS_WAITING_PUBLICATION
+STATUS: PUBLISHED
 CHECKPOINT_STATUS: SAFE
-LAST_SAFE_COMMIT: 8d352665cf6837864b4dc4453dc6d760af5df465
+LAST_SAFE_COMMIT: be416b0ae1733a60bde13c1ffcdfebf934e58be5
 BASELINE_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9
 BRANCH: main
-ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
+ORIGIN_MAIN_SHA: be416b0ae1733a60bde13c1ffcdfebf934e58be5 (after push and fetch)
 
 ## COMPLETED
 - Reconciled clean `main`, HEAD, `origin/main` and the single worktree with the requested baseline before edits.
@@ -22,7 +22,7 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - Build/tests/model drift were not run because no implementation or migration was started.
 
 ## UNCOMMITTED
-- None. Source and review checkpoint are committed; no implementation remediation is required.
+- Only this final publication checkpoint update is pending a narrow state-only commit.
 
 ## DECISIONS
 - Backlog acceptance criteria: `configurable`; BUILDING/FLOOR/ROOM/RACK/AREA supported. No further task-specific rules are stated.
@@ -82,7 +82,14 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - DOCS_IMPACT: YES. DOCUMENTATION_SYNC: PASS; candidate documentation agrees with owner decisions and defers Location management to TASK-02.04.02.
 - Re-run checks: Release build PASS (0 warnings/errors); `dotnet test` exit 0 (no discovered test cases); Identity/Sites domain, Architecture, Authentication, Identity/Audit/Sites PostgreSQL, Sites API, Audit delivery and Organization persistence/API harnesses PASS; infrastructure checks PASS; EF model drift PASS; changed C# formatting, `git diff --check`, and secret scan PASS.
 - Security findings: CRITICAL/HIGH/MEDIUM/LOW = 0/0/0/0. Review decision: PASS; no remediation commit required.
-- Local source commit remains `2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62`; no push yet. Hosted CI is pending exact final SHA.
+- Local source commit remains `2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62`; it and the review checkpoint have been published. Hosted CI run #38 passed on `be416b0ae1733a60bde13c1ffcdfebf934e58be5`.
+
+## PUBLICATION CHECKPOINT — 2026-09-30
+- Source commit: `2f85ad7e27e6d3dc1b0ff128e2ab23c33b207f62`; remediation commits: none.
+- Review checkpoint commits: `8d352665cf6837864b4dc4453dc6d760af5df465`, `be416b0ae1733a60bde13c1ffcdfebf934e58be5`.
+- Normal push published `main`; GitHub run #38 (`36703209882`) passed for exact SHA `be416b0ae1733a60bde13c1ffcdfebf934e58be5`: Backend build and tests PASS, Frontend build and tests PASS, Verify required checks PASS. Run: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/36703209882
+- Git remote reported repository relocation to `CrazyMotoCat/AC_Expluatation`; push and Actions verification succeeded at that canonical location.
+- LocationType/catalog: PUBLISHED. LocationType management, Location instances and tree: NOT_IMPLEMENTED. Assets unchanged.
 
 ## FINAL LOCAL VERIFICATION BEFORE PUBLICATION
 - Release solution build: PASS, 0 warnings/errors. `dotnet test`: exit 0 with no discovered cases; executable harnesses were run explicitly.
@@ -94,5 +101,5 @@ ORIGIN_MAIN_SHA: f50c646d81d0a088c94cc9bd354536448f4ff4f9 (after fetch)
 - DOCS_IMPACT: YES. DOCUMENTATION_SYNC: PASS for Sites module/context, backlog, database, reference/permission registries, API and security docs. No new ADR or architecture/deployment/testing-standard change.
 - Hosted CI: NOT_YET_VERIFIED; push is authorized by LOCATION-TYPE-01R after the final origin guard.
 
-NEXT_ACTION: Fetch and verify `origin/main == f50c646d81d0a088c94cc9bd354536448f4ff4f9`, push `main` normally, then verify hosted CI for the exact final SHA.
+NEXT_ACTION: Commit and normally push this final publication checkpoint, then verify backend, frontend and required checks for that exact final main SHA. Stop after PASS; next task is TASK-02.04.02.
 DO_NOT_REPEAT: Do not reopen accepted OD-01..04, implement TASK-02.04.02 Location instances/tree, touch Assets, create a branch/worktree, or add runtime LocationType mutation routes.
