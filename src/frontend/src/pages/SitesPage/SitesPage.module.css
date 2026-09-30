@@ -29,6 +29,9 @@
 .pagination > div { display: flex; gap: .5rem; }
 .emptyState, .formPanel { padding: 1.25rem; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
 .emptyState p { margin-bottom: 0; color: #5d716d; }
+.cardSections { display: grid; gap: 1rem; min-width: 0; }
+.cardSection { min-width: 0; padding: 1rem; border: 1px solid #d7e0dd; border-radius: .75rem; background: white; }
+.placeholder { margin: 0; padding: .85rem 1rem; border-left: .25rem solid #6b9288; border-radius: .3rem; color: #405b54; background: #f2f7f5; line-height: 1.5; }
 .details { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .8rem; margin: 0; }
 .details div { padding: 1rem; border: 1px solid #d7e0dd; border-radius: .65rem; background: white; }
 .details dt { color: #60736e; font-size: .8rem; }

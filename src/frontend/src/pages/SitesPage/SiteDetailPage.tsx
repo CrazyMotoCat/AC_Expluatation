@@ -106,14 +106,36 @@ export function SiteDetailPage() {
         {operationSuccess && <p className={styles.success} role="status">{operationSuccess}</p>}
         {editing ? <div className={styles.formPanel}><h2>Редактирование объекта</h2>
             <SiteForm site={site} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); setOperationSuccess("Изменения сохранены."); }} />
-        </div> : <dl className={styles.details}>
-            <div><dt>Код</dt><dd>{site.code}</dd></div><div><dt>Название</dt><dd>{site.name}</dd></div>
-            <div><dt>Регион</dt><dd>{regionsQuery.data?.find((region) => region.id === site.regionId)?.name ?? "Регион недоступен"}</dd></div>
-            <div><dt>Тип объекта</dt><dd>{referenceLabel(types, site.siteTypeId)}</dd></div>
-            <div><dt>Критичность</dt><dd>{currentCriticality ? `${currentCriticality.name}${currentCriticality.status === "INACTIVE" ? " (неактивна)" : ""}` : "Класс критичности недоступен"}</dd></div>
-            <div><dt>Адрес</dt><dd>{site.address}</dd></div><div><dt>Часовой пояс</dt><dd>{site.timezone}</dd></div>
-            <div><dt>Статус</dt><dd>{site.status === "ACTIVE" ? "Активен" : "Неактивен"}</dd></div>
-        </dl>}
+        </div> : <div className={styles.cardSections}>
+            <section className={styles.cardSection} aria-labelledby="site-information-title">
+                <h2 id="site-information-title">Общая информация</h2>
+                <dl className={styles.details}>
+                    <div><dt>Код</dt><dd>{site.code}</dd></div><div><dt>Название</dt><dd>{site.name}</dd></div>
+                    <div><dt>Регион</dt><dd>{regionsQuery.data?.find((region) => region.id === site.regionId)?.name ?? "Регион недоступен"}</dd></div>
+                    <div><dt>Тип объекта</dt><dd>{referenceLabel(types, site.siteTypeId)}</dd></div>
+                    <div><dt>Адрес</dt><dd>{site.address}</dd></div><div><dt>Часовой пояс</dt><dd>{site.timezone}</dd></div>
+                    <div><dt>Статус</dt><dd>{site.status === "ACTIVE" ? "Активен" : "Неактивен"}</dd></div>
+                </dl>
+            </section>
+            <section className={styles.cardSection} aria-labelledby="site-criticality-title">
+                <h2 id="site-criticality-title">Критичность</h2>
+                <dl className={styles.details}><div><dt>Класс критичности</dt><dd>
+                    {currentCriticality ? `${currentCriticality.name}${currentCriticality.status === "INACTIVE" ? " (неактивна)" : ""}` : "Класс критичности недоступен"}
+                </dd></div></dl>
+            </section>
+            <section className={styles.cardSection} aria-labelledby="site-locations-title">
+                <h2 id="site-locations-title">Локации</h2>
+                <p className={styles.placeholder}>Раздел будет доступен после настройки локаций.</p>
+            </section>
+            <section className={styles.cardSection} aria-labelledby="site-assets-title">
+                <h2 id="site-assets-title">Сводка по оборудованию</h2>
+                <p className={styles.placeholder}>Сводка по оборудованию будет доступна после подключения реестра активов.</p>
+            </section>
+            <section className={styles.cardSection} aria-labelledby="site-responsible-directions-title">
+                <h2 id="site-responsible-directions-title">Ответственные направления</h2>
+                <p className={styles.placeholder}>Раздел будет доступен после настройки ответственных направлений.</p>
+            </section>
+        </div>}
         {changingCriticality && <div className={styles.dialogBackdrop} role="presentation"><section className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="criticality-title">
             <h2 id="criticality-title">Изменить критичность</h2>
             <label>Класс критичности<select value={criticalityId} onChange={(event) => setCriticalityId(event.target.value)}>

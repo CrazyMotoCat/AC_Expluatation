@@ -7,8 +7,10 @@ import { SiteDetailPage } from "../pages/SitesPage/SiteDetailPage";
 import { SitesPage } from "../pages/SitesPage/SitesPage";
 import { siteQueryKeys, type Region, type Site, type SitePage, type SiteReference } from "../entities/sites/api";
 
+const currentSession = vi.hoisted(() => ({ userId: "user-1", contextId: "context-a" }));
+
 vi.mock("../app/providers/sessionContext", () => ({
-    useSession: () => ({ state: { status: "authenticated", user: { userId: "user-1" }, contexts: [], contextId: "context-a", error: null } }),
+    useSession: () => ({ state: { status: "authenticated", user: { userId: currentSession.userId }, contexts: [], contextId: currentSession.contextId, error: null } }),
 }));
 
 const site: Site = {
@@ -29,7 +31,7 @@ const criticalities: SiteReference[] = [
 
 function fixture() {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    const keys = siteQueryKeys("user-1", "context-a");
+    const keys = siteQueryKeys(currentSession.userId, currentSession.contextId);
     client.setQueryData(keys.regions, regions);
     client.setQueryData(keys.siteTypes, types);
     client.setQueryData(keys.criticalities, criticalities);
@@ -39,6 +41,11 @@ function fixture() {
 }
 
 describe("Site management pages", () => {
+    beforeEach(() => {
+        currentSession.userId = "user-1";
+        currentSession.contextId = "context-a";
+    });
+
     it("renders backend-driven list labels, status and server pagination metadata", () => {
         const { client, keys, wrap } = fixture();
         const filters = { q: "", regionId: "", siteTypeId: "", criticalityClassId: "", status: "", page: 1, pageSize: 50 };
@@ -60,14 +67,54 @@ describe("Site management pages", () => {
         expect(wrap(<SitesPage />)).toContain("Объекты не найдены");
     });
 
-    it("renders detail with current inactive references and separate management actions", () => {
+    it("renders Site core fields with backend-driven labels and preserves existing actions", () => {
         const { client, keys, wrap } = fixture();
         client.setQueryData(keys.detail(site.id), site);
         const html = wrap(<Routes><Route path="/sites/:siteId" element={<SiteDetailPage />} /></Routes>, "/sites/site-1");
         expect(html).toContain("Узел связи");
         expect(html).toContain("Приморский регион");
         expect(html).toContain("Существующий тип (неактивен)");
+        expect(html).toContain("Повышенная");
+        expect(html).toContain("ул. Примерная, 1");
+        expect(html).toContain("Asia/Vladivostok");
+        expect(html).toContain("Активен");
         expect(html).toContain("Изменить критичность");
+        expect(html).toContain("Редактировать");
+        expect(html).toContain("Деактивировать");
+    });
+
+    it("renders future sections as explicit availability placeholders without business values", () => {
+        const { client, keys, wrap } = fixture();
+        client.setQueryData(keys.detail(site.id), site);
+        const html = wrap(<Routes><Route path="/sites/:siteId" element={<SiteDetailPage />} /></Routes>, "/sites/site-1");
+
+        expect(html).toContain("Общая информация");
+        expect(html).toContain("Критичность");
+        expect(html).toContain("Локации");
+        expect(html).toContain("Раздел будет доступен после настройки локаций.");
+        expect(html).toContain("Сводка по оборудованию");
+        expect(html).toContain("после подключения реестра активов");
+        expect(html).toContain("Ответственные направления");
+        expect(html).toContain("после настройки ответственных направлений");
+        expect(html).not.toMatch(/\b0\s*(локац|объект|единиц|активн)/i);
+        expect(html).not.toContain("Локации не найдены");
+        expect(html).not.toContain("Оборудование не найдено");
+    });
+
+    it("does not show a Site cached for context A as the current detail in context B", () => {
+        const { client, keys: contextAKeys, wrap } = fixture();
+        client.setQueryData(contextAKeys.detail(site.id), site);
+
+        const contextBKeys = siteQueryKeys("user-1", "context-b");
+        client.setQueryData(contextBKeys.regions, regions);
+        client.setQueryData(contextBKeys.siteTypes, types);
+        client.setQueryData(contextBKeys.criticalities, criticalities);
+        client.setQueryData(contextBKeys.detail(site.id), { ...site, name: "Объект контекста Б" });
+        currentSession.contextId = "context-b";
+
+        const html = wrap(<Routes><Route path="/sites/:siteId" element={<SiteDetailPage />} /></Routes>, "/sites/site-1");
+        expect(html).toContain("Объект контекста Б");
+        expect(html).not.toContain("Узел связи");
     });
 
     it("offers active choices for new assignment and retains an inactive current SiteType during edit", () => {

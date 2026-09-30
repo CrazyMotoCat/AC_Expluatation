@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-29 (SITE-UI-01 locally implemented)
+SOURCE_VERSION: 2026-09-30 (TASK-02.03.04)
 
 ## Purpose
 
@@ -212,6 +212,16 @@ started the request. The frontend does not decide authorization; 403 remains a
 neutral unavailable response. Site UI was independently reviewed and is
 included in published baseline `70d78d7`; Geography was published separately
 after GEO-UI-01R independent review and exact-SHA CI.
+
+`TASK-02.03.04` extends the existing `/sites/{siteId}` detail view as the Site
+card, reusing its published Site detail DTO, backend-driven reference queries,
+and existing edit/lifecycle/criticality actions. Per the accepted
+SITE-CARD-UI-01 owner decisions, Locations and Asset summary are presentation-
+only availability placeholders until `TASK-02.04.01` / `TASK-02.04.02` and
+EPIC-03 provide their respective read contracts. They must not present
+fabricated rows, IDs, counts, statuses, or categories. Responsible directions
+remain a placeholder/read model only; this UI task adds no assignments, API,
+permissions, Location backend, or Asset backend.
 
 GEO-UI-01 reimplements Geography read/list views on the current frontend at
 `/geography/territorial-zones` and `/geography/regions`. Both use the published

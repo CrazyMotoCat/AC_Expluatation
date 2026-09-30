@@ -494,9 +494,13 @@ published on main. SITE-AUTH-01 / ADR-017 also publishes exact Identity Site
 scopes and Sites-owned direct/create/list authorization. SITE-API-01 implements
 Site HTTP routes using that foundation and B1 mutation paths, published after
 independent SITE-API-01R security/integration review. Published Zone/Region routes
-remain unchanged. SITE-UI-01 adds locally verified Site management screens;
-independent review is pending before push. Capabilities and DEV bootstrap
-remain unimplemented.
+remain unchanged. SITE-UI-01 adds the published Site management screens at
+`/sites`, included in baseline `70d78d7` after independent review.
+TASK-02.03.04 extends the existing detail screen with the Site card and
+presentation-only availability placeholders for Locations and Asset summary
+until their read contracts are available. Responsible directions remain a
+placeholder/read model; this task adds no backend contracts. Capabilities and
+DEV bootstrap remain unimplemented.
 
 ## 10.2. SiteType
 

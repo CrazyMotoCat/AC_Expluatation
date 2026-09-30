@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-29 (GEO-UI-01R published 94831f6; source 4adae34)
+SOURCE_VERSION: 2026-09-30 (TASK-02.03.04)
 MODULE: Sites
 
 ## PURPOSE
@@ -206,6 +206,15 @@ generation ends. The backend remains authoritative for every authorization
 decision. Capabilities and DEV bootstrap remain unimplemented;
 contractor-positive authorization is not supported. SITE-UI-01 is included in
 the published `70d78d7` baseline after independent security review.
+
+`TASK-02.03.04` extends the existing Site detail route into the Site card and
+reuses its Site DTO, reference loaders, and current actions. Accepted
+SITE-CARD-UI-01 owner decisions allow clearly labeled presentation placeholders
+for Locations until `TASK-02.04.01` / `TASK-02.04.02`, and Asset summary until
+EPIC-03 supplies read contracts. Neither placeholder represents an empty
+business result; no rows, IDs, counts, statuses, or categories are fabricated.
+Responsible directions remain a placeholder/read model only. This task adds no
+backend/API, permission, assignment, schema, or migration behavior.
 
 ## PUBLIC CONTRACTS
 

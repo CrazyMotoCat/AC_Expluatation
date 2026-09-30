@@ -12,6 +12,17 @@ const filters: SiteFilters = {
 describe("Site API and protected query contracts", () => {
     afterEach(() => vi.restoreAllMocks());
 
+    it("loads Site detail only from the published detail route", async () => {
+        const response = { id: "site-1", code: "SITE-1" };
+        const request = vi.spyOn(apiClient, "request").mockResolvedValue(response as never);
+        const controller = new AbortController();
+
+        await siteApi.get("site-1", controller.signal);
+
+        expect(request).toHaveBeenCalledOnce();
+        expect(request).toHaveBeenCalledWith("/sites/site-1", { signal: controller.signal });
+    });
+
     it("maps list filters to backend query parameters and forwards cancellation", async () => {
         const request = vi.spyOn(apiClient, "request").mockResolvedValue({
             items: [], page: 2, pageSize: 50, totalCount: 52, totalPages: 2,

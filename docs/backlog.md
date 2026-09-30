@@ -766,6 +766,15 @@ Acceptance Criteria:
 - assets summary;
 - responsible directions placeholder/read model.
 
+Accepted owner decisions for SITE-CARD-UI-01 (2026-09-30; no ADR required):
+the Locations section may show a clearly labeled availability placeholder
+until TASK-02.04.01 / TASK-02.04.02 provide its read contract; the Asset
+summary may show a clearly labeled availability placeholder until EPIC-03
+provides its read contract. These placeholders must not imply empty results
+or show fabricated rows, IDs, counts, statuses, or categories. The responsible
+directions section remains a presentation placeholder/read model only; this
+task does not add assignment behavior, APIs, or permissions.
+
 ---
 
 ## FEATURE-02.04. Locations
