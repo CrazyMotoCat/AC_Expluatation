@@ -237,3 +237,34 @@ RESUME_SAFE: YES
 STATE_DRIFT: NONE
 After interruption, git fetch confirms main HEAD == origin/main == baseline above; one primary worktree. All 53 staged task-owned paths are identical to the saved full staged review diff from the completed verification phase; no unstaged or unknown untracked paths. No code changed since passing runtime/build/security gates, so no redundant rerun is required. Only this resume checkpoint is appended before the already authorized atomic local commit.
 NEXT_ACTION: Independent review of TASK-02.04.02 local commit before push; STOP after commit-state verification.
+
+## LOCATION-TREE-01R review checkpoint — 2026-10-06
+
+This section supersedes implementation-only NO_PUSH/STOP rules under the owner's explicit publication request.
+STATUS: REVIEW_PASS_PUBLICATION_PENDING
+PHASE: LOCATION-TREE-01R — INDEPENDENT REVIEW + PUBLICATION
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT
+RESUME_SAFE: YES
+STATE_DRIFT: NONE
+BASELINE_SHA: 6b986f95fb431a31f7543696278f0910ac666be6
+SOURCE_COMMIT: 02f2429644a8097148dd46b8ec86ed2d56961d0b
+LAST_SAFE_COMMIT: 8cbf2cbe899c97fa11998de5d2f657076a458202
+REMEDIATION_COMMITS: 8cbf2cb (tests only; no candidate amend or production defect)
+COMPLETED: exact 53-path ownership review, independent read-only security/API review, field-source gate, DB/transaction/recursive/concurrency/audit review; test evidence gaps closed and independently reviewed.
+VERIFIED: Release zero warnings/errors; all 11 named harnesses; real PostgreSQL tree/three lifecycle races/unique/audit tests; API real Identity negatives and permission independence; migrator16/Sites7 then0; model drift NONE; infrastructure/bootstrap scripts; dotnet test exit0/no discovery; formatting/diff/secret hygiene PASS.
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS
+OPEN_CRITICAL: 0
+OPEN_HIGH: 0
+OPEN_MEDIUM: 0
+OPEN_LOW: 0
+FRONTEND_CODE_CHANGED: NO
+LOCATION_UI: NOT_IMPLEMENTED
+SITE_CARD_LOCATION_PLACEHOLDER: STILL_PRESENT
+BUSINESS_HISTORY: NOT_IMPLEMENTED; technical Audit only
+HOSTED_CI: NOT_YET_VERIFIED
+PUSHED: NO
+BLOCKERS: NONE
+UNCOMMITTED_CHANGES: this checkpoint and location-tree-01r-review.md, narrow review documentation only.
+NEXT_ACTION: fetch/verify unchanged origin baseline, commit reviewed documentation, normal push main, verify exact final SHA hosted backend/frontend/required checks; finalize PUBLISHED checkpoint then STOP.
+DO_NOT_REPEAT: no contract research, candidate amendment, branch/worktree, frontend/Site-card/Assets, destructive recovery or force push; no redundant runtime suite without new changes/failure.
