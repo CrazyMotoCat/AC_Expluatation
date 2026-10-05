@@ -800,6 +800,13 @@ reference registry, database and security docs for the exact contract.
 
 ### TASK-02.04.02. Location tree
 
+STATUS: PUBLISHED (backend, LOCATION-TREE-01R). Reviewed SHA `f114661affdb6df6015852eb85bfd597538f3dac`,
+[hosted CI 37339001540](https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/37339001540)
+backend/frontend/required checks PASS. Final publication metadata commit is
+independently checked at its exact SHA before delivery. Location UI remains
+NOT_IMPLEMENTED; Site-card Location placeholder remains. Asset dependency:
+LOCATION_BACKEND_AVAILABLE. No separate Location UI Task ID is currently listed.
+
 Acceptance Criteria:
 
 - arbitrary depth;

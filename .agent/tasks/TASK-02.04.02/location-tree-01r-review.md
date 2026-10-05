@@ -46,10 +46,10 @@ dotnet test Release --no-build exit0, no discovered cases; explicit harnesses ar
 DOCS_IMPACT: YES (publication state and validation evidence)
 DOCUMENTATION_REVIEW: PASS; Sites/Audit module and context, database, security/permissions/events, backlog and generated OpenAPI align with OD-LOCATION-01..08. Accepted ADR-003/008/011/017 preserved; no new ADR/index change required.
 DOCUMENTATION_SYNC: PASS
-HOSTED_CI: pending publication, never inferred from local tests.
+HOSTED_CI_REVIEWED_SHA: f114661affdb6df6015852eb85bfd597538f3dac; PASS, run 37339001540, backend/frontend/required checks success. Final documentation commit requires separate exact-SHA hosted verification before delivery.
 
 NEXT_BACKLOG_TASK: no separate Location UI Task ID currently exists in backlog; later LOCATION-UI phase follows owner task definition. Do not invent a Task ID.
-NEXT_ACTION: fetch baseline guard, normal push main and verify exact HEAD hosted backend/frontend/required checks. Then STOP.
+NEXT_ACTION: verify exact final status-commit SHA hosted backend/frontend/required checks. Then STOP.
 
 ## Exact candidate path ownership (53 paths)
 

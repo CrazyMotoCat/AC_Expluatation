@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-10-02 (TASK-02.04.02 LOCATION-TREE-01)
+SOURCE_VERSION: f114661affdb6df6015852eb85bfd597538f3dac (LOCATION-TREE-01R reviewed publication)
 MODULE: Sites
 
 ## PURPOSE
@@ -377,3 +377,13 @@ their SHAs and rejected historical auth/session code remain recorded.
 - KVO criticality change without permission;
 - timezone-sensitive scheduling;
 - inactive location selected by UI but rejected backend.
+
+## LOCATION TREE PUBLICATION
+
+TASK-02.04.02 / LOCATION_TREE_BACKEND: PUBLISHED after LOCATION-TREE-01R
+independent review; reviewed SHA f114661affdb6df6015852eb85bfd597538f3dac,
+Actions run 37339001540 backend/frontend/required checks PASS (71 frontend tests).
+Final metadata commit needs exact-SHA CI confirmation before delivery.
+LOCATION_UI: NOT_IMPLEMENTED. SITE_CARD_LOCATION_PLACEHOLDER: STILL_PRESENT.
+ASSET_DEPENDENCY: LOCATION_BACKEND_AVAILABLE. Next is later LOCATION-UI phase,
+which has no separate backlog Task ID yet; do not start it without an owner task.

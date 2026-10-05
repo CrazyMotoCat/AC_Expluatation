@@ -1,7 +1,7 @@
 # TASK-02.04.02 — LOCATION-TREE-01 checkpoint
 
-STATUS: VERIFIED_FOR_ATOMIC_LOCAL_COMMIT
-PHASE: LOCATION-TREE-01 — BACKEND IMPLEMENTATION AFTER OWNER DECISIONS
+STATUS: PUBLISHED
+PHASE: LOCATION-TREE-01R — REVIEW + PUBLICATION
 MODE: IMPLEMENT DIRECTLY ON MAIN; BACKEND ONLY; ONE LOCAL COMMIT AFTER ALL GATES; NO PUSH
 
 ## Baseline and repository guard
@@ -268,3 +268,34 @@ BLOCKERS: NONE
 UNCOMMITTED_CHANGES: this checkpoint and location-tree-01r-review.md, narrow review documentation only.
 NEXT_ACTION: fetch/verify unchanged origin baseline, commit reviewed documentation, normal push main, verify exact final SHA hosted backend/frontend/required checks; finalize PUBLISHED checkpoint then STOP.
 DO_NOT_REPEAT: no contract research, candidate amendment, branch/worktree, frontend/Site-card/Assets, destructive recovery or force push; no redundant runtime suite without new changes/failure.
+
+
+## Publication checkpoint — 2026-10-06
+
+This is the authoritative current checkpoint, superseding historical pending/no-push sections.
+STATUS: PUBLISHED
+TASK-02.04.02: PUBLISHED
+LOCATION_TREE_BACKEND: PUBLISHED
+LOCATION_UI: NOT_IMPLEMENTED
+SITE_CARD_LOCATION_PLACEHOLDER: STILL_PRESENT
+ASSET_DEPENDENCY: LOCATION_BACKEND_AVAILABLE
+REVIEW: PASS
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS
+LAST_SAFE_COMMIT: f114661affdb6df6015852eb85bfd597538f3dac
+REMEDIATION_COMMITS: 8cbf2cbe899c97fa11998de5d2f657076a458202 (tests only)
+REVIEW_DOC_COMMIT: f114661affdb6df6015852eb85bfd597538f3dac
+PUSHED: YES, normal main push
+HOSTED_CI_REVIEWED_SHA: f114661affdb6df6015852eb85bfd597538f3dac
+HOSTED_CI_REVIEWED_RUN: 37339001540
+HOSTED_CI_REVIEWED_LINK: https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/37339001540
+HOSTED_BACKEND: PASS
+HOSTED_FRONTEND: PASS (71/71)
+HOSTED_REQUIRED_CHECKS: PASS
+FINAL_STATUS_COMMIT: commit containing this section; resolve from Git, not a self-referential SHA.
+FINAL_STATUS_COMMIT_CI: must independently verify exact containing-commit SHA in GitHub Actions before final delivery; prior run is proof for reviewed parent only. Final run evidence is delivered with final SHA in the publication result.
+UNCOMMITTED_CHANGES: before status commit, this state, review, Sites module/capsule and backlog publication metadata only; after commit NONE.
+BLOCKERS: NONE
+NEXT_BACKLOG_TASK: backlog has no separate Location UI Task ID; later LOCATION-UI phase requires owner-defined scope.
+NEXT_ACTION: Verify hosted CI for final status commit, then STOP. Future work only by a new owner task: LOCATION-UI-01 phase; do not invent a backlog Task ID.
+DO_NOT_REPEAT: no implementation/tests changed after passing gates; no additional runtime suite required for metadata-only status commit; no Location UI, Site-card edits, Assets, branch/worktree, force push or candidate amendment.

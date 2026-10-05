@@ -455,3 +455,15 @@ Criticality/location structural changes auditируются. Историчес�
 - deleting a Site with operational history;
 - location references across Sites;
 - hardcoding KVO behavior in UI.
+
+## Publication status — LOCATION-TREE-01R (2026-10-06)
+
+TASK-02.04.02 / LOCATION_TREE_BACKEND: PUBLISHED after independent review and
+normal main push. Reviewed SHA f114661affdb6df6015852eb85bfd597538f3dac:
+GitHub Actions run [37339001540](https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/37339001540)
+passed backend, frontend (71/71) and required checks. Test-only remediation
+8cbf2cb closes concurrency/security evidence gaps; production candidate unchanged.
+Final publication metadata commit requires its own exact-SHA CI verification.
+LOCATION_UI: NOT_IMPLEMENTED; SITE_CARD_LOCATION_PLACEHOLDER: STILL_PRESENT;
+ASSET_DEPENDENCY: LOCATION_BACKEND_AVAILABLE. No separate Location UI Task ID
+exists in current backlog; scope a later LOCATION-UI phase before implementation.
