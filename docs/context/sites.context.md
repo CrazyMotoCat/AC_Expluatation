@@ -1,6 +1,6 @@
 # Sites Context Capsule
 
-SOURCE_VERSION: 2026-09-30 (TASK-02.04.01)
+SOURCE_VERSION: 2026-10-02 (TASK-02.04.02 LOCATION-TREE-01)
 MODULE: Sites
 
 ## PURPOSE
@@ -56,7 +56,7 @@ Company
 → Location tree
 ```
 
-The future Location tree may use the initial type codes:
+The Location tree may use the initial type codes:
 
 ```text
 BUILDING
@@ -67,7 +67,8 @@ AREA
 ```
 
 `PLATFORM` is only a future example; TASK-02.04.01 does not seed it.
-The actual Location tree remains TASK-02.04.02 scope.
+TASK-02.04.02 implements backend Location instances; UI remains a later phase.
+These are classification examples, never a required type hierarchy.
 
 ## LOCATION TYPES
 
@@ -79,9 +80,9 @@ uppercase. There is no parent type or generic timestamp. The fixed five
 ACTIVE seeds are BUILDING/Здание, FLOOR/Этаж, ROOM/Помещение, RACK/Стойка
 and AREA/Зона; see the reference registry for stable seed IDs.
 Hard delete and identity changes are blocked in Sites PostgreSQL. Inactive
-types remain readable for historical references; future new/changed Location
-assignments require ACTIVE types. No runtime reference management or Location
-instance exists in this slice.
+types remain readable for historical references; new/changed Location
+assignments require ACTIVE types. No runtime reference management exists
+in the LocationType slice; Location instances belong to TASK-02.04.02.
 
 `GET /api/v1/reference/location-types` returns the unfiltered global catalog
 with id/code/name/description/status, ordered by code then ID. Dedicated
@@ -91,6 +92,46 @@ ACTIVE INTERNAL user, owned valid INTERNAL context and one current supported
 Zone/Region/Site scope are required; contractor/external, wrong context,
 future/expired, unrelated permission and provider failure deny. No Site or
 Location operation permission is implied.
+
+## LOCATION TREE — LOCATION-TREE-01
+
+OD-LOCATION-01..08 ACCEPTED. Sites-owned adjacency list: UUIDv7 ID, immutable
+site_id and code, nullable parent_location_id, location_type_id, required name,
+optional description, status ACTIVE/INACTIVE, timestamps and row_version.
+Code trim/uppercase/max50 is unique only within exact Site, with no regex;
+name trim/max200 is non-unique; description optional trim/max500. Multiple
+roots, arbitrary depth and any ACTIVE type at any position are supported.
+Unchanged inactive type references remain readable and editable.
+
+Ordinary update changes name/type/description. Separate Move accepts nullable
+parent (root), required trimmed reason <=500 and expectedRowVersion; Site is
+preserved and descendants stay attached. Parent must be same-Site and ACTIVE;
+self/descendant parents fail. Create starts ACTIVE. Deactivate rejects any
+ACTIVE descendant; activate requires root or ACTIVE parent. No cascade,
+cross-Site transfer, hard delete, type matrix or Location scope is present.
+One Site-scoped PostgreSQL transaction advisory lock serializes rereads,
+recursive validation, mutation and audit; optimistic row version remains
+mandatory and stale authorized mutation returns standard 409 concurrency.
+
+Fixed sites.read permits list/get; fixed sites.manage_locations permits
+create/update/move/lifecycle, independently. Existing Sites authorization
+resolves authoritative Location→Site→Region→Zone facts and Identity exact
+Zone/Region/Site scopes; no caller ancestry/scopes. Missing/inaccessible
+Site/Location/parent and cross-Site parent conceal as GEOGRAPHY_ACCESS_DENIED
+403; target-aware list denial never becomes 200 []. Contractors deny.
+
+GET /api/v1/sites/{siteId}/locations returns roots by default, direct children
+with parentLocationId; paging 1/50/max200, code/id ASC, filters before count.
+GET /api/v1/locations/{locationId} is direct read. POST under Site creates;
+PUT direct Location updates; POST direct /move, /activate, /deactivate command.
+The DTO includes identity/Site/parent/type/code/name/description/status/version.
+Future Site-card/UI reads use these lazy routes; current placeholder unchanged.
+
+All five mutations atomically persist the existing durable Sites audit
+obligation with canonical Location action, validated actor/context and move
+reason. Audit is distinct from business history: no Location history store
+or provisional LocationMoved integration-event emission is in this task.
+Assets placement-history integration remains a future approved contract.
 
 ## SITE TYPES
 
@@ -235,8 +276,9 @@ the published `70d78d7` baseline after independent security review.
 `TASK-02.03.04` extends the existing Site detail route into the Site card and
 reuses its Site DTO, reference loaders, and current actions. Accepted
 SITE-CARD-UI-01 owner decisions allow clearly labeled presentation placeholders
-for Locations until `TASK-02.04.01` / `TASK-02.04.02`, and Asset summary until
-EPIC-03 supplies read contracts. Neither placeholder represents an empty
+for Locations and Asset summary. LOCATION-TREE-01 supplies the Location read
+contract; OD-LOCATION-08 keeps UI replacement in a later LOCATION-UI phase.
+Asset summary waits for EPIC-03 read contracts. Neither placeholder represents an empty
 business result; no rows, IDs, counts, statuses, or categories are fabricated.
 Responsible directions remain a placeholder/read model only. This task adds no
 backend/API, permission, assignment, schema, or migration behavior.

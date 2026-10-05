@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase B1 Site audit implementation)
+SOURCE_VERSION: 2026-10-02 (TASK-02.04.02 Location audit extension)
 
 ## Purpose
 
@@ -14,6 +14,17 @@ Audit владеет `audit.events`, `AuditDbContext`, собственной mi
 `audit.events` содержит event ID UUIDv7, timestamp, actor user ID, acting context ID, correlation ID, action, entity type/ID и optional before/after JSON, reason, IP/user agent. Persistent action/entity identifiers принадлежат Audit, case-sensitive и не выводятся из CLR names; каталог включает `WorkingContextSelected`, `WorkingContextApplied`, `UserContext` и `TerritorialZone` actions/entity. `IAuditWriter.AppendAsync` принимает обязательный caller-supplied UUIDv7 EventId, проверяет actor, correlation, каталог и structured JSON payload до INSERT; before/after ограничены 64 KiB UTF-8 без silent truncation. Повторная доставка с тем же EventId и тем же immutable content завершается no-op, конфликт content отклоняется. JWT, tokens, passwords и secrets не записываются. PostgreSQL triggers отклоняют UPDATE, DELETE и TRUNCATE; EF context также отвергает tracked update/delete. Migration `Down` запрещает автоматическое удаление истории без отдельного retention/archival плана. Durable business mutations follow ADR-011: the owning module commits a durable audit obligation in its own transaction, then Audit materialization is at-least-once and idempotent by stable event ID. UUIDv7 guard добавлен отдельной additive migration.
 
 ## Current writer contract
+
+TASK-02.04.02 adds canonical entity `Location` and five actions:
+`LocationCreated`, `LocationUpdated`, `LocationMoved`, `LocationActivated`,
+`LocationDeactivated`. Payloads use the fixed allowlisted Location snapshot
+fields: locationId, siteId, parentLocationId, locationTypeId, code, name,
+description, status and rowVersion. Create has no before snapshot; mutations
+retain before/after snapshots, and move retains its required reason. Actor, context, timestamp,
+correlation and stable EventId remain canonical metadata. Each successful
+mutation commits exactly one Sites-owned durable obligation with its state;
+the existing AuditDelivery claim/lease/idempotency path materializes it.
+No Location business-history store or integration-event publication is added.
 
 Region is a canonical Audit entity. Its actions are `RegionCreated`, `RegionUpdated`, `RegionActivated`, and `RegionDeactivated`; Region before/after payloads use an explicit allowlist. Region obligations use the same Sites-owned durable obligation and `Exploitation.AuditDelivery` path as Territorial Zone.
 

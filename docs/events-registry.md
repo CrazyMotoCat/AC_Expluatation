@@ -119,6 +119,11 @@ mechanism.
 
 `Incidents*` означает future/provisional consumer.
 
+TASK-02.04.02 / LOCATION-TREE-01 registers Location technical Audit actions
+in `modules/audit.md`. The optional `LocationMoved` domain/integration event
+above remains provisional for runtime emission; this slice does not publish
+it. Durable technical audit is not Location or Asset placement business history.
+
 ## 5. Event envelope
 
 Рекомендуемый integration envelope:

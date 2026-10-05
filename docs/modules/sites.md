@@ -1,7 +1,7 @@
 # Module: Sites
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-30 (TASK-02.04.01)
+SOURCE_VERSION: 2026-10-02 (TASK-02.04.02 LOCATION-TREE-01)
 
 ## Purpose
 
@@ -53,7 +53,7 @@ locations
 Territorial Zone
 → Region
 → Site
-→ Building/Floor/Room/Rack/Area
+→ Location tree (arbitrary depth; no type compatibility matrix)
 ```
 
 Territorial Zone lifecycle is `ACTIVE`/`INACTIVE`; hard delete is forbidden. Zone code is canonicalized by trim + invariant uppercase, unique and immutable. Six `/api/v1/territorial-zones` operations remain published: list/get use `sites.read`, rename/activate/deactivate use `sites.change`, and root create stays closed pending a root authority contract. Mutation bodies carry `expectedRowVersion`; stale authorized writes return `409 OPTIMISTIC_CONCURRENCY_CONFLICT`. No DELETE route exists.
@@ -128,10 +128,10 @@ immutable identity and no hard delete.
 
 `GET /api/v1/reference/location-types` returns both ACTIVE and INACTIVE
 types globally, ordered by code then ID, as `id`, `code`, `name`,
-`description`, `status`. Existing future Locations may retain an inactive
-type; TASK-02.04.02 must require ACTIVE type for new/changed assignments.
-Only this read route exists. Runtime management, UI, mutation audit and
-Location instances/tree remain future work. A later management contract must
+`description`, `status`. Existing Locations may retain an inactive
+type; TASK-02.04.02 requires ACTIVE type for new/changed assignments.
+Only this LocationType read route exists. Runtime reference management, UI
+and reference mutation audit remain future work. A later management contract must
 use the Sites durable audit obligation and optimistic row version.
 
 LocationType catalog read has its own fixed Sites authorization composition:
@@ -145,6 +145,84 @@ failure is 401. The service obtains both permissions internally through
 Identity `IEffectiveScopeProvider`, stopping on success or provider failure.
 Callers supply no permission or scope evidence. Catalog access implies no
 Site visibility, Location management or LocationType mutation right.
+
+## Location tree — TASK-02.04.02 / LOCATION-TREE-01
+
+OD-LOCATION-01..08 are ACCEPTED. Sites owns Location instances in an
+adjacency list. A Site may have multiple roots (`parent_location_id IS NULL`)
+and arbitrary depth. Any ACTIVE LocationType may be assigned at any position;
+there is no Building/Floor/Room compatibility rule or maximum business depth.
+
+Location has UUIDv7 ID, immutable Site and code, nullable parent, required
+LocationType and name, optional description, ACTIVE/INACTIVE status,
+created/updated timestamps and optimistic row version. Code is required,
+trimmed, invariant-uppercase, maximum 50, without a character-class regex;
+its database uniqueness is `(site_id, code)`. Names are required, trimmed,
+maximum 200 and non-unique. Description reuses the existing metadata sketch:
+optional, trimmed, maximum 500. New/changed type assignments require ACTIVE;
+an unchanged inactive historical type remains valid and readable.
+
+Create starts ACTIVE and accepts only a same-Site ACTIVE parent. Ordinary
+update changes name, type and description, never code, Site, parent or status.
+Move is separate, preserves Site/code/type/status, accepts null for a root,
+requires trimmed non-empty reason (maximum 500) and expectedRowVersion, and
+rejects self/descendant parents. Descendant links stay attached, so the whole
+subtree follows. Cross-Site move and hard delete have no route or use case.
+
+Deactivate rejects any ACTIVE descendant at any depth. Activate permits a
+root or an ACTIVE direct parent. No lifecycle cascade or implicit ancestor
+activation occurs; reactivation proceeds top-down. Structural changes use a
+deterministic Site-scoped PostgreSQL transaction advisory lock. Target,
+parent, row version and recursive descendants are read under that same
+transaction before mutation and audit persistence. The lock prevents opposing
+moves and active-child/inactive-parent races; it does not replace optimistic
+concurrency. Stale authorized commands return `409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
+
+| Operation | Route | Fixed permission |
+|---|---|---|
+| Roots/direct children | `GET /api/v1/sites/{siteId}/locations` | `sites.read` |
+| Direct get | `GET /api/v1/locations/{locationId}` | `sites.read` |
+| Create | `POST /api/v1/sites/{siteId}/locations` | `sites.manage_locations` |
+| Ordinary update | `PUT /api/v1/locations/{locationId}` | `sites.manage_locations` |
+| Move | `POST /api/v1/locations/{locationId}/move` | `sites.manage_locations` |
+| Activate/deactivate | `POST /api/v1/locations/{locationId}/activate` or `/deactivate` | `sites.manage_locations` |
+
+List with omitted `parentLocationId` returns roots only; supplying a parent
+returns direct children only. Parent must belong to route Site. Page defaults
+to 1, pageSize to 50, maximum 200; filtering precedes count/paging and order
+is code ASC, id ASC. No whole-tree read exists. The transport DTO carries
+id, siteId, parentLocationId, locationTypeId, code, name, description, status
+and rowVersion; mutation bodies cannot override Site ownership.
+
+Authorization uses persisted Location → Site → Region → Zone facts and the
+existing Identity scope provider through Sites composition. Exact supported
+scopes remain TerritorialZone, Region and Site; no Location assignment scope
+is added. Read and management permissions imply neither one another nor
+catalog management. First-slice contractor access denies. Missing/inaccessible
+direct Location or route Site and missing/cross-Site parent targets use the
+same `403 GEOGRAPHY_ACCESS_DENIED`; authorization denial is never `200 []`.
+Caller ancestry and effective scopes are never accepted as evidence.
+
+Business conflicts return 409 with stable codes `LOCATION_CODE_ALREADY_EXISTS`,
+`LOCATION_CYCLE`, `LOCATION_ACTIVE_DESCENDANTS`, `LOCATION_PARENT_STATE_CONFLICT`,
+`LOCATION_TYPE_STATE_CONFLICT` or `LOCATION_STATE_CONFLICT`; stale writes use
+`OPTIMISTIC_CONCURRENCY_CONFLICT`. Invalid transport/domain values use 400
+`VALIDATION_FAILED`, missing reference type uses 404 `LOCATION_TYPE_NOT_FOUND`,
+and unavailable persistence uses 503 `LOCATION_PERSISTENCE_UNAVAILABLE`.
+Errors use the existing correlation-bearing API envelope without DB names.
+
+Each successful mutation stores one durable Sites audit obligation atomically
+with state. Canonical actions are LocationCreated, LocationUpdated,
+LocationMoved, LocationActivated and LocationDeactivated; move reason is
+retained. Failed/denied writes create no successful obligation. Technical Audit
+is not business history. No Location-specific history store is required by
+this task; future Asset placement/history integration remains a separate
+contract. The optional integration event LocationMoved is not emitted by
+this slice and no second outbox/history mechanism is added.
+
+Backend only: future Site card/UI can obtain roots and lazy children through
+the list route above. The Site-card placeholder remains unchanged; Location
+UI requires a later LOCATION-UI phase.
 
 ## Permissions
 
@@ -251,9 +329,10 @@ after GEO-UI-01R independent review and exact-SHA CI.
 `TASK-02.03.04` extends the existing `/sites/{siteId}` detail view as the Site
 card, reusing its published Site detail DTO, backend-driven reference queries,
 and existing edit/lifecycle/criticality actions. Per the accepted
-SITE-CARD-UI-01 owner decisions, Locations and Asset summary are presentation-
-only availability placeholders until `TASK-02.04.01` / `TASK-02.04.02` and
-EPIC-03 provide their respective read contracts. They must not present
+SITE-CARD-UI-01 owner decisions, Locations and Asset summary use presentation
+availability placeholders. LOCATION-TREE-01 supplies the Location backend
+read contract, but OD-LOCATION-08 leaves placeholder replacement to later
+LOCATION-UI. Asset summary waits for EPIC-03 read contracts. They must not present
 fabricated rows, IDs, counts, statuses, or categories. Responsible directions
 remain a placeholder/read model only; this UI task adds no assignments, API,
 permissions, Location backend, or Asset backend.

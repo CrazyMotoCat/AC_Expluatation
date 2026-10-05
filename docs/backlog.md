@@ -767,8 +767,9 @@ Acceptance Criteria:
 - responsible directions placeholder/read model.
 
 Accepted owner decisions for SITE-CARD-UI-01 (2026-09-30; no ADR required):
-the Locations section may show a clearly labeled availability placeholder
-until TASK-02.04.01 / TASK-02.04.02 provide its read contract; the Asset
+the Locations section may show a clearly labeled availability placeholder.
+LOCATION-TREE-01 now supplies its backend read contract; OD-LOCATION-08 keeps
+placeholder replacement in the later LOCATION-UI phase. The Asset
 summary may show a clearly labeled availability placeholder until EPIC-03
 provides its read contract. These placeholders must not imply empty results
 or show fabricated rows, IDs, counts, statuses, or categories. The responsible
@@ -805,6 +806,25 @@ Acceptance Criteria:
 - one site;
 - cycle prevented;
 - move location supported with validation.
+
+LOCATION-TREE-01 owner decisions OD-LOCATION-01..08 are ACCEPTED. This slice
+is backend only: Sites-owned multiple-root adjacency list, arbitrary depth,
+same-Site immutable ownership/code, database-unique `(site_id, code)`, explicit
+move and ACTIVE/INACTIVE commands without cascade or delete. PostgreSQL
+Site-scoped transaction serialization and recursive validation protect cycle
+and active-tree invariants under concurrency. Any ACTIVE LocationType may be
+used anywhere; unchanged inactive historical references remain valid.
+
+List/get require only `sites.read`; every mutation requires only
+`sites.manage_locations`, independently, on authoritative Site ancestry with
+Zone/Region/Site coverage. Missing/inaccessible targets are concealed as 403.
+Lazy roots/direct children use `GET /api/v1/sites/{siteId}/locations` and
+`parentLocationId`, bounded pages (1/50/max200), code/id order. Direct get is
+`GET /api/v1/locations/{locationId}`. Mutations retain optimistic row version
+and durable atomic Sites audit obligations. See module/database/security
+contracts for full fields and routes. Location UI and Site-card placeholder
+replacement remain a later LOCATION-UI phase; no Location scope, type matrix,
+cross-Site transfer or provisional LocationMoved emission is included.
 
 ---
 

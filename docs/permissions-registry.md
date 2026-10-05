@@ -165,6 +165,15 @@ for reading the global LocationType catalog. This adds no management route,
 new permission, Site visibility or implication between permissions. Runtime
 LocationType management requires a separate future contract.
 
+TASK-02.04.02 / OD-LOCATION-06: Location list/get require fixed `sites.read`;
+create/update/move/activate/deactivate require fixed `sites.manage_locations`.
+Both use authoritative Site → Region → Zone coverage; supported exact
+assignment kinds remain TerritorialZone, Region and Site. The registry's
+Site target includes downward Zone/Region coverage through Sites composition.
+No exact Location scope or permission implication is added. Management alone
+does not permit reads; read alone does not permit management. This backend
+slice permits INTERNAL user/context only; contractor access fails closed.
+
 `CONTRACT*` означает: разрешение возможно только при явном contract scope.
 
 ## 5.1. Organization scope boundary for TASK-02.02.01

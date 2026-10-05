@@ -882,27 +882,51 @@ ADR-011/AuditDelivery path.
 
 ## 7.4. sites.locations
 
-Иерархия мест.
+Sites-owned Location adjacency list, TASK-02.04.02 / LOCATION-TREE-01.
+OD-LOCATION-01..08 ACCEPTED; no type compatibility matrix or business depth cap.
+Migration: `20261002095936_AddLocations`, additive and Sites-owned.
 
 ```text
-id
-site_id
-parent_id           nullable
-location_type_id
-code
-name
-description
-is_active
-created_at
-updated_at
-row_version
+id                  uuid v7 primary key, immutable
+site_id             uuid required, immutable, RESTRICT FK to sites.sites
+parent_location_id  uuid nullable; same-Site parent, RESTRICT FK
+location_type_id    uuid required, RESTRICT FK to sites.location_types
+code                varchar(50) required; trim + uppercase, immutable
+name                varchar(200) required, trimmed, non-unique
+description         varchar(500) nullable, trimmed
+status              ACTIVE | INACTIVE; create ACTIVE
+created_at          timestamptz UTC
+updated_at          timestamptz UTC
+row_version         bigint required, positive optimistic version
 ```
 
-Index:
+Indexes and relationships:
 
 ```text
-ix_locations_site_id_parent_id
+ux_locations_site_code          UNIQUE (site_id, code)
+ak_locations_site_id_id         UNIQUE (site_id, id), parent FK principal
+ix_locations_site_parent_code_id (site_id, parent_location_id, code, id)
+ix_locations_location_type_id   (location_type_id)
+fk_locations_parent_same_site   (site_id, parent_location_id) → (site_id, id)
 ```
+
+Site-leading indexes cover Site queries without an extra single-column Site
+index. Parent/type reference indexes support lazy child reads and FK checks.
+Code has no character-class regex and is not globally unique. Multiple roots
+and equal names are allowed. Identity/code/Site changes and hard deletes are
+blocked; no cascade or Site transfer exists.
+
+All runtime Location mutations serialize through one deterministic Site-scoped
+PostgreSQL transaction advisory lock. Target/parent/version rereads, recursive
+descendant validation, mutation and durable audit obligation share that
+transaction. Cycles and ACTIVE nodes below INACTIVE ancestors are forbidden;
+lifecycle never cascades. Unique Site/code remains authoritative under races.
+The existing audit obligation gains nullable restrictive Location binding;
+authoritative Site/Region/Zone and canonical action remain immutable. No
+Location business-history table or integration-event publication is added.
+Existing consumers and Site/LocationType rows are preserved. Rollback refuses
+to remove populated Locations or their audit obligations without an approved
+archival plan; an empty newly introduced schema can be rolled back.
 
 ---
 
@@ -939,8 +963,8 @@ AREA
 ```
 
 `PLATFORM` is a possible future reference value, not an accepted seed.
-Existing future Locations may keep an INACTIVE type reference; new/changed
-Location assignments will require ACTIVE types in TASK-02.04.02.
+Existing Locations may keep an INACTIVE type reference; new/changed
+Location assignments require ACTIVE types in TASK-02.04.02.
 
 ---
 

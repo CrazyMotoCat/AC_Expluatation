@@ -1401,3 +1401,24 @@ assignment, contractor/external user/context and provider failure deny (403);
 unauthenticated requests return 401. Provider failure denies without trying
 another permission. SITE-REF-AUTH-01 remains limited to SiteType and
 SiteCriticalityClass with its original four-permission set.
+
+## Location tree — TASK-02.04.02 / OD-LOCATION-06
+
+Location list/get use fixed `sites.read`; create, ordinary update, move and
+lifecycle use fixed `sites.manage_locations`, with no implication between
+them. Sites resolves stored Location Site and Site Region/Zone hierarchy;
+route Site is target input only. Effective scopes come from Identity through
+existing Sites composition; callers supply no scopes or ancestry evidence.
+Exact scopes remain TerritorialZone, Region and Site, with downward coverage
+to Locations. No Location assignment schema or contractor-positive grant is
+introduced. Wrong context, contractor, expired/future assignment and missing
+permission deny; authentication remains 401.
+
+Missing/inaccessible Location or list/create Site uses uniform
+`403 GEOGRAPHY_ACCESS_DENIED`. Missing/cross-Site parent is concealed by the
+same response; no existence or cross-Site detail is disclosed. Denial never
+returns `200 []`. Mutation Site/code ownership is immutable; no DELETE or
+cross-Site transfer route exists. Site-scoped PostgreSQL transaction locks
+serialize structural/lifecycle checks, while expectedRowVersion independently
+prevents stale writes. State and durable audit obligation commit together;
+failed/denied mutation has no successful business or audit effect.

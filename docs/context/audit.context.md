@@ -1,6 +1,6 @@
 # Audit Context Capsule
 
-SOURCE_VERSION: 2026-09-26 (TASK-02.02.01 Phase C2 delivery)
+SOURCE_VERSION: 2026-10-02 (TASK-02.04.02 Location audit extension)
 MODULE: Audit
 
 ## PURPOSE
@@ -14,6 +14,7 @@ Audit хранит append-only технические факты действи�
 - `IAuditWriter`, `AuditEventDraft`, canonical `AuditAction`/`AuditEntityType`
 - `IWorkingContextAuditWriter` typed adapters/implementation
 - canonical `TerritorialZone` entity and lifecycle action identifiers
+- canonical `Location` entity and LocationCreated/Updated/Moved/Activated/Deactivated actions with fixed allowlisted before/after snapshots; move reason retained
 
 ## DB
 
@@ -34,6 +35,7 @@ Audit хранит append-only технические факты действи�
 - before/after are optional structured JSON, limited to 64 KiB UTF-8 and never silently truncated; UserContext, TerritorialZone, Region and OrganizationalUnit payloads use canonical allowlists.
 - Нет JWT, passwords, secrets и лишних OIDC claims в событии.
 - Audit не заменяет business history и не принадлежит Identity.
+- Location mutations use the existing Sites durable obligation atomically with state, then the same AuditDelivery writer/idempotency. No Location-specific business-history store or optional integration-event emission is implemented by TASK-02.04.02.
 
 ## LIFECYCLE
 

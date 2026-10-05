@@ -532,8 +532,8 @@ SiteType seed and display names are recorded in `reference-data-registry.md`.
 Location
 id
 site_id
-parent_id
-type
+parent_location_id
+location_type_id
 name
 code
 ```
