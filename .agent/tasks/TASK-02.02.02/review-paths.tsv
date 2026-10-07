@@ -1,0 +1,53 @@
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/agents/fd_docs.md
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/agents/fd_docs_final.md
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/agents/fd_security.md
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/agents/fd_seed_review.md
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/agents/fd_tests.md
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/final-report.md
+checkpoint/review traceability	.agent/tasks/TASK-02.02.02/state.md
+documentation	docs/backlog.md
+documentation	docs/context/audit.context.md
+documentation	docs/context/organization.context.md
+documentation	docs/database.md
+documentation	docs/events-registry.md
+documentation	docs/modules/audit.md
+documentation	docs/modules/organization.md
+documentation	docs/permissions-registry.md
+documentation	docs/reference-data-registry.md
+documentation	docs/security.md
+Organization HTTP/auth/OpenAPI composition	src/backend/Exploitation.Api/Organization/FunctionalDirectionEndpoints.cs
+Organization HTTP/auth/OpenAPI composition	src/backend/Exploitation.Api/Organization/FunctionalDirectionRequestAuthorization.cs
+Organization HTTP/auth/OpenAPI composition	src/backend/Exploitation.Api/Organization/OrganizationOpenApi.cs
+Organization HTTP/auth/OpenAPI composition	src/backend/Exploitation.Api/Program.cs
+canonical Audit contracts	src/backend/Modules/Audit/Exploitation.Modules.Audit.Contracts/AuditAction.cs
+canonical Audit contracts	src/backend/Modules/Audit/Exploitation.Modules.Audit.Contracts/AuditEntityType.cs
+canonical Audit contracts	src/backend/Modules/Audit/Exploitation.Modules.Audit.Contracts/AuditPayloadValidator.cs
+canonical Identity permission seed/data-only migration	src/backend/Modules/Identity/Exploitation.Modules.Identity.Domain/Authorization/SystemPermissionCatalog.cs
+canonical Identity permission seed/data-only migration	src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/Persistence/Migrations/20261007141653_AddFunctionalDirectionManagementPermission.Designer.cs
+canonical Identity permission seed/data-only migration	src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/Persistence/Migrations/20261007141653_AddFunctionalDirectionManagementPermission.cs
+canonical Identity permission seed/data-only migration	src/backend/Modules/Identity/Exploitation.Modules.Identity.Infrastructure/Persistence/Migrations/IdentityDbContextModelSnapshot.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Application/FunctionalDirections/FunctionalDirectionContracts.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Application/FunctionalDirections/FunctionalDirectionReferenceProvider.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Application/FunctionalDirections/FunctionalDirectionService.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Domain/FunctionalDirections/FunctionalDirection.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/OrganizationModuleRegistration.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/Configurations/FunctionalDirectionConfiguration.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/Configurations/OrganizationAuditObligationConfiguration.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/FunctionalDirectionCommandStore.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/FunctionalDirectionReadStore.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/Migrations/20261007091435_AddFunctionalDirections.Designer.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/Migrations/20261007091435_AddFunctionalDirections.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/Migrations/OrganizationDbContextModelSnapshot.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/OrganizationAuditObligation.cs
+Organization domain/application/persistence/migration	src/backend/Modules/Organization/Exploitation.Modules.Organization.Infrastructure/Persistence/OrganizationDbContext.cs
+tests/harnesses	tests/architecture/Exploitation.ArchitectureChecks/Exploitation.ArchitectureChecks.csproj
+tests/harnesses	tests/architecture/Exploitation.ArchitectureChecks/Program.cs
+tests/harnesses	tests/integration/Exploitation.AuditDeliveryChecks/Program.cs
+tests/harnesses	tests/integration/Exploitation.IdentityPersistenceChecks/FunctionalDirectionPermissionMigrationChecks.cs
+tests/harnesses	tests/integration/Exploitation.IdentityPersistenceChecks/Program.cs
+tests/harnesses	tests/integration/Exploitation.OrganizationApiChecks/FunctionalDirectionApiChecks.cs
+tests/harnesses	tests/integration/Exploitation.OrganizationApiChecks/Program.cs
+tests/harnesses	tests/integration/Exploitation.OrganizationPersistenceChecks/FunctionalDirectionChecks.cs
+tests/harnesses	tests/integration/Exploitation.OrganizationPersistenceChecks/FunctionalDirectionMigrationChecks.cs
+tests/harnesses	tests/integration/Exploitation.OrganizationPersistenceChecks/Program.cs
+tests/harnesses	tests/unit/Exploitation.IdentityDomainChecks/Program.cs

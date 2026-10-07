@@ -40,7 +40,7 @@ Tables and phase status:
 - `organization.organizational_unit_types` — B1 implemented configurable reference;
 - `organization.organizational_units` — B2 implemented;
 - `organization.organizational_unit_history` — B2 append-only business history;
-- `organization.functional_directions` — TASK-02.02.02 local implementation, pending independent review/publication;
+- `organization.functional_directions` — TASK-02.02.02 local implementation, review PASS; publication pending;
 - `organization.audit_obligations` — B2 durable source with C2 delivery through the Organization Application port.
 
 Phase B1 implements a minimal Organization-owned Company persistence
@@ -131,7 +131,7 @@ DbContext or IQueryable. Other modules must not query Organization tables direct
 
 ## FunctionalDirection — TASK-02.02.02
 
-STATUS: IMPLEMENTED_LOCALLY_PENDING_REVIEW_AND_PUBLICATION.
+STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION.
 OD-FUNCTIONAL-DIRECTION-01..06 are accepted. This status does not unblock
 TASK-03.01.01 before publication.
 
@@ -140,7 +140,7 @@ OD-06 accepts one Identity HasData data-only permission migration,
 `organization.manage_functional_directions` with stable ID
 `0199f3b0-0000-7000-8000-00000000004e`. It changes no Identity schema and
 creates no role, assignment or GLOBAL grant. The permission row alone grants
-no access. Local validation passed; independent review and publication are pending;
+no access. Local validation passed; independent review passed; publication is pending;
 no new runtime seed mechanism is introduced.
 
 Migration `20261007091435_AddFunctionalDirections` adds the table and extends

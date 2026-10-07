@@ -191,8 +191,8 @@ UserType, role name, JWT claims, working context and entity ID are not grants.
 
 ## 5.2. FunctionalDirection GLOBAL boundary — TASK-02.02.02
 
-OD-FUNCTIONAL-DIRECTION-04/05/06 are accepted; the local candidate has passed local validation and awaits
-independent review and publication. Catalog read requires a current
+OD-FUNCTIONAL-DIRECTION-04/05/06 are accepted; the local candidate has passed local validation and has passed independent review;
+publication is pending. Catalog read requires a current
 explicit GLOBAL grant for `organization.read` OR
 `organization.manage_functional_directions`.
 Management detail/create/PUT/activate/deactivate require only current explicit

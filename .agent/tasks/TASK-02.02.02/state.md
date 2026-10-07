@@ -1,6 +1,6 @@
 # TASK-02.02.02 — FUNCTIONAL-DIRECTION-01 checkpoint
 
-STATUS: IMPLEMENTED_LOCALLY_PENDING_INDEPENDENT_COMMIT_REVIEW_AND_PUBLICATION
+STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
 PHASE: FUNCTIONAL-DIRECTION-01 — RESUME AFTER READ AUTH DECISION
 MODE: IMPLEMENT DIRECTLY ON MAIN; NO PUSH
 
@@ -350,7 +350,7 @@ checkpoint modification, branch/worktree or push; only one final atomic local co
 
 ## FUNCTIONAL-DIRECTION-01 implementation checkpoint — permission seed decision pending
 
-STATUS: IMPLEMENTED_LOCALLY_PENDING_INDEPENDENT_COMMIT_REVIEW_AND_PUBLICATION
+STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
 CHECKPOINT_STATUS: UNSAFE (required full validation incomplete; no partial syntax files)
 CURRENT_BRANCH: main
 LAST_SAFE_COMMIT: 800ba9153868e9f33fd9af9c23c9c3ecc424ed3f
@@ -496,3 +496,24 @@ COMMIT_GATE: all local gates PASS; owner authorizes ONE atomic commit feat(organ
 PENDING: independent review of complete local commit; publication/exact-SHA hosted CI not authorized in this phase.
 NEXT_ACTION: Independent review of the complete TASK-02.02.02 local commit before push. Then STOP.
 DO_NOT_REPEAT: no implementation rewrite, new evaluator, automatic grants, branch/worktree, push, downstream edits, unrelated cleanup or migration; do not repeat full gates without new changes/failures. Preserve guarded Audit and permission rollback. Use actual Git as factual state and this last section as authoritative resume metadata.
+
+## FUNCTIONAL-DIRECTION-01R reviewed checkpoint — 2026-10-08
+
+STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
+LAST_SAFE_COMMIT: 8f2a9bfaca232d694b79973fd1b16610efaeb661
+SOURCE_CANDIDATE: 99c86c046a2893b9a33b98c24350b4e54e112a1a
+BASELINE/ORIGIN: 800ba9153868e9f33fd9af9c23c9c3ecc424ed3f
+REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT; main one primary worktree; expected downstream checkpoint only before review writes; hash unchanged.
+COMPLETED: independent exact-source review of all53 paths, frozen OD01..06, auth/API/provider/Identity data-only seed/domain/persistence/Audit/migrations; bounded three-file test remediation separate commit (no amend), re-review PASS.
+FINDINGS: one MEDIUM forced-Audit-failure test gap closed; explicit otherOrganization permission negatives and actual production Identity repository HTTP composition added; live-history rollback hypothesis retracted after existingtest verified. OPEN_CRITICAL/HIGH/MEDIUM/LOW=0.
+VERIFIED: full fresh local gates PASS after bounded remediation; all11 executable backendharnesses, Release0warnings/errors, frontendlint/build8files71tests, infrastructure and APIbootstrap contract/runtime, dotnettestexit0; emptycentralmigrator19/0, completepublishedbaselineupgrade2/0; modeldriftIdentity/Organization/Sites/AuditNONE; scopedformat/diffcheck/secretpatternPASS.
+DOCUMENTATION_REVIEW: PASS
+DOCS_IMPACT: YES (status only)
+DOCUMENTATION_SYNC: PASS
+UNCOMMITTED: review-01r.md, exact source review-paths.tsv, currentcheckpoint, status-only10docs; stage deliberately for narrow review/statuscommit, exclude downstream.
+PENDING: normalpush, exact-SHAhostedCIbackend/frontend/requiredchecks, publishedstatusfinalization. Local gates are not hosted proof.
+BLOCKERS: NONE
+TASK_03_01_01_CHANGED: NO
+DOWNSTREAM_CHECKPOINT_SHA256: 9AB72D3C68678954ECB5B57F20565E8482E2C02B1ADA70D21685A2EB7A96F218
+NEXT_ACTION: Re-fetch origin and stop on baseline divergence; commit reviewed metadata, normalpush main, verify exactSHAhostedCI; finalizepublication only afterPASS. Then STOP before TASK03.
+DO_NOT_REPEAT: no candidateamend, newcontract, runtimefeature, Assets/LocationUI, downstreamedits/staging, branch/worktree, forcepush or destructivecleanup. Do not inferCI frompush.

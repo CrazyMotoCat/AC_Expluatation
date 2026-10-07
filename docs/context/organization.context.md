@@ -13,7 +13,7 @@ Organization хранит Company-owned произвольное дерево Or
 - Company prerequisite/reference
 - OrganizationalUnit
 - OrganizationalUnitType
-- FunctionalDirection GLOBAL configurable reference (local candidate; local validation PASS; review/publication pending)
+- FunctionalDirection GLOBAL configurable reference (local candidate; local validation PASS; review PASS; publication pending)
 - Organization-owned durable audit obligations
 
 ## DB
@@ -141,5 +141,5 @@ No read audit, separate business-history store or integration event is added.
   context/validity/provider failure, existence concealment, duplicate-code race,
   stale overwrite, exact seed/provider semantics and audit atomicity
 
-TASK-02.02.02 is a IMPLEMENTED_LOCALLY_PENDING_REVIEW_AND_PUBLICATION.
+TASK-02.02.02 is a REVIEWED_LOCAL_PENDING_PUBLICATION.
 TASK-03.01.01 remains pending this task's publication; frontend/Assets are excluded.

@@ -69,8 +69,8 @@ payload allowlists. The same writer retains global EventId conflict semantics.
 
 TASK-02.02.02 locally registers canonical entity `FunctionalDirection` and
 actions `FunctionalDirectionCreated`, `FunctionalDirectionUpdated`,
-`FunctionalDirectionActivated`, `FunctionalDirectionDeactivated`, pending
-independent review/publication. Before/after snapshots allow only code, name
+`FunctionalDirectionActivated`, `FunctionalDirectionDeactivated`; independent
+review PASS, publication pending. Before/after snapshots allow only code, name
 and status; ID, actor, context, time, correlation and stable EventId remain
 canonical metadata. Organization commits a matching durable obligation
 atomically with each successful mutation and reuses its existing Application

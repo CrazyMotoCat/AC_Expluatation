@@ -14,7 +14,7 @@ Audit хранит append-only технические факты действи�
 - `IAuditWriter`, `AuditEventDraft`, canonical `AuditAction`/`AuditEntityType`
 - `IWorkingContextAuditWriter` typed adapters/implementation
 - canonical `TerritorialZone` entity and lifecycle action identifiers
-- canonical `FunctionalDirection` entity and FunctionalDirectionCreated/Updated/Activated/Deactivated actions, code/name/status snapshots; local implementation pending review/publication
+- canonical `FunctionalDirection` entity and FunctionalDirectionCreated/Updated/Activated/Deactivated actions, code/name/status snapshots; local implementation review PASS; publication pending
 - canonical `Location` entity and LocationCreated/Updated/Moved/Activated/Deactivated actions with fixed allowlisted before/after snapshots; move reason retained
 
 ## DB

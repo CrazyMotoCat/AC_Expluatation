@@ -290,7 +290,7 @@ use canonical Audit with actor/context/correlation and explicit scope facts.
 Rollback refuses even revoked GLOBAL rows pending archived owner disposition.
 
 TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-04/05/06 implements a narrow Organization
-consumer locally, with local validation PASS, pending independent review and publication.
+consumer locally, with local validation PASS, independent review PASS; publication pending.
 FunctionalDirection is GLOBAL master data: catalog read requires an explicit
 current GLOBAL grant for `organization.read` OR
 `organization.manage_functional_directions`.
