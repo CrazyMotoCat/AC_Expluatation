@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01R published exact Site scope; C1 published)
+SOURCE_VERSION: 2026-10-07 (AUTH-GLOBAL-01 explicit GLOBAL assignment scope)
 
 ## Purpose
 
@@ -62,7 +62,7 @@ Company/OrganizationalUnit dimensions.
 
 `identity.user_contexts` добавлена в `TASK-01.03.02`: owned local context, type/entity reference, display name, `[valid_from, valid_to)`, active flag и optimistic `row_version`. PostgreSQL проверяет validity, конечный срок delegation и restrictive FK к user. `context_entity_id` пока не является доказательством membership/contract; административного API создания/отзыва нет.
 
-`identity.access_assignments` добавлена `TASK-01.03.01` в module-owned migration. Она связывает локального User с Role, контекстной ссылкой и scope по territorial zone / region / site / functional direction / asset type. Требуется хотя бы одно ограничение scope; constrained dimension сравнивается с authoritative target attribute без автоматического вывода иерархии. Validity — `[valid_from, valid_to)`; для `DELEGATION` конечный `valid_to` обязателен. Отзыв сохраняет запись и actor/time, блокирует дальнейшую eligibility и защищён optimistic `row_version`. PostgreSQL обеспечивает restrictive FK, проверки scope/validity/revocation и уникальность точных активных назначений с одинаковым `valid_from` (nullable scope считается равным). Семантика перекрывающихся интервалов/полного отзыва при будущей выдаче доступа ещё не определена.
+`identity.access_assignments` добавлена `TASK-01.03.01` в module-owned migration. Она связывает локального User с Role, контекстной ссылкой и scope по territorial zone / region / site / functional direction / asset type. Для non-global требуется хотя бы одно concrete ограничение scope; constrained dimension сравнивается с authoritative target attribute без автоматического вывода иерархии. Validity — `[valid_from, valid_to)`; для `DELEGATION` конечный `valid_to` обязателен. Отзыв сохраняет запись и actor/time, блокирует дальнейшую eligibility и защищён optimistic `row_version`. PostgreSQL обеспечивает restrictive FK, проверки scope/validity/revocation и уникальность точных активных назначений с одинаковым `valid_from` (nullable scope считается равным). Семантика перекрывающихся интервалов/полного отзыва при будущей выдаче доступа ещё не определена.
 
 ## Invariants
 
@@ -75,7 +75,7 @@ Company/OrganizationalUnit dimensions.
 - Self-service list/select допускается только для authenticated + ACTIVE local user и только для собственных активных и действующих contexts; это не permission grant.
 - Context request-scoped; header `X-Work-Context-Id` на обычном `/api/v1` запросе перепроверяется и аудируется как применение до endpoint. Ни выбор, ни применение не расширяют доступные contexts или effective permissions.
 - Access validity проверяется на момент запроса.
-- Assignment без scope не создаётся; missing или неверный target dimension не удовлетворяет ограничению assignment.
+- Assignment имеет explicit GLOBAL или существующий concrete scope с хотя бы одним измерением; concrete composites сохраняют conjunctive semantics. GLOBAL + concrete IDs запрещён; NULL/missing/unknown scope не означает GLOBAL. Missing или неверный target dimension не удовлетворяет concrete assignment.
 - Expired, not-yet-valid и revoked assignment не подходят для доступа; delegation не может быть бессрочным.
 - Backend authorization authoritative.
 - Role является группой permissions и сама по себе не обходит scope, working context, validity или contractor restrictions.
@@ -108,6 +108,7 @@ ADR-016 / B2-R1 реализует уточнение после review F1/F2: I
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.
 - `AuthenticatedUser` carries an optional provisioning input from the configured trusted `user_type` claim; it is not a permission.
 - `IPermissionGrantSource` принимает локальный user ID и canonical permission ID; текущая production реализация deny-by-default.
+- `IGlobalGrantProvider.HasGlobalGrantAsync(GlobalGrantRequest)` checks an explicit current GLOBAL assignment for trusted `CanonicalPermission`, local user and owned context. It reuses current canonical INTERNAL eligibility, denies invalid/provider/storage failures and propagates cancellation. HTTP input supplies no grant evidence. GLOBAL is excluded from concrete effective-scope results.
 - `IEffectiveGrantEvaluator` checks exact Zone/Region/Site target IDs only; it cannot accept parent evidence. `IEffectiveScopeProvider` returns immutable exact permission-specific Zone/Region/Site data, reusing shared Identity eligibility semantics. Sites derives target coverage from its own persistence. C1 Geography HTTP routes use the Sites services; the Site foundation is published after independent SITE-AUTH-01R review, and Site HTTP routes remain absent. Unrelated routes remain on target-blind denial.
 - `IWorkingContextAuditWriter` — Audit-owned cross-module contract для durable `WorkingContextSelected` и `WorkingContextApplied`; Identity не пишет в Audit schema напрямую.
 
@@ -157,6 +158,17 @@ Frontend browser session использует Authorization Code + PKCE чере
 Permission-protected business routes добавлены для Sites и Organization, но production grant source продолжает deny-by-default. `TASK-01.02.02` также проверяет policy на изолированном integration test endpoint. Для открытия scoped grant одного permission policy недостаточно: потребуются context, scope, validity и contractor restrictions по ADR-007.
 
 `TASK-01.03.01` не добавляет admin route для выдачи/отзыва access assignment и не активирует grants. `identity.access.manage` остаётся canonical permission для будущего административного use case, а не основанием для bypass.
+
+`AUTH-GLOBAL-01` / ADR-018 adds explicit `AccessScope.IsGlobal`, the `Global`
+factory and persisted `AccessAssignment.IsGlobal` (`is_global` default false).
+GLOBAL excludes all five concrete IDs; non-global validation retains existing
+composites. Legacy rows retain their IDs, context and validity without widening.
+The canonical domain `Assign` path supports bootstrap creation; no admin
+application/HTTP mutation path, consumer or permission seed is added. Future
+assignment administration must use canonical Audit with explicit scope facts.
+The provider reads PostgreSQL per request; no authorization cache is introduced.
+Rollback refuses all GLOBAL rows, including revoked history, until an explicit
+owner-approved disposition is archived; migration never discards that history.
 
 ## Security
 

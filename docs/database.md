@@ -355,6 +355,7 @@ user_id                    uuid FK identity.users RESTRICT
 role_id                    uuid FK identity.roles RESTRICT
 context_type               varchar(50)
 context_id                 uuid
+is_global                  boolean NOT NULL DEFAULT false
 territorial_zone_id        uuid nullable
 region_id                  uuid nullable
 site_id                    uuid nullable
@@ -380,7 +381,9 @@ DELEGATION
 TEAM
 ```
 
-Одна запись не обязана заполнять все scope fields, но хотя бы одно измерение scope обязательно. Незаполненное измерение не ограничивает его, а заполненное требует точного соответствия атрибута целевой сущности. Иерархия объекта должна быть получена из authoritative данных; переданный клиентом ID сам по себе не доказывает принадлежность объекту или зоне.
+ADR-018: `is_global=true` означает explicit GLOBAL и требует NULL во всех пяти concrete scope fields. При `is_global=false` прежнее правило требует хотя бы одно concrete измерение; composite scopes остаются допустимыми. Незаполненное concrete измерение не ограничивает его, а заполненное требует точного соответствия атрибута целевой сущности. Иерархия объекта должна быть получена из authoritative данных; переданный клиентом ID сам по себе не доказывает принадлежность объекту или зоне.
+
+Presence CHECK: `is_global OR (territorial_zone_id IS NOT NULL OR region_id IS NOT NULL OR site_id IS NOT NULL OR functional_direction_id IS NOT NULL OR asset_type_id IS NOT NULL)`. Отдельный CHECK требует `NOT is_global OR (territorial_zone_id IS NULL AND region_id IS NULL AND site_id IS NULL AND functional_direction_id IS NULL AND asset_type_id IS NULL)`. Additive migration присваивает всем legacy rows `false`, сохраняя каждое concrete ID, permission, context и validity; NULL/unknown не означает GLOBAL. Down отказывается при любой GLOBAL row, включая revoked: owner-approved disposition с explicit revoke/reissue concrete grants и архивированием требуется до rollback, без silent loss истории.
 
 Validity действует на интервале `[valid_from, valid_to)`; `valid_to` может отсутствовать, кроме `DELEGATION`, для которого конечный срок обязателен. Отзыв переводит `is_active` в `false`, сохраняет `revoked_at` / `revoked_by`, не удаляет историческую запись и защищён `row_version`. PostgreSQL проверяет scope, validity, context type и согласованность полей отзыва; restrictive FK сохраняют ссылки на User/Role. Частичный unique index предотвращает точные дубликаты активных назначений с тем же user/role/context/scope/`valid_from`, трактуя nullable scope как равные (`NULLS NOT DISTINCT`). Перекрывающиеся интервалы с разным `valid_from` этим индексом не запрещены; семантика повторной выдачи и полного отзыва определяется в будущих use cases управления доступом.
 

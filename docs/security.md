@@ -272,6 +272,24 @@ ADR-013 / `AUTH-SCOPE-01` B1 реализует Identity `IEffectiveGrantEvaluat
 
 Для Zone/Region scoped query пустой effective-scope set означает ноль разрешённых целей; пустой набор никогда не означает all rows или fallback access. Sites SQL filtering применяет Zone scope только к Zone и её дочерним Regions; Region scope не покрывает parent Zone и открывает только соответствующий Region. Unsupported scopes не расширяют результат, duplicate scopes не дублируют rows. List composition получает scopes из Identity с фиксированным `sites.read`; scopes другой permission не используются. Прямые target checks получают authoritative Zone/Region facts из Sites persistence и отдельно запрашивают effective scopes для точного permission, не полагаясь на list result. C1 включает только Geography HTTP routes; target-blind production grant source остаётся deny-by-default для прочих маршрутов. SITE-API-01 Site HTTP routes реализованы локально; contractor grants и capabilities не реализованы; Site scope/coverage опубликованы после SITE-AUTH-01R review.
 
+AUTH-GLOBAL-01 / ADR-018 adds explicit permission-specific GLOBAL through
+`identity.access_assignments.is_global` (default false). GLOBAL excludes every
+concrete ID; existing non-global conjunctive composites remain valid. Legacy
+rows never widen; NULL, empty and unknown scope never mean GLOBAL.
+`IGlobalGrantProvider` evaluates the exact trusted server-side permission with
+shared canonical ACTIVE INTERNAL user/owned current INTERNAL context, role,
+assignment, revocation and validity rules. Concrete grants and another
+permission's GLOBAL deny; multiple concrete assignments cannot create GLOBAL.
+Invalid input/provider/storage failure denies; cancellation propagates. HTTP
+permission/scope/global/ownership input is not authorization evidence. GLOBAL
+never enters geographic effective scopes or changes Sites/Location coverage.
+Generic representation adds no new eligibility policy; future Organization
+composition separately requires its INTERNAL eligibility and fixed
+`organization.manage_functional_directions` GLOBAL grant. No consumer, seed,
+admin mutation endpoint or cache is added. Future GLOBAL administration must
+use canonical Audit with actor/context/correlation and explicit scope facts.
+Rollback refuses even revoked GLOBAL rows pending archived owner disposition.
+
 ADR-016 / `AUTH-SCOPE-01` B2-R1 исправляет границу доверия после независимой проверки B2: Identity evaluator принимает только exact Zone/Region target ID без caller-supplied Region parent; Zone → Region coverage вычисляется Sites по сохранённой иерархии. Публичный Sites direct service принимает бизнес-цель, authenticated local user и validated context, затем сам запрашивает `IEffectiveScopeProvider` для точного permission. Публичный list service запрашивает фиксированный `sites.read`; SQL-фильтрация скрыта внутри Sites Infrastructure, без публичного scope-bearing store или permission-string evidence. B1 exact-scope eligibility сохраняется. Финальная проверка F1/F2 прошла, B2 интегрирован на main. C1-OD-01: отсутствующая и недоступная прямая Zone/Region цель либо parent Zone для Region create одинаково возвращают 403, без раскрытия существования; authentication failure остаётся 401, а пустой scoped list возвращает 200 `[]`.
 
 ADR-014, уточнённый ADR-017 после ADR-015/016, закрепляет контракт для Site:

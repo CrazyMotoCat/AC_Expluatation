@@ -1278,3 +1278,6 @@ HOSTED_CI: NOT_YET_VERIFIED — GitHub Actions run for the exact final SHA is in
 REPOSITORY_STATE: CLEAN after final push.
 NEXT_ACTION: Prepare a safe return/integration plan for TASK-02.03.03 Site checkpoint on the published C1 baseline; do not start Site work in this phase.
 DO_NOT_REPEAT: Do not redo preflight, change C1 code, amend source commit, force push, touch Site branch or start Site authorization.
+
+## AUTH-GLOBAL-01 resume (2026-10-07)
+Authoritative phase checkpoint: [global-grant-state.md](global-grant-state.md). Baseline d07f48699410a1da8b938655b4d63605dc44d19f, main. OD-AUTH-GLOBAL-09 accepted; composites preserved. Explicit GLOBAL implemented; all local validation and independent security review PASS, ready for one atomic local commit. No push or downstream implementation. NEXT_ACTION: Independent publication review of the AUTH-GLOBAL-01 local commit before push; follow global-grant-state.md.

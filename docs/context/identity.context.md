@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-09-28 (SITE-AUTH-01R published exact Site scope; C1 published)
+SOURCE_VERSION: 2026-10-07 (AUTH-GLOBAL-01 explicit GLOBAL assignment scope)
 MODULE: Identity
 
 ## PURPOSE
@@ -33,7 +33,7 @@ Module-owned `IdentityDbContext`, migrations и `identity.__ef_migrations_histor
 
 Role/permission persistence добавлена `TASK-01.02.01`: unique codes, optimistic Role `row_version`, composite `(role_id, permission_id)`, restrictive FKs и migration-owned seed canonical permission catalog.
 
-`TASK-01.03.01` добавила assignment persistence: пять nullable scope dimensions (хотя бы одно обязательно), exact-match eligibility, validity `[valid_from, valid_to)`, обязательный конечный срок `DELEGATION`, отзыв без удаления с actor/time и optimistic `row_version`, restrictive FK и unique index для точных активных дубликатов при одинаковом `valid_from`.
+`TASK-01.03.01` добавила assignment persistence: пять nullable concrete scope dimensions (для non-global хотя бы одно обязательно), exact-match eligibility, validity `[valid_from, valid_to)`, обязательный конечный срок `DELEGATION`, отзыв без удаления с actor/time и optimistic `row_version`, restrictive FK и unique index для точных активных дубликатов при одинаковом `valid_from`.
 
 SITE-AUTH-01 публикует exact `Site/siteId` в общих
 `IEffectiveScopeProvider`/`IEffectiveGrantEvaluator` и общей eligibility
@@ -70,6 +70,13 @@ Scope может включать:
 - functional direction;
 - asset type.
 
+ADR-018 adds explicit GLOBAL (`AccessScope.IsGlobal` / `AccessAssignment.IsGlobal`,
+`is_global` default false). GLOBAL requires all concrete IDs NULL; non-global
+assignments retain at-least-one and existing conjunctive composites. Legacy rows
+remain non-global with unchanged IDs/context/validity; NULL/unknown never means
+GLOBAL. Rollback refuses any GLOBAL row, including revoked history, pending
+explicit owner disposition and archival.
+
 Working context:
 
 - INTERNAL
@@ -89,7 +96,7 @@ Working context:
 - Любой backend endpoint проверяет permission и scope.
 - Наличие UUID сущности не даёт право на доступ.
 - Access assignment действует только в пределах `valid_from` / `valid_to`.
-- Assignment без scope не допускается; missing/wrong target dimension и чужой user/context не удовлетворяют assignment; target ancestry должен поступать из authoritative данных.
+- Assignment requires explicit GLOBAL or valid concrete scope; GLOBAL + concrete IDs is invalid. Missing/wrong concrete target dimension и чужой user/context не удовлетворяют assignment; target ancestry должен поступать из authoritative данных.
 - Delegation всегда имеет конечный `valid_to`; revoked assignment не восстанавливается неявно и сохраняется как история.
 - Пользователь может иметь несколько рабочих контекстов.
 - Активный контекст должен принадлежать пользователю.
@@ -140,6 +147,7 @@ Identity не должен знать все бизнес-правила дру�
 - `ExternalIdentityKey` (`issuer + subject`)
 - local profile result (`userId`, identity key, display name/email, user type/status) через `GET /api/v1/me`
 - `IPermissionGrantSource` для явного grant; текущая production реализация deny-by-default
+- `IGlobalGrantProvider.HasGlobalGrantAsync(GlobalGrantRequest)` evaluates only explicit current GLOBAL for trusted `CanonicalPermission`, user and owned context through shared current INTERNAL eligibility. Invalid/provider/storage failures deny; cancellation propagates. Concrete grants cannot satisfy it; GLOBAL never enters geographic effective scopes.
 - Implemented `IEffectiveScopeProvider` for immutable, distinct, permission-specific `TerritorialZone`/`Region`/`Site` descriptors; C1 Geography routes consume it through Sites application services. Site foundation is published after SITE-AUTH-01R review; Site HTTP routes are absent.
 - API `RequirePermission` convention для canonical policy code; `GET /api/v1/me` остаётся authenticated self-profile bootstrap
 - `GET /api/v1/me/contexts`, `POST /api/v1/me/context` для собственных available contexts; request header `X-Work-Context-Id` validated by API
@@ -226,6 +234,11 @@ User
 - contractor context;
 - delegation;
 - emergency access.
+
+AUTH-GLOBAL-01 extends canonical domain `Assign` bootstrap support only. No
+application/admin mutation path, HTTP consumer, seed or authorization cache is
+added. Future GLOBAL creation/change/revocation must record explicit scope via
+canonical Audit; PostgreSQL remains the authorization source of truth.
 
 ## FORBIDDEN
 
