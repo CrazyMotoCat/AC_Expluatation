@@ -2,7 +2,7 @@
 
 TASK: AUTH-SCOPE-01
 PHASE: AUTH-GLOBAL-01 — EXPLICIT GLOBAL GRANT IMPLEMENTATION
-STATUS: LOCAL_VALIDATED_PENDING_PUBLICATION
+STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
 CHECKPOINT_STATUS: SAFE
 BASELINE_SHA: d07f48699410a1da8b938655b4d63605dc44d19f
 LAST_SAFE_COMMIT: d07f48699410a1da8b938655b4d63605dc44d19f
@@ -91,4 +91,6 @@ HOSTED_CI: UNVERIFIED; no push authorized in this phase.
 
 All task-owned paths are staged explicitly and inspected; pre-existing downstream task checkpoints stay untracked and excluded. Commit subject: feat(identity): add explicit global assignment scope. Commit parent must be d07f48699410a1da8b938655b4d63605dc44d19f. Resolve the resulting local SHA via Git; a checkpoint inside its own commit cannot embed that self-referential SHA. The recorded baseline remains the last safe pre-task commit. Branch stays main, origin/main stays baseline, exactly one local task commit, no push.
 
-NEXT_ACTION: Independent publication review of AUTH-GLOBAL-01 local commit before push. Then STOP; do not implement/unblock downstream tasks yet.
+AUTH-GLOBAL-01R: Independent publication review PASS; see `auth-global-publication-review.md` for the schema proof, attack matrix and rerun evidence. The exact source candidate remains unchanged. Hosted CI is unverified until the review-status commit is pushed and its exact SHA passes.
+
+NEXT_ACTION: Recheck origin/main against the published baseline, commit only this review evidence/status, push main normally, and verify exact-final-SHA hosted CI. Do not implement downstream tasks.
