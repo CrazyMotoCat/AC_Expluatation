@@ -326,6 +326,15 @@ Canonical permission codes определены в `permissions-registry.md`. Mi
 additive Identity migration. The previous 74 IDs and rows remain unchanged;
 Company/branch scope is not persisted in `identity.permissions` yet.
 
+TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-06 accepts exactly one canonical
+`organization.manage_functional_directions` seed with stable ID
+`0199f3b0-0000-7000-8000-00000000004e`. Identity HasData migration
+`20261007141653_AddFunctionalDirectionManagementPermission` inserts only that
+permission row. It changes no schema and creates no role, access assignment or
+GLOBAL grant; the row alone grants no access. No runtime seed synchronizer or
+alias is introduced. This remains a local candidate with local validation PASS, pending review
+and publication.
+
 ---
 
 ## 5.4. identity.role_permissions
@@ -535,8 +544,8 @@ B1 tables. Organization owns `organization.__ef_migrations_history`.
 Organization-owned durable obligations required by ADR-011. The B2 table stores
 the stable UUIDv7 `audit_event_id`, actor/context/correlation metadata,
 canonical action/entity, allowlisted before/after JSON snapshots and
-delivery state. It is committed atomically with the OrganizationalUnit
-mutation. Its PENDING/PROCESSED and claim/lease/retry columns are reserved for
+delivery state. It is committed atomically with the OrganizationalUnit or
+FunctionalDirection mutation. Its PENDING/PROCESSED and claim/lease/retry columns are reserved for
 the C2 delivery adapter. Organization delivers through its Application port
 to the technical host and canonical `IAuditWriter`; it never writes
 `audit.events` or `sites.audit_obligations` directly.
@@ -545,9 +554,10 @@ to the technical host and canonical `IAuditWriter`; it never writes
 id                    uuid PK, UUIDv7
 audit_event_id        uuid unique, UUIDv7, stable retry identity
 action                varchar(200)
-entity_type           varchar(200), OrganizationalUnit only
+entity_type           varchar(200), OrganizationalUnit or FunctionalDirection
 entity_id             uuid
-organizational_unit_id uuid FK organization.organizational_units(id)
+organizational_unit_id uuid nullable FK organization.organizational_units(id)
+functional_direction_id uuid nullable FK organization.functional_directions(id)
 actor_user_id         uuid
 acting_context_id     uuid nullable
 occurred_at           timestamptz
@@ -567,7 +577,11 @@ processed_at          timestamptz nullable
 
 The database enforces the Organization entity/action allowlist, exact semantic
 snapshot keys, stable EventId uniqueness, delivery-state coherence and a
-restrictive unit foreign key. The command store fixes action/entity/IDs and
+restrictive entity foreign keys with exactly one matching entity binding.
+TASK-02.02.02 generalizes the existing obligation additively; unit/history
+semantics remain unchanged. FunctionalDirection snapshots allow only code,
+name and status, with canonical Created/Updated/Activated/Deactivated actions.
+The command store fixes action/entity/IDs and
 snapshot shape; callers supply only actor/context/correlation/time/reason.
 The Organization adapter claims bounded rows with `FOR UPDATE SKIP LOCKED` in
 a short transaction, commits claim tokens and leases before Audit append,
@@ -587,17 +601,26 @@ there is no public history endpoint in B2.
 
 ## 6.5. organization.functional_directions
 
-Функциональные вертикали.
+Organization-owned GLOBAL configurable reference. TASK-02.02.02 local
+candidate is with local validation PASS, pending independent review and publication; owner
+decisions OD-FUNCTIONAL-DIRECTION-01..06 accepted.
 
 ```text
-id
-code
-name
-description
-is_active
+id          uuid PK, runtime UUIDv7
+code        varchar(50) NOT NULL, globally unique, immutable
+name        varchar(200) NOT NULL, mutable, non-unique
+status      varchar(20) NOT NULL: ACTIVE/INACTIVE
+created_at  timestamptz NOT NULL
+updated_at  timestamptz NOT NULL
+row_version bigint NOT NULL, positive optimistic concurrency token
 ```
 
-Примеры:
+Code uses required trim + invariant uppercase and existing ReferenceCode regex
+`^[A-Z0-9][A-Z0-9_-]{0,49}$`. Name is required and trimmed. Create ACTIVE;
+INACTIVE remains resolvable but cannot be selected for new references. There
+is no description, is_active or hard delete. Commands enforce immutable code
+and optimistic expectedRowVersion. Exactly seven deterministic ACTIVE seeds
+have name == code; IDs are authoritative in `reference-data-registry.md`:
 
 ```text
 IT
@@ -608,6 +631,16 @@ REAL_ESTATE
 INFRASTRUCTURE_DEVELOPMENT
 RETAIL
 ```
+
+One narrow Organization-owned migration `20261007091435_AddFunctionalDirections`
+creates this table and extends the
+existing Organization durable audit obligation binding/allowlists. No Identity
+or Assets schema change and no cross-module FK. FunctionalDirection has no
+separate business-history table; successful mutations commit their durable
+audit obligation in the same transaction and reuse canonical Audit delivery.
+The table trigger protects immutable id/code/created_at and rejects runtime
+hard delete. Rollback refuses existing FunctionalDirection audit history before
+schema removal; seeds-only rollback is validated in a separate pristine database.
 
 ---
 

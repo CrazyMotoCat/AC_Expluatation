@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-10-02 (TASK-02.04.02 Location audit extension)
+SOURCE_VERSION: 2026-10-07 (TASK-02.02.02 FunctionalDirection audit extension)
 
 ## Purpose
 
@@ -66,6 +66,17 @@ writes `sites.audit_obligations` or `audit.events`. C2 implements an
 explicit Organization Application delivery port, an Organization-owned
 PostgreSQL claim/lease/retry store and the Audit canonical action/entity and
 payload allowlists. The same writer retains global EventId conflict semantics.
+
+TASK-02.02.02 locally registers canonical entity `FunctionalDirection` and
+actions `FunctionalDirectionCreated`, `FunctionalDirectionUpdated`,
+`FunctionalDirectionActivated`, `FunctionalDirectionDeactivated`, pending
+independent review/publication. Before/after snapshots allow only code, name
+and status; ID, actor, context, time, correlation and stable EventId remain
+canonical metadata. Organization commits a matching durable obligation
+atomically with each successful mutation and reuses its existing Application
+delivery port/claim/lease/retry store and the same canonical IAuditWriter.
+Reads and denied/failed/stale/duplicate commands create no successful mutation
+audit. No FunctionalDirection business-history store or integration event is added.
 
 `IWorkingContextAuditWriter.WriteSelectedAsync` и `WriteAppliedAsync` сохранены как typed adapters и используют только `IAuditWriter`. `WorkingContextSelected` создаётся для POST body, `WorkingContextApplied` — для валидного request header. Оба содержат actor local user ID, `acting_context_id`/`entity_id`, occurred_at, after JSON с context ID и request correlation.
 

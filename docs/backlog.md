@@ -629,7 +629,22 @@ Proposed implementation split after Phase A:
 
 ### TASK-02.02.02. Functional directions
 
-Создать справочник.
+Status: **IMPLEMENTED_LOCALLY_PENDING_REVIEW_AND_PUBLICATION**
+(FUNCTIONAL-DIRECTION-01, OD-FUNCTIONAL-DIRECTION-01..06 accepted).
+TASK-03.01.01 prerequisite remains pending publication; local implementation
+does not unblock downstream work.
+
+Domain/persistence/provider/API/Audit candidate is present locally. OD-06
+accepts exactly one Identity HasData data-only migration,
+`20261007141653_AddFunctionalDirectionManagementPermission`, for the canonical
+management permission. It changes no Identity schema and creates no role,
+assignment or GLOBAL grant; the permission row alone gives no access. Local
+validation passed; independent commit review and publication remain pending.
+
+Organization-owned GLOBAL configurable reference; runtime UUIDv7, immutable
+globally unique canonical code (trim/uppercase, max 50, existing ReferenceCode
+regex), mutable trimmed non-unique name (max 200), ACTIVE/INACTIVE status,
+created_at/updated_at/row_version. No description, is_active or hard delete.
 
 Начальные значения:
 
@@ -647,6 +662,30 @@ Acceptance Criteria:
 
 - не hardcoded в business logic;
 - можно добавлять новые значения.
+- exactly seven deterministic ACTIVE seeds, name == code;
+- stable cross-module reference provider: ACTIVE selectable, INACTIVE resolvable
+  but not selectable, missing distinct; no EF/DbContext/IQueryable/auth facts;
+- unpaged inactive-inclusive GET `/api/v1/reference/functional-directions`,
+  sorted code/id; management detail, create, name-only PUT, activate/deactivate;
+- OD-05: catalog requires explicit current GLOBAL `organization.read` OR
+  GLOBAL `organization.manage_functional_directions`; management requires
+  only GLOBAL `organization.manage_functional_directions`;
+- canonical ACTIVE INTERNAL user + owned current INTERNAL context; fixed
+  permissions through published Identity `IGlobalGrantProvider`, fail closed;
+- concrete/composite scopes never satisfy either GLOBAL rule; read does not
+  imply management; Company/OrganizationalUnit scopes remain deferred;
+- current expectedRowVersion required for updates/lifecycle; duplicate code,
+  unchanged name, repeated lifecycle and stale writes conflict;
+- successful mutations atomically create canonical Organization-owned durable
+  FunctionalDirection audit obligations; no business-history store added;
+- one narrow Organization migration and one Identity permission data-only
+  migration; no Identity/Assets schema change, role, access assignment or
+  GLOBAL grant seed; no frontend/Assets implementation.
+
+Contract, routes and audit: `modules/organization.md`; seed IDs:
+`reference-data-registry.md`; exact GLOBAL authorization:
+`permissions-registry.md` and `security.md`. Independent review and publication
+are separate gates after local verification/commit.
 
 ---
 

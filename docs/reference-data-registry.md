@@ -1,7 +1,7 @@
 # Reference Data Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-30 (TASK-02.04.01 LocationType owner decisions)
+SOURCE_VERSION: 2026-10-08 (TASK-02.02.02 FunctionalDirection owner decisions through OD-06)
 
 ## 1. Назначение
 
@@ -44,6 +44,7 @@ SOURCE_VERSION: 2026-09-30 (TASK-02.04.01 LocationType owner decisions)
 | SiteCriticality | Sites | CONFIGURABLE_REFERENCE/HYBRID | NORMAL, KVO3, KVO2, KVO1 | yes, with rank |
 | LocationType | Sites | CONFIGURABLE_REFERENCE | BUILDING, FLOOR, ROOM, RACK, AREA | yes |
 | OrganizationalUnitType | Organization | CONFIGURABLE_REFERENCE | DEPARTMENT, DIVISION, DIRECTION, SECTION, FRONT_OFFICE, BACK_OFFICE, MANAGEMENT | yes |
+| FunctionalDirection | Organization | CONFIGURABLE_REFERENCE | IT, EXPLOITATION, SECURITY, CYBERSECURITY, REAL_ESTATE, INFRASTRUCTURE_DEVELOPMENT, RETAIL | yes |
 | AssetType | Assets | CONFIGURABLE_REFERENCE | UPS, DGU, AC, panel, server, switch, fire detector | yes |
 | Manufacturer | Assets | CONFIGURABLE_REFERENCE | vendor names | yes |
 | AssetModel | Assets | CONFIGURABLE_REFERENCE | model catalog | yes |
@@ -87,15 +88,37 @@ Type:
 CONFIGURABLE_REFERENCE
 ```
 
-Initial examples:
+TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-01..06: local candidate with local validation PASS, pending
+independent review and publication. Exactly seven ACTIVE seeds,
+each name == code:
 
-- IT
-- EXPLOITATION
-- SECURITY
-- CYBERSECURITY
-- REAL_ESTATE
-- INFRASTRUCTURE_DEVELOPMENT
-- RETAIL
+| Code | Stable UUIDv7 seed ID |
+|---|---|
+| IT | 0199e3b0-0000-7000-8000-000000000001 |
+| EXPLOITATION | 0199e3b0-0000-7000-8000-000000000002 |
+| SECURITY | 0199e3b0-0000-7000-8000-000000000003 |
+| CYBERSECURITY | 0199e3b0-0000-7000-8000-000000000004 |
+| REAL_ESTATE | 0199e3b0-0000-7000-8000-000000000005 |
+| INFRASTRUCTURE_DEVELOPMENT | 0199e3b0-0000-7000-8000-000000000006 |
+| RETAIL | 0199e3b0-0000-7000-8000-000000000007 |
+
+Runtime IDs are UUIDv7. Code is required, trim + invariant uppercase,
+immutable, globally unique, max 50, regex `^[A-Z0-9][A-Z0-9_-]{0,49}$`.
+Name is required, trimmed, mutable, non-unique, max 200. The sole lifecycle
+field is status ACTIVE/INACTIVE; create ACTIVE, no description/is_active or
+hard delete. Inactive values remain resolvable for existing references but
+cannot be selected for new references. The Organization Application reference
+provider returns immutable trusted facts and null for missing; it is not
+an end-user authorization service.
+
+GET `/api/v1/reference/functional-directions` returns both statuses, unpaged,
+ordered code/id. OD-05 currently requires a current explicit GLOBAL
+`organization.read` OR GLOBAL `organization.manage_functional_directions`,
+canonical ACTIVE INTERNAL local user and owned current INTERNAL context.
+Concrete/composite assignments are insufficient. Management detail/create/
+name-only update/activate/deactivate require GLOBAL management only. The new
+canonical permission seeds no assignments or grants. Company/unit scoped
+Organization reads remain deferred. See `modules/organization.md`.
 
 Не hardcode в authorization/business logic.
 
@@ -249,7 +272,9 @@ min
 Для CONFIGURABLE_REFERENCE:
 
 - запись обычно не удаляется;
-- используется `is_active`;
+- lifecycle field follows the accepted module contract: `status` ACTIVE/INACTIVE
+  for FunctionalDirection and other references documented above; `is_active`
+  only where that field is explicitly specified;
 - исторические записи продолжают ссылаться на inactive value;
 - inactive value нельзя выбирать для новых объектов.
 

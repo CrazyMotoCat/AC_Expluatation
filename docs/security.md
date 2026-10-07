@@ -283,12 +283,37 @@ permission's GLOBAL deny; multiple concrete assignments cannot create GLOBAL.
 Invalid input/provider/storage failure denies; cancellation propagates. HTTP
 permission/scope/global/ownership input is not authorization evidence. GLOBAL
 never enters geographic effective scopes or changes Sites/Location coverage.
-Generic representation adds no new eligibility policy; future Organization
-composition separately requires its INTERNAL eligibility and fixed
-`organization.manage_functional_directions` GLOBAL grant. No consumer, seed,
-admin mutation endpoint or cache is added. Future GLOBAL administration must
+Generic representation adds no new eligibility policy; AUTH-GLOBAL-01 itself
+adds no consumer, assignment/grant seed, admin mutation endpoint or cache.
+Future GLOBAL administration must
 use canonical Audit with actor/context/correlation and explicit scope facts.
 Rollback refuses even revoked GLOBAL rows pending archived owner disposition.
+
+TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-04/05/06 implements a narrow Organization
+consumer locally, with local validation PASS, pending independent review and publication.
+FunctionalDirection is GLOBAL master data: catalog read requires an explicit
+current GLOBAL grant for `organization.read` OR
+`organization.manage_functional_directions`.
+Management detail/create/name update/activate/deactivate require only explicit
+current GLOBAL `organization.manage_functional_directions`. Organization
+uses fixed trusted permission codes through Identity-owned `IGlobalGrantProvider`
+and canonical authenticated ACTIVE INTERNAL local user + current owned INTERNAL
+context eligibility. Published assignment/role/revocation/validity semantics
+remain unchanged. Concrete/composite Zone/Region/Site/FunctionalDirection/AssetType
+assignments for either permission do not satisfy this GLOBAL rule; no non-empty
+effective-scope fallback, geographic widening or read-to-management implication
+exists. External/contractor, wrong context, future/expired assignment and provider
+failure deny. HTTP permission/scope/global parameters are not evidence.
+Authorization precedes management target lookup so denied callers cannot learn
+existence. OD-06 accepts one Identity HasData data-only migration
+`20261007141653_AddFunctionalDirectionManagementPermission` for canonical
+`organization.manage_functional_directions`; its permission row alone grants
+no access. No Identity schema, role, assignment or GLOBAL grant seed is added.
+Company/OrganizationalUnit scoped reads remain deferred and deny-by-default.
+Successful mutations and Organization-owned durable FunctionalDirection audit
+obligations commit
+atomically; failed/denied/stale/duplicate commands have no successful audit
+effect. No grant-management API or change to Sites/Location coverage is added.
 
 ADR-016 / `AUTH-SCOPE-01` B2-R1 исправляет границу доверия после независимой проверки B2: Identity evaluator принимает только exact Zone/Region target ID без caller-supplied Region parent; Zone → Region coverage вычисляется Sites по сохранённой иерархии. Публичный Sites direct service принимает бизнес-цель, authenticated local user и validated context, затем сам запрашивает `IEffectiveScopeProvider` для точного permission. Публичный list service запрашивает фиксированный `sites.read`; SQL-фильтрация скрыта внутри Sites Infrastructure, без публичного scope-bearing store или permission-string evidence. B1 exact-scope eligibility сохраняется. Финальная проверка F1/F2 прошла, B2 интегрирован на main. C1-OD-01: отсутствующая и недоступная прямая Zone/Region цель либо parent Zone для Region create одинаково возвращают 403, без раскрытия существования; authentication failure остаётся 401, а пустой scoped list возвращает 200 `[]`.
 

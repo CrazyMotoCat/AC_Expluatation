@@ -1,7 +1,7 @@
 # Permissions Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A scope clarification)
+SOURCE_VERSION: 2026-10-08 (TASK-02.02.02 FunctionalDirection GLOBAL boundary and OD-06)
 
 ## 1. Назначение
 
@@ -146,7 +146,8 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `qualifications.verify` | Qualifications | Верификация сертификата | org/team | INTERNAL | CRITICAL |
 | `reports.read` | Reports | Просмотр доступных отчётов | inherited | INTERNAL/CONTRACT* | NORMAL |
 | `reports.export` | Reports | Экспорт | inherited + export policy | INTERNAL/CONTRACT* | SENSITIVE |
-| `organization.read` | Organization | Просмотр организационных подразделений | company/organizational-unit (deferred) | INTERNAL | NORMAL |
+| `organization.read` | Organization | Просмотр организационных подразделений | GLOBAL for FunctionalDirection catalog; company/organizational-unit (deferred) | INTERNAL | NORMAL |
+| `organization.manage_functional_directions` | Organization | Управление функциональными направлениями | explicit GLOBAL only | INTERNAL | SENSITIVE |
 | `organization.create` | Organization | Создание организационного подразделения | company/organizational-unit (deferred) | INTERNAL | CRITICAL |
 | `organization.change` | Organization | Изменение, reparent и lifecycle подразделения | company/organizational-unit (deferred) | INTERNAL | SENSITIVE |
 
@@ -182,11 +183,33 @@ The three accepted Organization permissions are active catalog entries in
 section 5 and are seeded by the additive Identity migration for C1.
 
 `access_assignments` does not yet carry Company/OrganizationalUnit dimensions.
-Production grant evaluation remains deny-by-default until the dedicated
+Production OrganizationalUnit grant evaluation remains deny-by-default until the dedicated
 authorization-scope task. The Identity permission schema does not persist
 scope metadata; the deferred Company/OrganizationalUnit scope description above
 is documentation only and grants no access.
 UserType, role name, JWT claims, working context and entity ID are not grants.
+
+## 5.2. FunctionalDirection GLOBAL boundary — TASK-02.02.02
+
+OD-FUNCTIONAL-DIRECTION-04/05/06 are accepted; the local candidate has passed local validation and awaits
+independent review and publication. Catalog read requires a current
+explicit GLOBAL grant for `organization.read` OR
+`organization.manage_functional_directions`.
+Management detail/create/PUT/activate/deactivate require only current explicit
+GLOBAL `organization.manage_functional_directions`. Permissions are independent:
+read alone cannot manage; management can read this catalog without read permission.
+Organization passes these fixed trusted codes to Identity `IGlobalGrantProvider`.
+Canonical authenticated ACTIVE INTERNAL local user, owned current INTERNAL
+context and published role/assignment/revocation/validity rules remain mandatory.
+Concrete or composite Zone/Region/Site/FunctionalDirection/AssetType grants
+for either permission are insufficient. Wrong context, future/expired grants,
+external/contractor and provider failure deny. Company/unit authorization is
+not extended. OD-06 authorizes exactly one Identity HasData data-only migration,
+`20261007141653_AddFunctionalDirectionManagementPermission`, inserting the
+canonical management permission with stable ID
+`0199f3b0-0000-7000-8000-00000000004e`. No schema, role, assignment or
+GLOBAL grant is created; the permission row alone grants no access. No runtime
+seed synchronizer or alias is introduced.
 
 ## 6. Provisional permissions
 

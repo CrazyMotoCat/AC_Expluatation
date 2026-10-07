@@ -1,7 +1,7 @@
 # Module: Organization
 
 STATUS: ORGANIZATIONAL UNIT VERTICAL SLICE IMPLEMENTED; PHASE C3 REVIEW PASS
-SOURCE_VERSION: 2026-09-26 (TASK-02.02.01 Phase C4 traceability)
+SOURCE_VERSION: 2026-10-08 (TASK-02.02.02 FUNCTIONAL-DIRECTION-01, OD-06)
 
 ## Purpose
 
@@ -16,6 +16,7 @@ Organization owns:
 - Company reference required by organizational units;
 - OrganizationalUnit;
 - OrganizationalUnitType;
+- FunctionalDirection global configurable reference;
 - Organization-owned durable audit obligations.
 
 Organization does not own:
@@ -39,6 +40,7 @@ Tables and phase status:
 - `organization.organizational_unit_types` — B1 implemented configurable reference;
 - `organization.organizational_units` — B2 implemented;
 - `organization.organizational_unit_history` — B2 append-only business history;
+- `organization.functional_directions` — TASK-02.02.02 local implementation, pending independent review/publication;
 - `organization.audit_obligations` — B2 durable source with C2 delivery through the Organization Application port.
 
 Phase B1 implements a minimal Organization-owned Company persistence
@@ -106,7 +108,7 @@ changing `unitTypeId` requires an ACTIVE target type.
 There is no `organization.reparent`; reparent and lifecycle commands use
 `organization.change`. Scope metadata is recorded for future Company/unit
 scope evaluation, but `access_assignments` is not extended in this task and
-production authorization remains deny-by-default. UserType, role name, JWT
+OrganizationalUnit production authorization remains deny-by-default. UserType, role name, JWT
 claims, working context and entity ID do not grant access.
 
 ## Public contracts
@@ -119,8 +121,87 @@ Implemented transport/API contract:
 - no DELETE, generic PATCH or tree/children endpoint;
 - stale mutations return `409 OPTIMISTIC_CONCURRENCY_CONFLICT`.
 
-Future cross-module references use stable Organization-owned reference DTOs;
-other modules must not query Organization tables directly.
+`IFunctionalDirectionReferenceProvider` in Organization.Application.FunctionalDirections
+exposes `GetReferenceAsync(Guid, CancellationToken)` returning an immutable
+`FunctionalDirectionReference?`: Id, Code, Name, Status and
+IsSelectableForNewReference. Missing returns null; ACTIVE is selectable,
+INACTIVE remains resolvable but is not selectable for new references. This
+trusted-fact provider supplies no end-user authorization facts, EF entity,
+DbContext or IQueryable. Other modules must not query Organization tables directly.
+
+## FunctionalDirection — TASK-02.02.02
+
+STATUS: IMPLEMENTED_LOCALLY_PENDING_REVIEW_AND_PUBLICATION.
+OD-FUNCTIONAL-DIRECTION-01..06 are accepted. This status does not unblock
+TASK-03.01.01 before publication.
+
+OD-06 accepts one Identity HasData data-only permission migration,
+`20261007141653_AddFunctionalDirectionManagementPermission`, for canonical
+`organization.manage_functional_directions` with stable ID
+`0199f3b0-0000-7000-8000-00000000004e`. It changes no Identity schema and
+creates no role, assignment or GLOBAL grant. The permission row alone grants
+no access. Local validation passed; independent review and publication are pending;
+no new runtime seed mechanism is introduced.
+
+Migration `20261007091435_AddFunctionalDirections` adds the table and extends
+the existing Organization obligation binding without changing existing Unit
+rows/history. A database trigger preserves id/code/created_at and rejects hard
+delete. Rollback refuses any FunctionalDirection audit history before schema
+removal; seeds-only rollback is supported and tested separately.
+
+Organization owns this GLOBAL master-data reference. Runtime IDs are UUIDv7;
+fields are id, code, name, status, created_at, updated_at and row_version.
+There is no description or is_active. Code uses the existing ReferenceCode:
+required, trim, invariant uppercase, max 50, regex
+`^[A-Z0-9][A-Z0-9_-]{0,49}$`, globally unique and immutable. Name is required,
+trimmed, max 200, mutable and non-unique. Creation starts ACTIVE; explicit
+activate/deactivate commands toggle ACTIVE/INACTIVE without hard delete.
+An unchanged name or repeated lifecycle transition is a conflict, following
+the OrganizationalUnit command convention. Mutations require the current
+expectedRowVersion; stale writes conflict without mutation or successful audit.
+
+Exactly seven deterministic ACTIVE seeds have name equal to code: IT,
+EXPLOITATION, SECURITY, CYBERSECURITY, REAL_ESTATE,
+INFRASTRUCTURE_DEVELOPMENT and RETAIL. IDs are listed in the reference registry.
+Codes are reference data, not authorization/business logic constants.
+
+OD-FUNCTIONAL-DIRECTION-05 permits catalog reads only for an authenticated
+canonical ACTIVE INTERNAL local user with a current owned INTERNAL context
+and a current explicit GLOBAL grant for `organization.read` OR
+`organization.manage_functional_directions`. Management detail and commands
+require only explicit GLOBAL `organization.manage_functional_directions`.
+Organization requests these fixed server-side permission codes exclusively
+through the published Identity-owned `IGlobalGrantProvider`; its canonical
+assignment, role, revocation and validity semantics apply. Concrete/composite
+Zone, Region, Site, FunctionalDirection and AssetType assignments never grant
+this global catalog access or management. External/contractor, wrong context,
+future/expired grant and provider failure deny. No permission implication,
+caller-supplied permission/scope/global evidence, access assignment or GLOBAL
+grant seed is introduced. Company/unit authorization remains deferred.
+
+```text
+GET  /api/v1/reference/functional-directions
+GET  /api/v1/functional-directions/{id}
+POST /api/v1/functional-directions
+PUT  /api/v1/functional-directions/{id}
+POST /api/v1/functional-directions/{id}/activate
+POST /api/v1/functional-directions/{id}/deactivate
+```
+
+The unpaged catalog returns both statuses as id/code/name/status, ordered
+code ASC then id ASC, without geographic filtering. Management detail returns
+id/code/name/status/createdAt/updatedAt/rowVersion. Create accepts code/name;
+PUT accepts name/expectedRowVersion; lifecycle accepts expectedRowVersion.
+Authorization precedes target lookup, concealing existence from unauthorized
+callers. No DELETE, frontend or Assets implementation is included.
+
+Each successful mutation atomically creates one Organization-owned durable
+audit obligation for canonical entity FunctionalDirection and actions
+FunctionalDirectionCreated/Updated/Activated/Deactivated. Snapshot fields are
+code/name/status; actor/context/correlation and stable EventId use the existing
+canonical metadata and Organization → AuditDelivery → IAuditWriter path.
+Reads, denied/failed/stale/duplicate commands create no successful mutation
+audit. This reference has no separate business-history store or integration event.
 
 ## Audit
 

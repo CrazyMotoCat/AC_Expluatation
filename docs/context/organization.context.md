@@ -1,6 +1,6 @@
 # Organization Context Capsule
 
-SOURCE_VERSION: 2026-09-26 (TASK-02.02.01 Phase C4 traceability)
+SOURCE_VERSION: 800ba9153868e9f33fd9af9c23c9c3ecc424ed3f + TASK-02.02.02 local changes (2026-10-08)
 MODULE: Organization
 
 ## PURPOSE
@@ -13,6 +13,7 @@ Organization хранит Company-owned произвольное дерево Or
 - Company prerequisite/reference
 - OrganizationalUnit
 - OrganizationalUnitType
+- FunctionalDirection GLOBAL configurable reference (local candidate; local validation PASS; review/publication pending)
 - Organization-owned durable audit obligations
 
 ## DB
@@ -21,6 +22,7 @@ Organization хранит Company-owned произвольное дерево Or
 - `organization.organizational_unit_types` (B1 implemented and seeded)
 - `organization.organizational_units` (B2 implemented)
 - `organization.organizational_unit_history` (B2 append-only)
+- `organization.functional_directions` (TASK-02.02.02, one narrow Organization migration)
 - `organization.audit_obligations` (B2 persistence, C2 delivery implemented)
 
 Phase B1 adds the minimal Organization-owned Company persistence prerequisite
@@ -47,6 +49,12 @@ the mutation transaction.
 - Type — Organization-owned configurable reference; inactive type нельзя выбирать новым unit.
 - Structural mutations use ADR-012 per-Company transaction-scoped advisory lock plus recursive CTE.
 - Business history is append-only and separate from technical Audit under ADR-008.
+- FunctionalDirection: runtime UUIDv7; immutable globally unique ReferenceCode
+  (trim/uppercase, max 50, existing regex), mutable non-unique trimmed name max
+  200, status/created_at/updated_at/row_version; no description/is_active.
+- Exact seven ACTIVE deterministic seeds with name == code; IDs in reference registry.
+- FunctionalDirection expectedRowVersion required; duplicate code, unchanged
+  name, repeated lifecycle and stale write conflict without successful audit.
 
 ## LIFECYCLE
 
@@ -54,20 +62,38 @@ OrganizationalUnit: `ACTIVE` ↔ `INACTIVE`, create `ACTIVE`, no hard delete.
 Deactivation takes structural lock; activation does not. Type lifecycle is
 `ACTIVE`/`INACTIVE`, no hard delete.
 
+FunctionalDirection: ACTIVE ↔ INACTIVE, create ACTIVE, no hard delete; inactive
+remains resolvable but not selectable for a new reference.
+
 ## PERMISSIONS
 
 - `organization.read`
 - `organization.create`
 - `organization.change`
+- `organization.manage_functional_directions`
 
-No `organization.reparent`; scope evaluation is deferred, assignments are not
-extended, and production authorization is deny-by-default.
+No `organization.reparent`; Company/unit scope evaluation remains deferred and
+OrganizationalUnit production authorization is deny-by-default. OD-05 requires
+explicit current GLOBAL organization.read OR GLOBAL management for the
+FunctionalDirection catalog, GLOBAL management only for detail/commands.
+Fixed trusted permissions use Identity IGlobalGrantProvider with canonical
+ACTIVE INTERNAL user/owned current INTERNAL context and assignment validity.
+Concrete/composite grants, external/contractor, wrong context, future/expired
+assignment and provider failure deny; no permission implication or grant seed.
+OD-06 accepts exactly one Identity HasData data-only migration
+`20261007141653_AddFunctionalDirectionManagementPermission` for canonical
+management permission ID `0199f3b0-0000-7000-8000-00000000004e`; no schema,
+role or assignment change. The permission row alone grants no access.
 
 ## PUBLIC_CONTRACTS
 
 - implemented flat organizational-unit list/get/create/PUT/lifecycle/reparent API; seven permission-gated routes
 - dependency failures return sanitized 503 responses without database/provider details
-- future stable Organization reference DTOs
+- FunctionalDirection catalog/detail/create/PUT/activate/deactivate routes;
+  catalog unpaged includes both statuses sorted code/id; detail includes version
+- Organization.Application.FunctionalDirections IFunctionalDirectionReferenceProvider
+  GetReferenceAsync returns immutable Id/Code/Name/Status/IsSelectableForNewReference;
+  null missing, ACTIVE selectable, INACTIVE resolvable/non-selectable; no auth facts
 - no direct table access by other modules
 
 ## EVENTS
@@ -79,6 +105,14 @@ Audit actions (not integration events):
 - `OrganizationalUnitReparented`
 - `OrganizationalUnitActivated`
 - `OrganizationalUnitDeactivated`
+- `FunctionalDirectionCreated`
+- `FunctionalDirectionUpdated`
+- `FunctionalDirectionActivated`
+- `FunctionalDirectionDeactivated`
+
+FunctionalDirection snapshots code/name/status; existing Organization durable
+obligation and canonical AuditDelivery path, atomically with successful mutation.
+No read audit, separate business-history store or integration event is added.
 
 ## DEPENDS_ON
 
@@ -103,3 +137,9 @@ Audit actions (not integration events):
 - atomic Organization mutation plus durable audit obligation
 - C2 Organization-owned claim/lease/retry store and Application delivery port; one canonical Audit writer, stable EventId and at-least-once materialization
 - C3 API error, authorization, concurrency, audit-delivery and module-boundary review passed; PostgreSQL provider-failure responses are sanitized
+- OD-05 concrete/composite-to-GLOBAL escalation, permission independence,
+  context/validity/provider failure, existence concealment, duplicate-code race,
+  stale overwrite, exact seed/provider semantics and audit atomicity
+
+TASK-02.02.02 is a IMPLEMENTED_LOCALLY_PENDING_REVIEW_AND_PUBLICATION.
+TASK-03.01.01 remains pending this task's publication; frontend/Assets are excluded.

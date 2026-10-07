@@ -1,7 +1,7 @@
 # Events Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A event/Audit distinction)
+SOURCE_VERSION: 2026-10-07 (TASK-02.02.02 FunctionalDirection Audit distinction)
 
 ## 1. Назначение
 
@@ -123,6 +123,11 @@ TASK-02.04.02 / LOCATION-TREE-01 registers Location technical Audit actions
 in `modules/audit.md`. The optional `LocationMoved` domain/integration event
 above remains provisional for runtime emission; this slice does not publish
 it. Durable technical audit is not Location or Asset placement business history.
+
+TASK-02.02.02 registers FunctionalDirection technical Audit actions in
+`modules/audit.md`, pending independent review/publication. These identifiers
+are not domain/integration events; this reference task adds neither an
+integration-event publication nor a separate business-history store.
 
 ## 5. Event envelope
 
