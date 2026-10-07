@@ -40,7 +40,7 @@ Tables and phase status:
 - `organization.organizational_unit_types` — B1 implemented configurable reference;
 - `organization.organizational_units` — B2 implemented;
 - `organization.organizational_unit_history` — B2 append-only business history;
-- `organization.functional_directions` — TASK-02.02.02 local implementation, review PASS; publication pending;
+- `organization.functional_directions` — TASK-02.02.02 published; review and exact-SHA hosted CI PASS;
 - `organization.audit_obligations` — B2 durable source with C2 delivery through the Organization Application port.
 
 Phase B1 implements a minimal Organization-owned Company persistence
@@ -131,16 +131,15 @@ DbContext or IQueryable. Other modules must not query Organization tables direct
 
 ## FunctionalDirection — TASK-02.02.02
 
-STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION.
-OD-FUNCTIONAL-DIRECTION-01..06 are accepted. This status does not unblock
-TASK-03.01.01 before publication.
+STATUS: PUBLISHED.
+OD-FUNCTIONAL-DIRECTION-01..06 are accepted. TASK-03.01.01 is READY_TO_RESUME after publication; its implementation remains out of scope.
 
 OD-06 accepts one Identity HasData data-only permission migration,
 `20261007141653_AddFunctionalDirectionManagementPermission`, for canonical
 `organization.manage_functional_directions` with stable ID
 `0199f3b0-0000-7000-8000-00000000004e`. It changes no Identity schema and
 creates no role, assignment or GLOBAL grant. The permission row alone grants
-no access. Local validation passed; independent review passed; publication is pending;
+no access. Local validation passed; independent review and exact-SHA hosted CI passed; published;
 no new runtime seed mechanism is introduced.
 
 Migration `20261007091435_AddFunctionalDirections` adds the table and extends
@@ -276,3 +275,11 @@ claims, source fairness and the Sites regression.
 - application-only cycle checks without transactional serialization;
 - a second audit writer or global DbContext;
 - general Company CRUD in this task.
+FUNCTIONAL-DIRECTION-01R publication evidence: reviewed source
+`99c86c046a2893b9a33b98c24350b4e54e112a1a`, test-only remediation
+`8f2a9bfaca232d694b79973fd1b16610efaeb661`, review/status SHA
+`04da073538be60a54bdd2e548768a21aa4c5ff34`; exact-SHA
+[Build pipeline run 37640779450](https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/37640779450)
+passed backend, frontend (71 tests) and required checks. This publication metadata
+commit changes no runtime contract; its own exact-SHA hosted CI must also pass
+before the final handoff. TASK-03.01.01 is READY_TO_RESUME; not started here.

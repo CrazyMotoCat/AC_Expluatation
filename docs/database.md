@@ -332,8 +332,8 @@ TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-06 accepts exactly one canonical
 `20261007141653_AddFunctionalDirectionManagementPermission` inserts only that
 permission row. It changes no schema and creates no role, access assignment or
 GLOBAL grant; the row alone grants no access. No runtime seed synchronizer or
-alias is introduced. This remains a local candidate with local validation PASS, review PASS;
-publication pending.
+alias is introduced. Local validation and independent review passed;
+published after exact-SHA hosted CI PASS.
 
 ---
 
@@ -601,8 +601,8 @@ there is no public history endpoint in B2.
 
 ## 6.5. organization.functional_directions
 
-Organization-owned GLOBAL configurable reference. TASK-02.02.02 local
-candidate is with local validation PASS, independent review PASS; publication pending; owner
+Organization-owned GLOBAL configurable reference. TASK-02.02.02 published
+implementation passed local validation, independent review and exact-SHA hosted CI; owner
 decisions OD-FUNCTIONAL-DIRECTION-01..06 accepted.
 
 ```text

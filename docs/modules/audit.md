@@ -67,10 +67,10 @@ explicit Organization Application delivery port, an Organization-owned
 PostgreSQL claim/lease/retry store and the Audit canonical action/entity and
 payload allowlists. The same writer retains global EventId conflict semantics.
 
-TASK-02.02.02 locally registers canonical entity `FunctionalDirection` and
+TASK-02.02.02 publishes canonical entity `FunctionalDirection` and
 actions `FunctionalDirectionCreated`, `FunctionalDirectionUpdated`,
 `FunctionalDirectionActivated`, `FunctionalDirectionDeactivated`; independent
-review PASS, publication pending. Before/after snapshots allow only code, name
+review PASS, published after exact-SHA hosted CI PASS. Before/after snapshots allow only code, name
 and status; ID, actor, context, time, correlation and stable EventId remain
 canonical metadata. Organization commits a matching durable obligation
 atomically with each successful mutation and reuses its existing Application

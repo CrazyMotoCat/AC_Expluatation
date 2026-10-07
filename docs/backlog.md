@@ -629,17 +629,17 @@ Proposed implementation split after Phase A:
 
 ### TASK-02.02.02. Functional directions
 
-Status: **REVIEWED_LOCAL_PENDING_PUBLICATION**
+Status: **PUBLISHED**
 (FUNCTIONAL-DIRECTION-01, OD-FUNCTIONAL-DIRECTION-01..06 accepted).
-TASK-03.01.01 prerequisite remains pending publication; local implementation
-does not unblock downstream work.
+TASK-03.01.01 prerequisite is PUBLISHED; TASK-03.01.01 is READY_TO_RESUME.
+AssetType and FunctionalDirection frontend remain unimplemented.
 
-Domain/persistence/provider/API/Audit candidate is present locally. OD-06
+Domain/persistence/provider/API/Audit and the reference provider are published. OD-06
 accepts exactly one Identity HasData data-only migration,
 `20261007141653_AddFunctionalDirectionManagementPermission`, for the canonical
 management permission. It changes no Identity schema and creates no role,
 assignment or GLOBAL grant; the permission row alone gives no access. Local
-validation passed; independent commit review passed; publication remains pending.
+validation, independent commit review and exact-SHA hosted CI passed.
 
 Organization-owned GLOBAL configurable reference; runtime UUIDv7, immutable
 globally unique canonical code (trim/uppercase, max 50, existing ReferenceCode

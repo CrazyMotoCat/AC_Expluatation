@@ -1,6 +1,6 @@
 # Organization Context Capsule
 
-SOURCE_VERSION: 800ba9153868e9f33fd9af9c23c9c3ecc424ed3f + TASK-02.02.02 local changes (2026-10-08)
+SOURCE_VERSION: 04da073538be60a54bdd2e548768a21aa4c5ff34 + FUNCTIONAL-DIRECTION-01R publication metadata (2026-10-08)
 MODULE: Organization
 
 ## PURPOSE
@@ -13,7 +13,7 @@ Organization хранит Company-owned произвольное дерево Or
 - Company prerequisite/reference
 - OrganizationalUnit
 - OrganizationalUnitType
-- FunctionalDirection GLOBAL configurable reference (local candidate; local validation PASS; review PASS; publication pending)
+- FunctionalDirection GLOBAL configurable reference (published; local validation, independent review and exact-SHA hosted CI PASS)
 - Organization-owned durable audit obligations
 
 ## DB
@@ -141,5 +141,5 @@ No read audit, separate business-history store or integration event is added.
   context/validity/provider failure, existence concealment, duplicate-code race,
   stale overwrite, exact seed/provider semantics and audit atomicity
 
-TASK-02.02.02 is a REVIEWED_LOCAL_PENDING_PUBLICATION.
-TASK-03.01.01 remains pending this task's publication; frontend/Assets are excluded.
+TASK-02.02.02 is PUBLISHED.
+TASK-03.01.01 is READY_TO_RESUME; frontend/Assets remain unimplemented in this task.

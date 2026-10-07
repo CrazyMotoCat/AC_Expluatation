@@ -125,7 +125,7 @@ above remains provisional for runtime emission; this slice does not publish
 it. Durable technical audit is not Location or Asset placement business history.
 
 TASK-02.02.02 registers FunctionalDirection technical Audit actions in
-`modules/audit.md`, review PASS; publication pending. These identifiers
+`modules/audit.md`, review and exact-SHA hosted CI PASS; published. These identifiers
 are not domain/integration events; this reference task adds neither an
 integration-event publication nor a separate business-history store.
 

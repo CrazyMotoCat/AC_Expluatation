@@ -88,8 +88,8 @@ Type:
 CONFIGURABLE_REFERENCE
 ```
 
-TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-01..06: local candidate with local validation PASS, independent review PASS;
-publication pending. Exactly seven ACTIVE seeds,
+TASK-02.02.02 / OD-FUNCTIONAL-DIRECTION-01..06: published after local validation, independent review
+and exact-SHA hosted CI PASS. Exactly seven ACTIVE seeds,
 each name == code:
 
 | Code | Stable UUIDv7 seed ID |

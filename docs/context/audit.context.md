@@ -1,6 +1,6 @@
 # Audit Context Capsule
 
-SOURCE_VERSION: 800ba9153868e9f33fd9af9c23c9c3ecc424ed3f + TASK-02.02.02 local changes (2026-10-07)
+SOURCE_VERSION: 04da073538be60a54bdd2e548768a21aa4c5ff34 + FUNCTIONAL-DIRECTION-01R publication metadata (2026-10-08)
 MODULE: Audit
 
 ## PURPOSE
@@ -14,7 +14,7 @@ Audit хранит append-only технические факты действи�
 - `IAuditWriter`, `AuditEventDraft`, canonical `AuditAction`/`AuditEntityType`
 - `IWorkingContextAuditWriter` typed adapters/implementation
 - canonical `TerritorialZone` entity and lifecycle action identifiers
-- canonical `FunctionalDirection` entity and FunctionalDirectionCreated/Updated/Activated/Deactivated actions, code/name/status snapshots; local implementation review PASS; publication pending
+- canonical `FunctionalDirection` entity and FunctionalDirectionCreated/Updated/Activated/Deactivated actions, code/name/status snapshots; published after independent review and exact-SHA hosted CI PASS
 - canonical `Location` entity and LocationCreated/Updated/Moved/Activated/Deactivated actions with fixed allowlisted before/after snapshots; move reason retained
 
 ## DB

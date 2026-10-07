@@ -1,8 +1,8 @@
 # TASK-02.02.02 — FUNCTIONAL-DIRECTION-01 checkpoint
 
-STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
-PHASE: FUNCTIONAL-DIRECTION-01 — RESUME AFTER READ AUTH DECISION
-MODE: IMPLEMENT DIRECTLY ON MAIN; NO PUSH
+STATUS: PUBLISHED
+PHASE: FUNCTIONAL-DIRECTION-01R — REVIEW + PUBLICATION
+MODE: REVIEW DIRECTLY ON MAIN; NORMAL PUSH + EXACT-SHA HOSTED CI
 
 Current authoritative resume result is the final section below.
 Earlier sections retain historical findings and superseded blockers.
@@ -350,7 +350,7 @@ checkpoint modification, branch/worktree or push; only one final atomic local co
 
 ## FUNCTIONAL-DIRECTION-01 implementation checkpoint — permission seed decision pending
 
-STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
+STATUS: IMPLEMENTED_LOCALLY_PENDING_INDEPENDENT_COMMIT_REVIEW_AND_PUBLICATION
 CHECKPOINT_STATUS: UNSAFE (required full validation incomplete; no partial syntax files)
 CURRENT_BRANCH: main
 LAST_SAFE_COMMIT: 800ba9153868e9f33fd9af9c23c9c3ecc424ed3f
@@ -517,3 +517,31 @@ TASK_03_01_01_CHANGED: NO
 DOWNSTREAM_CHECKPOINT_SHA256: 9AB72D3C68678954ECB5B57F20565E8482E2C02B1ADA70D21685A2EB7A96F218
 NEXT_ACTION: Re-fetch origin and stop on baseline divergence; commit reviewed metadata, normalpush main, verify exactSHAhostedCI; finalizepublication only afterPASS. Then STOP before TASK03.
 DO_NOT_REPEAT: no candidateamend, newcontract, runtimefeature, Assets/LocationUI, downstreamedits/staging, branch/worktree, forcepush or destructivecleanup. Do not inferCI frompush.
+
+## FUNCTIONAL-DIRECTION-01R published checkpoint — 2026-10-08
+
+STATUS: PUBLISHED
+CHECKPOINT_STATUS: SAFE_PUBLISHED_REVIEWED_IMPLEMENTATION
+LAST_SAFE_COMMIT: 04da073538be60a54bdd2e548768a21aa4c5ff34
+SOURCE_COMMIT: 99c86c046a2893b9a33b98c24350b4e54e112a1a
+REMEDIATION_COMMIT: 8f2a9bfaca232d694b79973fd1b16610efaeb661 (three test files only)
+REVIEW_STATUS_COMMIT: 04da073538be60a54bdd2e548768a21aa4c5ff34
+HOSTED_CI_PROOF: exact04da073; run37640779450; https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/37640779450; Backend/Frontend/Verifyrequiredchecks PASS; frontend8files71tests.
+COMPLETED: exactsource independent read-only security/contract/data review; bounded testremediation; all local gates; normalpush and direct hostedCIinspection; published FunctionalDirection/provider/selectability.
+PUBLICATION_METADATA: containingcommit only updates reviewed publication docs/status; resolve final SHA fromGit and independently verify its exact-SHAhostedCI before finalhandoff. If thatCI fails, do not resume downstream untilfixed; no self-referentialSHA/runID stored.
+VERIFIED: frozenOD01..06 unchanged; source53paths ownershipPASS; soleIdentitypermissionseed data-only; Identityschema/GLOBALmodel/roles/assignments/grants unchanged; referenceactive/inactive/missingPASS; atomicAuditforcedfailure+retryPASS; all11harnesses/fullgatesPASS; allmodelsdriftNONE; migrationssmoke19/0empty,2/0baseline; no openCritical/High/Medium/Low.
+DOCS_IMPACT: YES
+DOCUMENTATION_SYNC: PASS
+FUNCTIONAL_DIRECTION: PUBLISHED
+FUNCTIONAL_DIRECTION_REFERENCE_PROVIDER: PUBLISHED
+FUNCTIONAL_DIRECTION_SELECTABILITY: PUBLISHED
+TASK_02_02_02_STATUS: PUBLISHED
+TASK_03_01_01_STATUS: READY_TO_RESUME (publication prerequisite satisfied; task not started)
+ASSET_TYPE: NOT_IMPLEMENTED
+FRONTEND_PRODUCTION/LOCATION_UI: NOT_IMPLEMENTED_BY_THIS_TASK
+TASK_03_01_01_CHECKPOINT_CHANGED: NO
+DOWNSTREAM_CHECKPOINT_SHA256: 9AB72D3C68678954ECB5B57F20565E8482E2C02B1ADA70D21685A2EB7A96F218
+UNCOMMITTED: finalpublicationstatus/docs/report metadata before containingcommit; aftercommit only expecteddownstreamuntrackedcheckpoint.
+BLOCKERS: NONE for published implementation; finalmetadataexactSHA CI still requires verification.
+NEXT_ACTION: Verify containing publicationmetadata exact-SHAhostedCI PASS and main=origin/main, then STOP. A separately authorized later session may resume TASK-03.01.01 / ASSET-TYPE-01.
+DO_NOT_REPEAT: no Assets/AssetType or LocationUI implementation, downstreamedits/staging, newbranch/worktree, candidateamend, forcepush, destructivecleanup or contractchanges. Do not claim worktreeclean with expecteduntrackedcheckpoint. No new work after finalCI PASS.
