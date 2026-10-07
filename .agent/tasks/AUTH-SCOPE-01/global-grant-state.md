@@ -2,12 +2,12 @@
 
 TASK: AUTH-SCOPE-01
 PHASE: AUTH-GLOBAL-01 — EXPLICIT GLOBAL GRANT IMPLEMENTATION
-STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION
+STATUS: PUBLISHED
 CHECKPOINT_STATUS: SAFE
 BASELINE_SHA: d07f48699410a1da8b938655b4d63605dc44d19f
-LAST_SAFE_COMMIT: d07f48699410a1da8b938655b4d63605dc44d19f
+LAST_SAFE_COMMIT: f3218e5b6c1bb5ded30718d141b86696a4692242 (published, exact-SHA CI PASS; final status commit pending)
 BRANCH: main
-REPOSITORY_STATE_GUARD: SAFE_WITH_CHECKPOINT / DIRTY_EXPECTED
+REPOSITORY_STATE_GUARD: SAFE_WITH_ONLY_EXPECTED_DOWNSTREAM_UNTRACKED_CHECKPOINTS
 RESUME_SAFE: YES
 STATE_DRIFT: NONE
 
@@ -56,15 +56,15 @@ SCHEMA_COMPATIBILITY_PROOF: PASS — for is_global=false the new presence constr
 
 TASK_OWNED_CHANGES: Identity domain/application/infrastructure/migration/snapshot, Identity domain/persistence tests, RealSiteHttpChecks, six product docs, checkpoint and phase handoff/agent records are included in the atomic local commit described below. Pre-existing downstream TASK-02.02.02 and TASK-03.01.01 state files stay untracked, preserved and excluded.
 PRIMARY_OWNER: contracts/schema/provider/integration/checkpoint and final gates.
-HELPERS: docs (six authorized docs); http_tests (RealSiteHttpChecks only); independent reviewer read-only pending.
+HELPERS: docs (six authorized docs); http_tests (RealSiteHttpChecks only); independent review completed.
 BLOCKERS: NONE; all local gates and independent security review complete.
 ORGANIZATION_CODE_CHANGED: NO
 ASSETS_CODE_CHANGED: NO
-TASK_02_02_02_STATUS: BLOCKED_UNTIL_AUTH_GLOBAL_PUBLISHED
-TASK_03_01_01_STATUS: BLOCKED
-PUSH: NONE
-NEXT_ACTION: Independent publication review of the resulting AUTH-GLOBAL-01 local commit before push.
-DO_NOT_REPEAT: Do not reopen OD01..09, infer GLOBAL from null/unknown, split composites, widen Sites scopes, add admin routes/permissions/consumer implementation/cache, apply migrations to local exploitation_dev, commit downstream checkpoint ownership, create branch/worktree, or push.
+TASK_02_02_02_STATUS: READY_TO_RESUME
+TASK_03_01_01_STATUS: STILL_BLOCKED_ON_FUNCTIONAL_DIRECTION
+PUSH: PASS — see publication checkpoint below.
+NEXT_ACTION: See publication checkpoint below.
+DO_NOT_REPEAT: Do not reopen OD01..09, infer GLOBAL from null/unknown, split composites, widen Sites scopes, add admin routes/permissions/consumer implementation/cache, apply migrations to local exploitation_dev, commit downstream checkpoint ownership, create branch/worktree, or start downstream implementation in this phase.
 
 ## Final local gates (2026-10-07)
 
@@ -85,7 +85,7 @@ OPEN_CRITICAL: 0
 OPEN_HIGH: 0
 OPEN_MEDIUM: 0
 OPEN_LOW: 0
-HOSTED_CI: UNVERIFIED; no push authorized in this phase.
+HOSTED_CI: PASS for review SHA `f3218e5b6c1bb5ded30718d141b86696a4692242`; see publication checkpoint. Publication-status SHA requires its own final verification.
 
 ## Atomic local commit protocol
 
@@ -93,4 +93,11 @@ All task-owned paths are staged explicitly and inspected; pre-existing downstrea
 
 AUTH-GLOBAL-01R: Independent publication review PASS; see `auth-global-publication-review.md` for the schema proof, attack matrix and rerun evidence. The exact source candidate remains unchanged. Hosted CI is unverified until the review-status commit is pushed and its exact SHA passes.
 
-NEXT_ACTION: Recheck origin/main against the published baseline, commit only this review evidence/status, push main normally, and verify exact-final-SHA hosted CI. Do not implement downstream tasks.
+## Publication checkpoint (2026-10-07)
+
+The source commit `0e2ea20f01d29841faaf3eb275d21103571e857b` and independent review commit `f3218e5b6c1bb5ded30718d141b86696a4692242` were pushed normally to main. GitHub Actions [run 37595225191](https://github.com/CrazyMotoCat/AC_Expluatation/actions/runs/37595225191) succeeded for exact review SHA `f3218e5b6c1bb5ded30718d141b86696a4692242`: Backend build and tests PASS, Frontend build and tests PASS, Verify required checks PASS. Backend's Apply module migrations step PASS. Final publication-status commit and its own exact-SHA hosted CI must be verified before final closure; its SHA cannot be embedded in its own commit.
+
+AUTH-GLOBAL-01: PUBLISHED after exact review-SHA hosted CI PASS.
+TASK-02.02.02: READY_TO_RESUME on the published AUTH-GLOBAL baseline.
+TASK-03.01.01: STILL_BLOCKED_ON_FUNCTIONAL_DIRECTION.
+NEXT_ACTION: Verify publication-status commit exact-SHA hosted CI, then resume TASK-02.02.02 / FUNCTIONAL-DIRECTION-01 in a separate task. Do not implement either downstream task in this review.
