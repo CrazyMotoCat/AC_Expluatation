@@ -1,6 +1,6 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: 2026-09-17
+SOURCE_VERSION: 658521128cc812a7e0e2d4a59a6a01603eb48db4 + AUTH-ASSET-SCOPE-01 local foundation (2026-10-09)
 MODULE: Assets
 
 ## PURPOSE
@@ -10,6 +10,19 @@ Assets — основной реестр оборудования и инжен�
 ## IMPLEMENTATION STATUS
 
 `TASK-00.03.02` реализует только базовый layer pattern модуля, технический `GetAssetsModuleInfoQuery` и регистрацию `AddAssetsModule()`. Business entities, DB schema, API, permissions, lifecycle и events из этой capsule остаются целевой моделью для последующих backlog tasks.
+
+TASK-03.01.01 owner decisions are accepted; FunctionalDirection reference and
+selectability are published. Runtime remains BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED;
+Identity handoff is locally implemented under ADR-019, pending review/publication.
+[ASSET-TYPE-SCOPE-00](../../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md)
+summarizes the module doc: read via current `assets.read` OR `assets.manage_types`
+is global after INTERNAL eligibility. Management uses exact `assets.manage_types`,
+explicit GLOBAL or non-geographic direction/type scopes. Both intersect within
+one assignment; complete assignments union. Geography composites cannot manage.
+Assets owns direction/ancestry and obtains trusted facts internally. Type-only
+root creation/root escape is denied; reparent covers both ends under one grant;
+every hierarchy-dependent mutation locks then rereads. Next prerequisite:
+AUTH-SCOPE-01 / AUTH-ASSET-SCOPE-01, without AssetType/schema implementation.
 
 ## OWNS
 

@@ -894,6 +894,15 @@ EPIC-02
 
 ### TASK-03.01.01. Asset type hierarchy
 
+Contract checkpoint (2026-10-09): OD-ASSET-TYPE-01..08 and 08A..08E accepted;
+FunctionalDirection reference/selectability prerequisite published. Runtime
+remains `BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED`. Identity correlated handoff
+is locally implemented under ADR-019, pending review/publication. See
+[AUTH-SCOPE-01 / ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
+Publish correlated Identity handoff in AUTH-SCOPE-01 / AUTH-ASSET-SCOPE-01 before
+separately resuming ASSET-TYPE-01. These are phases, not new backlog tasks;
+no AssetType implementation is completed by this documentation freeze.
+
 Acceptance Criteria:
 
 - parent/child;

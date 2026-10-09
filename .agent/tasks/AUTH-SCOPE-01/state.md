@@ -1287,3 +1287,30 @@ STATUS: REVIEWED_LOCAL_PENDING_PUBLICATION. Source candidate `0e2ea20f01d29841fa
 
 ## AUTH-GLOBAL-01R publication (2026-10-07)
 AUTH-GLOBAL-01: PUBLISHED after GitHub Actions run `37595225191` succeeded for exact pushed review SHA `f3218e5b6c1bb5ded30718d141b86696a4692242` (backend, frontend, required aggregate and hosted migration step PASS). Authoritative record: [global-grant-state.md](global-grant-state.md). TASK-02.02.02: READY_TO_RESUME; TASK-03.01.01: STILL_BLOCKED_ON_FUNCTIONAL_DIRECTION. The publication-status commit's own exact-SHA CI remains a final verification gate. Only pre-existing downstream task state files remain untracked and are untouched. NEXT_ACTION: Push the narrow publication-status commit, verify its exact-SHA hosted CI, then STOP. DO_NOT_REPEAT: Do not start FunctionalDirection or AssetType implementation in this phase.
+
+## ASSET-TYPE-SCOPE-00 contract freeze — 2026-10-09
+
+STATUS: CONTRACT_FROZEN_IMPLEMENTATION_PENDING
+BASELINE_SHA: 658521128cc812a7e0e2d4a59a6a01603eb48db4
+CURRENT_BRANCH: main
+Authoritative phase record: [asset-type-scope-state.md](asset-type-scope-state.md).
+OD-ASSET-TYPE-08A..08E accepted. Existing Identity storage supports all dimensions,
+but current trusted provider cannot expose correlated direction/type assignments.
+Proposed additive IEffectiveScopeProvider method; IGlobalGrantProvider unchanged.
+No runtime/schema work, branch/worktree, commit or push. Both downstream
+operational checkpoints preserved. TASK-03.01.01 remains blocked on trusted handoff;
+FunctionalDirection reference prerequisite is satisfied by published source.
+NEXT_ACTION: Separately authorize AUTH-SCOPE-01 / AUTH-ASSET-SCOPE-01 implementation
+and publication, without AssetType or schema work. STOP before downstream phase.
+
+## AUTH-ASSET-SCOPE-01 local implementation — 2026-10-09
+
+STATUS: LOCAL_IMPLEMENTED_PENDING_REVIEW
+LAST_SAFE_COMMIT: 658521128cc812a7e0e2d4a59a6a01603eb48db4
+CURRENT_BRANCH: main
+Implementation contract, complete validation and preserved downstream hashes:
+[asset-type-scope-state.md](asset-type-scope-state.md), latest appended section.
+GetCurrentAssignmentScopesAsync returns immutable correlated non-global tuples;
+ADR-019 Accepted; all local CI-equivalent gates PASS; no schema/seed/Assets runtime.
+NEXT_ACTION: one atomic local commit then independent read-only review; NO PUSH.
+DO_NOT_REPEAT: no downstream edits/staging, branch/worktree, schema or Assets work.

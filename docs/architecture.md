@@ -342,6 +342,13 @@ MaintenanceService
 
 ---
 
+Identity trusted assignment facts are an additive Application contract under
+[ADR-019](adr/ADR-019-correlated-assignment-scope-facts.md): all five concrete
+scope restrictions stay correlated per assignment; owner modules interpret
+their targets using authoritative domain data. GLOBAL remains separate under
+ADR-018. The handoff does not permit cross-module persistence access or caller
+authorization evidence through HTTP.
+
 ## 6.3. Межмодульные события
 
 Используются domain/application events.

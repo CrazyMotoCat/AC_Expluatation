@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 2026-10-07 (AUTH-GLOBAL-01 explicit GLOBAL assignment scope)
+SOURCE_VERSION: 658521128cc812a7e0e2d4a59a6a01603eb48db4 + AUTH-ASSET-SCOPE-01 local foundation (2026-10-09)
 MODULE: Identity
 
 ## PURPOSE
@@ -139,6 +139,18 @@ Working context:
 Identity не должен знать все бизнес-правила других модулей; он предоставляет механизм проверки permissions/scope.
 
 ## PUBLIC CONTRACTS
+
+AUTH-ASSET-SCOPE-01 locally implements the additive
+`IEffectiveScopeProvider.GetCurrentAssignmentScopesAsync(EffectiveScopeRequest)`
+returning `ImmutableArray<EffectiveAssignmentScopeFacts>` under ADR-019; pending
+review/publication. One immutable tuple per current non-global assignment,
+duplicates preserved, invalid/all-null/empty-UUID shapes denied. All five
+dimensions stay together per assignment. Trusted composition supplies fixed
+canonical permission/current local user/owned context; Identity rechecks current
+eligibility. GLOBAL remains on IGlobalGrantProvider; existing geographic results
+are unchanged. Assets evaluates its authoritative taxonomy facts. No schema or
+cross-module DbContext access. See the module doc and
+[frozen contract and implementation evidence](../../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
 
 Реализованные runtime contracts:
 

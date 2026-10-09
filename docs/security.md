@@ -1465,3 +1465,33 @@ cross-Site transfer route exists. Site-scoped PostgreSQL transaction locks
 serialize structural/lifecycle checks, while expectedRowVersion independently
 prevents stale writes. State and durable audit obligation commit together;
 failed/denied mutation has no successful business or audit effect.
+
+## AssetType taxonomy authorization freeze — 2026-10-09
+
+Accepted OD-ASSET-TYPE-08A..08E require ACTIVE INTERNAL subject, owned current
+INTERNAL context and exact permission. Catalog read accepts current `assets.read`
+OR `assets.manage_types` recognized assignments, including concrete/composite and
+explicit GLOBAL, then returns the global catalog without row filtering.
+Management accepts only `assets.manage_types`: explicit GLOBAL, or non-geographic
+direction/type subtree authority. Both dimensions intersect within one assignment;
+complete assignments union. Any geographic-containing composite is ineligible for
+mutation. HTTP cannot supply permission/scope/ancestry as grant evidence. Identity
+owns current assignment facts; Assets owns authoritative hierarchy/direction and
+coverage, without cross-module DbContexts. Type-only scope-root escape is denied;
+reparent requires one complete assignment covering both ends. All hierarchy-dependent
+mutations lock then reread before evaluation. Concrete evaluation precedes terminal
+GLOBAL evaluation because GLOBAL false can also represent provider failure.
+
+[Frozen contract and attack matrix](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
+The Identity runtime handoff is locally implemented in AUTH-ASSET-SCOPE-01 under
+[ADR-019](adr/ADR-019-correlated-assignment-scope-facts.md), pending review/publication.
+`GetCurrentAssignmentScopesAsync` returns one immutable complete tuple per current
+exact-permission non-global assignment, preserving duplicates and all geographic
+restrictions. All-null or any empty UUID denies that assignment. Invalid requests
+return empty; storage exceptions/cancellation propagate and must abort consumer
+authorization. Taxonomy existence/ancestry is a consumer responsibility.
+CALLER_PERMISSION_INPUT: NONE through transport; LocalUserId and WorkingContextId
+remain trusted current server-composition facts, with Identity revalidation.
+No scope evidence is bound through HTTP. Published geographic and GLOBAL provider
+semantics are unchanged; no schema/API/seed is added. AssetType is unimplemented
+and TASK-03.01.01 remains BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED.

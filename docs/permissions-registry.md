@@ -241,3 +241,16 @@ changes.*
 - contractor access без contract scope;
 - создание синонимов существующих permissions;
 - использование role name вместо permission в business endpoint.
+
+## AssetType taxonomy scope refinement — 2026-10-09
+
+Accepted OD-ASSET-TYPE-08A..08E refine the typical `assets.manage_types` scope
+labels: explicit GLOBAL, non-geographic FunctionalDirection, AssetType subtree,
+or their same-assignment intersection. Geographic-containing assignments cannot
+manage taxonomy. Canonical permission code/name/module and seed are unchanged.
+Catalog read requires current `assets.read` OR `assets.manage_types` with INTERNAL
+eligibility and a recognized assignment; it returns a global unfiltered catalog.
+Read never implies management. These rules do not broaden operational Asset
+permissions or their contractor policy. See
+[ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md),
+which is a frozen future contract, not implemented runtime enforcement.

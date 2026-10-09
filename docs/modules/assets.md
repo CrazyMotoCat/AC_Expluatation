@@ -1,7 +1,7 @@
 # Module: Assets
 
 STATUS: STABLE
-SOURCE_VERSION: 2026-09-17
+SOURCE_VERSION: 658521128cc812a7e0e2d4a59a6a01603eb48db4 + AUTH-ASSET-SCOPE-01 local foundation (2026-10-09)
 
 ## Purpose
 
@@ -10,6 +10,35 @@ Assets — центральный реестр оборудования, инж�
 ## Implementation status
 
 `TASK-00.03.02` создаёт только базовый layer pattern `Domain` / `Application` / `Infrastructure` / `Contracts`, технический query о модуле и стандартную регистрацию `AddAssetsModule()`. Описанные ниже business entities, persistence, API, permissions, lifecycle и events ещё не реализованы этой задачей.
+
+### AssetType authorization contract — 2026-10-09
+
+TASK-03.01.01 accepted OD-ASSET-TYPE-01..08; FunctionalDirection reference and
+selectability prerequisite is published. Runtime remains
+`BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED`: Identity handoff is locally implemented
+under ADR-019, pending review/publication. The frozen
+[ASSET-TYPE-SCOPE-00 contract](../../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md)
+records accepted 08A..08E and next AUTH-SCOPE-01 / AUTH-ASSET-SCOPE-01 phase.
+No AssetType entity, Assets persistence or API is implemented by this freeze.
+
+Catalog eligibility requires ACTIVE INTERNAL user, valid owned INTERNAL context
+and current exact `assets.read` OR `assets.manage_types` assignment. Recognized
+concrete/composite or explicit GLOBAL can qualify; the eligible catalog is global,
+without row filtering. Management requires only `assets.manage_types`: explicit
+GLOBAL via `IGlobalGrantProvider`, or a non-geographic complete assignment.
+Direction matches the authoritative direction; type covers its persisted subtree;
+both intersect within that assignment. Geographic-containing assignments cannot
+manage taxonomy. Complete assignments union authority; dimensions from separate
+assignments never form a synthetic grant.
+
+Assets owns type/direction/hierarchy facts and resolves Organization references
+through its Application provider. Identity supplies current permission/context-bound
+facts, without querying Assets. HTTP supplies business target IDs, never grant
+evidence. Type-only scope cannot create a root, move to root or move its scope root
+outside the boundary. Reparent requires one complete assignment covering both
+ends. Every hierarchy-dependent mutation locks then rereads ancestry before
+authorization. Concrete evaluation precedes terminal GLOBAL evaluation; dependency
+errors deny. See the frozen contract for the full matrix and security tests.
 
 ## Owns
 
