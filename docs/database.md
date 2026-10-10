@@ -1137,7 +1137,8 @@ updated_at              timestamptz
 row_version             bigint positive optimistic concurrency
 ```
 
-ASSET-TYPE-01 local candidate; no type seeds. Multiple roots and arbitrary-depth
+ASSET-TYPE-01 is published at baseline `4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724`
+(hosted CI run `38028823398` passed); no type seeds. Multiple roots and arbitrary-depth
 adjacency list require same explicit direction on every parent/child. New direction
 references use published Organization Application selectability; inactive existing
 references remain resolvable. Code regex is `^[A-Z0-9][A-Z0-9_-]{0,49}$`.
@@ -1165,9 +1166,14 @@ Restrictive local entity FK and action/reason/state/lease coherence checks apply
 The delivery index and SKIP LOCKED claims support fenced retry/idempotent Audit append.
 Business mutation and obligation SaveChanges/commit use one Assets transaction;
 there is no direct write to Audit/Organization/Identity schemas.
-Migration `20261009093315_AddAssetTypes` is the single Assets migration; module
-history is `assets.__ef_migrations_history`. Down refuses any type/obligation history.
-No Identity schema/migration/permission/role/assignment/grant is added in this slice.
+Migration `20261009093315_AddAssetTypes` is the published AssetType foundation.
+MANUFACTURER-01 adds `20261010074714_AddManufacturers` as the single follow-up Assets
+migration; it extends Audit obligations without weakening the existing AssetType checks.
+Module history is `assets.__ef_migrations_history`. Manufacturer Down refuses any
+Manufacturer row or Manufacturer Audit history; AssetType Down retains its existing
+history guard. Identity receives only the data migration
+`20261010074801_AddManufacturerManagementPermission`; it creates no schema, role,
+role-permission, access assignment or GLOBAL grant.
 
 Пример иерархии (не seed):
 
@@ -1182,20 +1188,62 @@ Engineering Equipment
 ## 9.2. assets.manufacturers
 
 ```text
-id
-code
-name
-normalized_name
-status
-verified_at
-verified_by
+id                  uuid PK, UUIDv7
+name                varchar(200), required Unicode-trimmed display spelling
+normalized_name     varchar(600), required, Unicode 17.0.0 canonical key
+verification_status varchar(20), UNVERIFIED/VERIFIED
+lifecycle_status    varchar(20), ACTIVE/INACTIVE
+verified_by         uuid nullable, trusted local Identity ID, no cross-schema FK
+verified_at         timestamptz nullable
+created_at          timestamptz
+updated_at          timestamptz
+row_version         bigint positive optimistic concurrency
 ```
 
-Unique:
+There is no code, description, alias, merge, seed or physical delete. `name` is
+trimmed using pinned Unicode White_Space and limited to 200 Unicode scalar values;
+its spelling and punctuation are preserved. `normalized_name` is server-derived by
+collapsing Unicode White_Space runs to ASCII spaces, trimming, applying NFC, Unicode
+Default Full Case Folding, then NFC. Data is pinned to Unicode 17.0.0; embedded table
+SHA-256 is `d416472fd51d6a0ac065deb3dcfc90b97ff839971888d2c442f54e54ff8d8079`.
+It does not use host ICU/BCL normalization or locale-sensitive case rules. The
+normalized output bound is 600 scalars/2,400 UTF-8 bytes.
 
-```text
-normalized_name
-```
+`normalized_name` is globally unique across ACTIVE and INACTIVE rows under PostgreSQL
+`C` collation (`ux_manufacturers_normalized_name`). The unique index decides concurrent
+duplicates and maps to 409 `MANUFACTURER_NAME_ALREADY_EXISTS`. Composite
+`ix_manufacturers_normalized_name_id` supports literal normalized-prefix search and
+`normalized_name,id` order; user wildcard characters are escaped. Catalog filters use
+the independent verification/lifecycle columns. No substring or fuzzy index exists.
+
+Create is ACTIVE + UNVERIFIED. Verify requires ACTIVE + UNVERIFIED and derives the
+trusted actor/time. Revocation requires a trimmed reason (1..500), works while
+INACTIVE and clears current verification metadata. A real name change recalculates
+the key and resets verification; a no-op is a conflict. Activation/deactivation do
+not affect verification. Current verification metadata must be present exactly when
+status is VERIFIED. Historical before/after snapshots and revocation reason remain
+in the durable Audit obligation. Existing inactive/unverified rows remain resolvable;
+only ACTIVE + VERIFIED is selectable for a future AssetModel.
+
+API: GET `/api/v1/manufacturers` supports normalized `q` prefix, verification/lifecycle
+filters, page default 1, size default 50, max 200. GET detail includes `rowVersion`
+but not `verified_by`/`verified_at`. POST creates; PUT changes only name with
+`expectedRowVersion`; POST `/verify`, `/revoke-verification`, `/activate`, and
+`/deactivate` are explicit commands. There is no DELETE route.
+
+`assets.audit_obligations` distinguishes `AssetType` and `Manufacturer` with separate
+nullable local FK columns; each row must point to exactly one matching entity. The
+six registered Manufacturer actions are ManufacturerCreated, ManufacturerUpdated,
+ManufacturerVerified, ManufacturerVerificationRevoked, ManufacturerActivated and
+ManufacturerDeactivated. State mutation and obligation save/commit are one Assets
+PostgreSQL transaction and use the canonical idempotent Audit dispatcher.
+
+Permission `assets.manage_manufacturers` is seeded by the Identity data-only migration
+`20261010074801_AddManufacturerManagementPermission`. Permission existence grants
+nobody access; the migration creates no roles, assignments or GLOBAL grants. Read
+eligibility is `assets.read` OR `assets.manage_manufacturers`; management requires an
+explicit effective GLOBAL grant for the exact latter permission and an ACTIVE
+INTERNAL user with owned current INTERNAL context. See [Assets security contract](security.md).
 
 ---
 

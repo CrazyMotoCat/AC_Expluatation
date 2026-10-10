@@ -1,6 +1,6 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 + ASSET-TYPE-01 local candidate (2026-10-09)
+SOURCE_VERSION: baseline 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; AssetType published; Manufacturer local candidate (2026-10-10)
 MODULE: Assets
 
 ## PURPOSE
@@ -9,11 +9,13 @@ Assets — основной реестр оборудования и инжен�
 
 ## IMPLEMENTATION STATUS
 
-TASK-03.01.01 / ASSET-TYPE-01 implements AssetType backend locally, unpublished.
-Asset, Manufacturer/Model, attributes, composites, events/history and frontend
-remain planned. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
+TASK-03.01.01 / ASSET-TYPE-01 is published in baseline
+4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; hosted CI run 38028823398 passed.
+TASK-03.02.01 / MANUFACTURER-01 is a local backend implementation candidate and is
+not published. Asset, AssetModel, attributes, composites, business history and frontend
+remain out of scope. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
 
-ASSET-TYPE-01F1 local SEC-01 remediation removes public caller-created target facts.
+The published ASSET-TYPE-01F1 SEC-01 remediation removes public caller-created target facts.
 CanManageExistingAsync accepts context/targetID/operation/destinationID only and
 resolves persisted direction/parent/ancestry in the same scoped Assets store, after
 the existing command taxonomy lock. Missing direction/target/ancestor, cycles,
@@ -23,7 +25,8 @@ Organization selectability and homogeneity validated by the command. A separate
 HasGlobalManagementAsync eligibility check preserves missing-target404 concealment;
 it never authorizes an existing target. No public fact-bearing overload remains.
 Real Identity/PostgreSQL public-contract negatives and retained lifecycle races guard
-the change. Schema/HTTP/permissions/lock/Audit unchanged; R2 review is still pending.
+the change. The fix is part of the published baseline; Manufacturer does not change
+AssetType schema/HTTP/permissions/lock/Audit semantics.
 
 TASK-03.01.01 owner decisions are accepted; FunctionalDirection reference and
 selectability and Identity handoff under ADR-019 are published prerequisites.
@@ -57,10 +60,49 @@ version. No DELETE. 401/403 eligibility precedes target disclosure; scoped missi
 mutation target403, independently GLOBAL-covered missing target404. Duplicate/stale409.
 Successful mutations use five registered AssetType Audit actions; reads/failures
 emit no successful mutation Audit. Canonical dispatcher claims with SKIP LOCKED,
-leases/fencing and stable idempotent event IDs. One migration20261009093315 creates
-type/Audit obligation tables and immutable/no-delete guard; Down refuses business
-or Audit history. Both permissions preexist; no Identity mutation/grants. Next gate:
-independent publication review, then separately authorized exact-SHA hosted CI.
+leases/fencing and stable idempotent event IDs. Published migration
+20261009093315_AddAssetTypes created type/Audit obligation tables and immutable/no-delete
+guard; Down refuses business or Audit history. Published hosted CI: run 38028823398.
+
+## MANUFACTURER-01 LOCAL IMPLEMENTATION
+
+Assets owns Manufacturer. This local candidate stores UUIDv7 id, trimmed display name
+(1..200 Unicode scalar values), derived normalized_name, verification_status
+UNVERIFIED/VERIFIED, lifecycle_status ACTIVE/INACTIVE, nullable verified_by/verified_at,
+created_at/updated_at and positive row_version. Unicode 17.0.0 is pinned in the
+embedded normalizer table (SHA-256 `d416472fd51d6a0ac065deb3dcfc90b97ff839971888d2c442f54e54ff8d8079`):
+collapse Unicode White_Space, trim, NFC, default full locale-independent case fold,
+NFC. Punctuation and display spelling are preserved; no transliteration, aliases or
+seeds. The globally unique normalized_name index covers every lifecycle state and
+resolves duplicate races as MANUFACTURER_NAME_ALREADY_EXISTS. PostgreSQL collation is
+`C`; normalized storage bounds are 600 scalars/2400 UTF-8 bytes.
+
+Create gives ACTIVE + UNVERIFIED. Only explicit verify transitions an ACTIVE
+UNVERIFIED row and derives actor/time server-side. Revoke requires a trimmed 1..500
+reason, works while inactive and clears current verified metadata. Actual name change
+resets verification; no-op name update is a conflict. Activation/deactivation leave
+verification unchanged. Existing rows remain resolvable; only ACTIVE + VERIFIED is
+selectable for a future AssetModel. No AssetModel or proposal workflow is implemented.
+
+Read requires ACTIVE INTERNAL local user + owned current INTERNAL context and current
+`assets.read` or `assets.manage_manufacturers` through published Identity providers.
+Recognized concrete/composite or explicit GLOBAL assignment may establish read
+eligibility; the result is the global unfiltered catalog. Management requires exact
+explicit GLOBAL `assets.manage_manufacturers`. Concrete/geographic/direction/type
+scopes and `assets.manage_types`/`assets.manage_models` never manage Manufacturers.
+Routes are GET collection/detail, POST create/verify/revoke-verification/activate/
+deactivate, and PUT name update under `/api/v1/manufacturers`; no DELETE. Search is
+normalized prefix, filters both independent statuses, page 1/size 50/max 200,
+`normalized_name,id` order, database-side and escaped. Detail includes rowVersion but
+not verified actor/time.
+
+Every mutation and one Assets-owned Manufacturer Audit obligation commit atomically.
+Registered actions are ManufacturerCreated, ManufacturerUpdated, ManufacturerVerified,
+ManufacturerVerificationRevoked, ManufacturerActivated and ManufacturerDeactivated.
+Migration `20261010074714_AddManufacturers` owns the table/index/check/FK/guard and
+narrow Audit extension; Down refuses Manufacturer data/history. Identity migration
+`20261010074801_AddManufacturerManagementPermission` is data-only, creates no grants,
+roles or assignments. Local work is unpublished pending independent review.
 
 ## OWNS
 

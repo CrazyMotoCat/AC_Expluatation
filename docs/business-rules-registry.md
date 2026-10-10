@@ -1,7 +1,7 @@
 # Business Rules Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A contract freeze)
+SOURCE_VERSION: 2026-10-10 (TASK-03.02.01 Manufacturer contract)
 
 ## 1. Назначение
 
@@ -211,6 +211,23 @@ QR identity не должна зависеть от mutable location.
 
 ### BR-AST-012
 Business timeline и technical Audit являются разными механизмами.
+
+### BR-AST-013
+Manufacturer display names preserve spelling and punctuation. The server derives
+`normalized_name` with pinned Unicode 17.0.0 White_Space collapse, NFC, default full
+case folding and NFC; the normalized value is globally unique across all lifecycle
+states. Visual similarity alone does not establish identity.
+
+### BR-AST-014
+Manufacturer verification and lifecycle are independent. Create starts ACTIVE and
+UNVERIFIED; verification is explicit and requires ACTIVE + UNVERIFIED. Revocation
+requires a reason and is allowed while INACTIVE. An actual display-name change clears
+current verification metadata and returns VERIFIED to UNVERIFIED.
+
+### BR-AST-015
+Only ACTIVE + VERIFIED Manufacturer rows may be selected for a new AssetModel.
+Existing Manufacturer references remain resolvable in every verification/lifecycle
+state; Manufacturer deactivation does not cascade, and hard deletion is forbidden.
 
 ---
 

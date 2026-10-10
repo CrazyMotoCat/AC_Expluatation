@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 (AUTH-ASSET-SCOPE-01 published foundation)
+SOURCE_VERSION: 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724 (published AssetType scope consumer; TASK-03.02.01 Manufacturer permission contract local/unpublished)
 
 ## Purpose
 
@@ -123,9 +123,16 @@ per current qualifying non-global assignment. Duplicate complete tuples are
 preserved; all-null/empty-UUID shapes are rejected. Invalid requests return empty;
 storage errors and cancellation propagate, with no permissive fallback.
 No domain reference existence/ancestry is resolved in Identity. This foundation
-does not expose an HTTP endpoint or alter seeds/roles/assignments. ASSET-TYPE-01
-consumes it in the local Assets backend candidate. Consumers evaluate concrete facts before the
+does not expose an HTTP endpoint or alter seeds/roles/assignments. Published
+ASSET-TYPE-01 consumes it at baseline `4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724`
+(hosted CI run `38028823398` passed). Consumers evaluate concrete facts before the
 terminal GLOBAL decision because GLOBAL false also represents provider failure.
+
+`TASK-03.02.01` adds the canonical `assets.manage_manufacturers` permission
+through a data-only Identity migration. The permission is explicitly GLOBAL and
+INTERNAL, but its row alone grants no user access: this phase adds no role grant,
+assignment, or GLOBAL grant. This migration and consumer contract remain local
+and unpublished pending independent review.
 
 - `ICurrentUser` exposes the validated runtime `AuthenticatedUser` for the current request.
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.

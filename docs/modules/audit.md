@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-10-09 (ASSET-TYPE-01 local canonical AssetType extension)
+SOURCE_VERSION: 2026-10-10 (published AssetType + local Manufacturer canonical extension)
 
 ## Purpose
 
@@ -63,7 +63,7 @@ conflicting same-ID event is rejected and never authorizes processed acknowledge
 Three independently bounded polling loops give every module a processing opportunity
 when another source fails. Delivery remains at-least-once with stable EventId idempotency.
 
-ASSET-TYPE-01 adds canonical entity AssetType and actions AssetTypeCreated,
+Published ASSET-TYPE-01 adds canonical entity AssetType and actions AssetTypeCreated,
 AssetTypeUpdated, AssetTypeReparented, AssetTypeActivated, AssetTypeDeactivated.
 Assets owns durable obligations and commits them atomically with type mutation;
 `IAssetsAuditObligationDeliveryStore` and `AssetsAuditObligationDispatcher` reuse
@@ -73,6 +73,16 @@ status and rowVersion, validated by Audit-owned allowlist/UUIDv7/shape rules.
 Before/after record authoritative old/new parenting; reason is required for reparent.
 No read/failed mutation success Audit or business-history subsystem is added.
 This canonical contract extension requires no Audit schema/migration change.
+
+MANUFACTURER-01 adds canonical entity Manufacturer and actions ManufacturerCreated,
+ManufacturerUpdated, ManufacturerVerified, ManufacturerVerificationRevoked,
+ManufacturerActivated and ManufacturerDeactivated. Audit.Contracts validates the
+allowlisted snapshot fields id, name, normalizedName, verificationStatus,
+lifecycleStatus, verifiedBy, verifiedAt, createdAt, updatedAt and rowVersion.
+Assets owns each durable obligation and commits it atomically with Manufacturer
+state; the existing Assets delivery port, leases/fencing and canonical Audit writer
+materialize it idempotently. This is a local unpublished contract extension and adds
+no Audit schema/migration, second delivery mechanism or business-history store.
 
 `TASK-02.02.01` Phase A freezes the additive Organization extension: the
 canonical entity is `OrganizationalUnit`, with actions

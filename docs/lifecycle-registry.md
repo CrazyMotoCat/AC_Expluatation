@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-09-26 (TASK-02.03.03 Phase A contract freeze)
+SOURCE_VERSION: 2026-10-10 (MANUFACTURER-01 lifecycle contract)
 
 ## 1. Назначение
 
@@ -176,6 +176,47 @@ DECOMMISSIONED → DISPOSED
 - Возврат из `DECOMMISSIONED` запрещён без отдельного correction process.
 - Replacement старого актива не удаляет старый Asset.
 - Technical condition хранится отдельно от lifecycle status.
+
+---
+
+# 3.1. Manufacturer reference
+
+Manufacturer has two independent state dimensions.
+
+## Verification states
+
+```text
+UNVERIFIED
+VERIFIED
+```
+
+## Lifecycle states
+
+```text
+ACTIVE
+INACTIVE
+```
+
+All four combinations are valid. Create starts `ACTIVE + UNVERIFIED`.
+
+## Core transitions
+
+```text
+ACTIVE + UNVERIFIED → ACTIVE + VERIFIED       explicit verify
+VERIFIED → UNVERIFIED                         explicit revoke or actual name change
+ACTIVE ↔ INACTIVE                              activate/deactivate; verification preserved
+```
+
+Verify requires `ACTIVE + UNVERIFIED` and trusted server-derived actor/time.
+Revocation requires a non-empty trimmed reason (max 500), works for either lifecycle
+state, and clears current `verified_by`/`verified_at`. A real display-name change
+resets current verification; an unchanged display name does not revoke it. Previous
+verification facts remain in immutable before/after Audit snapshots.
+
+Only `ACTIVE + VERIFIED` is selectable when creating a new AssetModel. Existing
+references remain resolvable for every state. No deactivation cascade, hard delete,
+verification expiry, dual-control rule or general proposal workflow exists in v1.
+Every transition requires expectedRowVersion and one atomic Assets Audit obligation.
 
 ---
 

@@ -94,6 +94,7 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `assets.manage_responsibility` | Assets | Назначение ответственности | site/direction | INTERNAL | CRITICAL |
 | `assets.manage_types` | Assets | Управление типами оборудования | explicit global/direction/type subtree/same-tuple intersection | INTERNAL | CRITICAL |
 | `assets.manage_models` | Assets | Управление моделями | global/asset_type | INTERNAL | SENSITIVE |
+| `assets.manage_manufacturers` | Assets | Управление производителями оборудования | explicit GLOBAL | INTERNAL | SENSITIVE |
 | `documents.read` | Documents | Просмотр документов | inherited entity scope | INTERNAL/CONTRACT | NORMAL |
 | `documents.upload` | Documents | Загрузка файла/фото | inherited entity scope | INTERNAL/CONTRACT | SENSITIVE |
 | `documents.create` | Documents | Создание logical document | inherited entity scope | INTERNAL/CONTRACT* | SENSITIVE |
@@ -211,6 +212,22 @@ canonical management permission with stable ID
 GLOBAL grant is created; the permission row alone grants no access. No runtime
 seed synchronizer or alias is introduced.
 
+## 5.3. Manufacturer management boundary — TASK-03.02.01
+
+`assets.manage_manufacturers` is the canonical Assets permission, materialized by
+the Identity data-only migration `20261010074801_AddManufacturerManagementPermission`
+with stable ID `0199f3b0-0000-7000-8000-00000000004f`. It grants no access by itself:
+the migration creates no roles, role-permission rows, access assignments or GLOBAL
+grants. Manufacturer catalog read accepts current `assets.read` OR
+`assets.manage_manufacturers` through the published Identity scope/GLOBAL providers.
+An explicit GLOBAL or recognized valid concrete/composite assignment establishes
+read eligibility; the returned catalog remains global and unfiltered. Management
+requires exact explicit GLOBAL `assets.manage_manufacturers`; concrete/geographic/
+direction/type assignments and `assets.manage_types`/`assets.manage_models` do not
+manage Manufacturers. All routes require an ACTIVE INTERNAL user and owned current
+INTERNAL context. The MANUFACTURER-01 implementation is local and unpublished.
+See [Assets module contract](modules/assets.md) and [security rules](security.md).
+
 ## 6. Provisional permissions
 
 Следующие permissions предварительные до стабилизации модулей:
@@ -253,7 +270,7 @@ eligibility and a recognized assignment; it returns a global unfiltered catalog.
 Read never implies management. These rules do not broaden operational Asset
 permissions or their contractor policy. See
 [ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md),
-whose accepted rules are enforced in the local ASSET-TYPE-01 backend candidate.
-Both permission rows already exist in canonical Identity HasData and initial
-permission migration. This slice creates no permissions, roles, assignments or grants.
+whose accepted rules are enforced in the published ASSET-TYPE-01 baseline.
+Both permission rows already existed in canonical Identity HasData and initial
+permission migration. This AssetType slice created no permissions, roles, assignments or grants.
 See [Assets backend routes and scope policy](modules/assets.md).

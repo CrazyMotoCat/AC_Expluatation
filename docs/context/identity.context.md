@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 (AUTH-ASSET-SCOPE-01 published foundation)
+SOURCE_VERSION: 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724 (published AssetType scope consumer; TASK-03.02.01 Manufacturer permission contract local/unpublished)
 MODULE: Identity
 
 ## PURPOSE
@@ -143,7 +143,8 @@ Identity не должен знать все бизнес-правила дру�
 AUTH-ASSET-SCOPE-01 publishes the additive
 `IEffectiveScopeProvider.GetCurrentAssignmentScopesAsync(EffectiveScopeRequest)`
 returning `ImmutableArray<EffectiveAssignmentScopeFacts>` under ADR-019 at faa09a7.
-ASSET-TYPE-01 consumes this in its local Assets backend candidate.
+Published ASSET-TYPE-01 consumes this at baseline
+`4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724` (hosted CI run `38028823398` passed).
 One immutable tuple per current non-global assignment,
 duplicates preserved, invalid/all-null/empty-UUID shapes denied. All five
 dimensions stay together per assignment. Trusted composition supplies fixed

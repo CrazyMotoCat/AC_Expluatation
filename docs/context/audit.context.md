@@ -1,6 +1,6 @@
 # Audit Context Capsule
 
-ASSET-TYPE-01 local extension (2026-10-09): canonical AssetType entity and five
+Published ASSET-TYPE-01 extension (2026-10-09): canonical AssetType entity and five
 Created/Updated/Reparented/Activated/Deactivated actions are registered in Audit.Contracts.
 Allowlisted snapshots contain only id, parentAssetTypeId, functionalDirectionId,
 code, name, two classification flags, status and rowVersion. Assets business mutation
@@ -9,7 +9,15 @@ IAssetsAuditObligationDeliveryStore, leases/fences claims and appends via stable
 to the existing idempotent IAuditWriter. Third independent bounded polling loop covers
 Assets. No Audit schema/migration change, failed/read success Audit or business history.
 
-SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 + ASSET-TYPE-01 local canonical extension (2026-10-09)
+MANUFACTURER-01 local unpublished extension (2026-10-10): canonical Manufacturer
+entity and six create/update/verify/revoke/activate/deactivate actions are registered.
+Audit-owned validation accepts only id, name, normalizedName, verificationStatus,
+lifecycleStatus, verifiedBy, verifiedAt, createdAt, updatedAt and rowVersion.
+Assets commits each matching obligation atomically with the Manufacturer mutation
+and uses the existing canonical delivery port/writer. No Audit schema/migration or
+second delivery mechanism is added; no Manufacturer business history is implemented.
+
+SOURCE_VERSION: baseline 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; published AssetType and local Manufacturer Audit extension (2026-10-10)
 MODULE: Audit
 
 ## PURPOSE

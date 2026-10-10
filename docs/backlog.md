@@ -894,21 +894,22 @@ EPIC-02
 
 ### TASK-03.01.01. Asset type hierarchy
 
-STATUS: LOCAL_IMPLEMENTED_UNPUBLISHED (ASSET-TYPE-01, 2026-10-09).
+STATUS: PUBLISHED (ASSET-TYPE-01, baseline `4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724`, 2026-10-09).
 OD-ASSET-TYPE-01..08 and 08A..08E are enforced by the backend AssetType slice.
 FunctionalDirection reference/selectability and Identity correlated handoff
-are published prerequisites at baseline `faa09a7`. See
+are published prerequisites. Hosted CI run `38028823398` passed for the published
+baseline. See
 [AUTH-SCOPE-01 / ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
-The local candidate includes Assets domain/persistence, one narrow migration,
+The published implementation includes Assets domain/persistence, one narrow migration,
 hierarchy/lifecycle/read/management APIs, correlated authorization and atomic Audit.
-Independent publication review and exact-SHA hosted CI are separate gates; no push
-is performed by ASSET-TYPE-01. Asset entity, UI, Model/Manufacturer, attributes and
+The SEC-01 remediation is included in that published result. Asset entity, UI,
+Model/Manufacturer, attributes and
 composites remain unimplemented. Detailed local contract: [Assets](modules/assets.md).
 
-ASSET-TYPE-01R found SEC-01 (MEDIUM) in the public authorization contract.
-ASSET-TYPE-01F1 locally replaces caller-created target facts with authoritative
-ID-based composition and adds regression evidence; independent R2 review of the
-implementation plus remediation commits is required before publication.
+ASSET-TYPE-01R found SEC-01 in the public authorization contract. ASSET-TYPE-01F1
+replaced caller-created target facts with authoritative ID-based composition and
+added regression evidence; the corrected implementation is published at the baseline
+above. Historical review files remain preserved in the task checkpoint.
 
 Acceptance Criteria:
 
@@ -922,6 +923,25 @@ Acceptance Criteria:
 ## FEATURE-03.02. Manufacturers & Models
 
 ### TASK-03.02.01. Manufacturers
+
+STATUS: LOCAL_IMPLEMENTED_UNPUBLISHED (MANUFACTURER-01, 2026-10-10).
+OD-MANUFACTURER-01..07 are accepted for this implementation. Assets owns this
+configurable global reference. The local backend adds pinned Unicode 17.0.0 NFC +
+Default Full Case Folding with Unicode White_Space collapse, global exact
+`normalized_name` uniqueness, independent ACTIVE/INACTIVE and VERIFIED/UNVERIFIED
+states, explicit verify/revoke, optimistic concurrency, read/search and management
+API, and atomic durable Assets Audit. Read requires current `assets.read` or
+`assets.manage_manufacturers` through published Identity providers; management requires
+the explicit GLOBAL `assets.manage_manufacturers` permission in an ACTIVE INTERNAL
+user's owned current INTERNAL context. Concrete grants may establish global catalog
+read eligibility but never management. `20261010074714_AddManufacturers` is the narrow
+Assets migration; `20261010074801_AddManufacturerManagementPermission` is data-only
+and creates no grants/roles/assignments. No Manufacturer seeds are created.
+Independent review is required before publication. See [Assets module contract](modules/assets.md),
+[database model](database.md#92-assetsmanufacturers), and [security rules](security.md).
+
+The implementation does not include AssetModel, its proposal workflow, Asset,
+aliases/merge, imports, external registries, frontend, or production seed data.
 
 Acceptance Criteria:
 

@@ -1,7 +1,7 @@
 # Module: Assets
 
 STATUS: STABLE
-SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 + ASSET-TYPE-01 local candidate (2026-10-09)
+SOURCE_VERSION: 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; AssetType published, Manufacturer local candidate (2026-10-10)
 
 ## Purpose
 
@@ -9,13 +9,15 @@ Assets — центральный реестр оборудования, инж�
 
 ## Implementation status
 
-`TASK-03.01.01 / ASSET-TYPE-01` implements the backend AssetType vertical slice
-on the published FunctionalDirection/Identity baseline. It is a local publication
-candidate; independent publication review and exact-SHA hosted CI remain separate.
-The later Asset, Manufacturer, Model, attributes, composites, UI and business-history
-sections below remain planned. Module registration is `AddAssetsModule(configuration)`.
+`TASK-03.01.01 / ASSET-TYPE-01` is published in baseline
+`4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724`; hosted CI run `38028823398` passed.
+`TASK-03.02.01 / MANUFACTURER-01` is a local backend implementation candidate on
+that baseline and remains unpublished pending independent review. Asset, AssetModel,
+attributes, composites, UI and business-history remain out of this implementation.
+Module registration is `AddAssetsModule(configuration)`.
 
-ASSET-TYPE-01F1 locally remediates SEC-01 from the immutable candidate review.
+ASSET-TYPE-01F1 remediates SEC-01 from the immutable review and is part of the
+published AssetType baseline.
 Public `CanManageExistingAsync(context, assetTypeId, operation, destinationParentAssetTypeId?)`
 accepts business IDs only, resolving target/destination and the parent chain from the
 same scoped Assets read store. Missing direction/target/ancestor, cycles, mixed direction
@@ -28,8 +30,7 @@ through Organization. Selectability/ACTIVE parent/direction homogeneity are stil
 separate command business validation. `HasGlobalManagementAsync` is exact-permission
 eligibility only for concealed missing-target404 handling, never existing-target ALLOW.
 The original DTO-based CanManageAsync overload is removed. HTTP/schema/permissions,
-lock identity and Audit mechanism are unchanged. Independent ASSET-TYPE-01R2 review
-of both local commits is required; no publication is performed by remediation.
+lock identity and Audit mechanism remain as published in the baseline.
 
 ### AssetType backend contract — 2026-10-09
 
@@ -127,11 +128,86 @@ Audit. No direct Audit DbContext access: Assets claim/lease port and technical d
 reuse SKIP LOCKED, stable auditEventId, idempotent Audit append, fenced completion,
 bounded retries/backoff and sanitized diagnostics. Claim state survives restart.
 
-Migration `20261009093315_AddAssetTypes` creates only Assets type and required atomic
-Audit-obligation tables, indexes/constraints, module EF history and immutable/no-delete
-database guard. Rollback refuses existing type/Audit history without owner disposition.
-Both exact Identity permissions were already seeded; this slice adds no Identity
-schema/permission migration, roles, assignments or grants. Frontend production is unchanged.
+Migration `20261009093315_AddAssetTypes` is the published AssetType foundation.
+MANUFACTURER-01 adds the single follow-up Assets migration
+`20261010074714_AddManufacturers`, extending the local durable Audit-obligation
+contract while preserving AssetType constraints. Rollback refuses Manufacturer data
+or Audit history. The separate Identity migration `20261010074801_AddManufacturerManagementPermission`
+only materializes the canonical permission row; it changes no Identity schema, roles,
+assignments or grants. Neither task creates Manufacturer values; production contains
+no Manufacturer seed data. Frontend production is unchanged.
+
+## Manufacturer backend contract — MANUFACTURER-01 local candidate, 2026-10-10
+
+Manufacturer is an Assets-owned configurable reference. This local implementation is
+not published. Its contract uses UUIDv7 `id`; required trimmed display `name` (at most
+200 Unicode scalar values); server-derived `normalized_name`; independent
+`verification_status` (`UNVERIFIED`/`VERIFIED`) and `lifecycle_status` (`ACTIVE`/
+`INACTIVE`); nullable `verified_by`/`verified_at`; UTC `created_at`/`updated_at`; and
+positive optimistic `row_version`. There is no code, description, alias, merge, seed,
+hard delete or proposal workflow.
+
+The deterministic key pipeline collapses Unicode White_Space runs to ASCII space,
+trims boundary whitespace, applies NFC, Unicode Default Full Case Folding, then NFC.
+Tables are pinned to Unicode 17.0.0 and embedded with SHA-256
+`d416472fd51d6a0ac065deb3dcfc90b97ff839971888d2c442f54e54ff8d8079`. Case folding
+is locale independent; punctuation, suffixes and visual lookalikes are preserved.
+The display spelling is stored separately. Output bounds are 600 Unicode scalars and
+2,400 UTF-8 bytes. Unicode source and table licensing is included in the domain data
+folder; see [Unicode 17.0.0 UCD](https://www.unicode.org/Public/17.0.0/ucd/) and
+[Unicode License v3](https://www.unicode.org/license.txt).
+
+`normalized_name` is globally unique for ACTIVE and INACTIVE rows under PostgreSQL
+`C` collation. `ux_manufacturers_normalized_name` is authoritative under concurrent
+creates and renames; duplicates map to 409 `MANUFACTURER_NAME_ALREADY_EXISTS`.
+`ix_manufacturers_normalized_name_id` supports normalized prefix search and stable
+`normalized_name,id` ordering. Search is database-side and literal-prefix escaped;
+it supports verification/lifecycle filters, page default 1, size default 50, max 200.
+
+Create is ACTIVE + UNVERIFIED. Only an explicit command verifies an ACTIVE,
+UNVERIFIED row, deriving actor/time from trusted server context. Revocation requires a
+trimmed 1..500 reason, is allowed while INACTIVE and clears current metadata. A real
+display-name change resets VERIFIED to UNVERIFIED and clears current metadata; an
+unchanged name is a state conflict. Activation/deactivation do not change verification.
+`IManufacturerReferenceProvider` returns scalar facts or null when missing and marks
+only ACTIVE + VERIFIED as selectable for a new AssetModel; inactive/unverified rows
+remain resolvable. AssetModel is not implemented here.
+
+All APIs require an ACTIVE INTERNAL local user and owned current INTERNAL context.
+`assets.read` or `assets.manage_manufacturers` through published Identity providers
+allows the global unfiltered catalog. A recognized concrete/composite assignment
+can establish read eligibility but never filters rows or grants management.
+Management requires an explicit effective GLOBAL grant for the exact
+`assets.manage_manufacturers` permission; concrete scopes and `assets.manage_types`/
+`assets.manage_models` do not qualify. Permission existence alone grants nobody access.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/v1/manufacturers` | Optional normalized prefix `q`, verification/lifecycle filters; page/pageSize |
+| GET | `/api/v1/manufacturers/{id}` | Authorized detail includes `rowVersion`; omits verified actor/time |
+| POST | `/api/v1/manufacturers` | `{ name }`; creates ACTIVE + UNVERIFIED |
+| PUT | `/api/v1/manufacturers/{id}` | `{ name, expectedRowVersion }` |
+| POST | `/api/v1/manufacturers/{id}/verify` | `{ expectedRowVersion }` |
+| POST | `/api/v1/manufacturers/{id}/revoke-verification` | `{ reason, expectedRowVersion }` |
+| POST | `/api/v1/manufacturers/{id}/activate` | `{ expectedRowVersion }` |
+| POST | `/api/v1/manufacturers/{id}/deactivate` | `{ expectedRowVersion }` |
+
+No DELETE exists. Unknown/caller-supplied normalized, status, actor, permission or
+scope fields are rejected. Stale writes return 409 `OPTIMISTIC_CONCURRENCY_CONFLICT`;
+invalid transitions return 409 `MANUFACTURER_STATE_CONFLICT`. Unauthorized management
+is denied before target lookup. PostgreSQL persists each entity mutation and matching
+Assets Audit obligation in one transaction using canonical
+ManufacturerCreated/Updated/Verified/VerificationRevoked/Activated/Deactivated
+actions, server actor/context, before/after snapshots and revocation reason. Audit
+delivery uses the existing canonical dispatcher and remains idempotent.
+
+The current implementation references [ADR-001](../adr/ADR-001-modular-monolith.md),
+[ADR-003](../adr/ADR-003-uuidv7-identifiers.md),
+[ADR-008](../adr/ADR-008-business-history-audit-separation.md),
+[ADR-011](../adr/ADR-011-durable-audit-obligation-outbox.md),
+[ADR-018](../adr/ADR-018-explicit-global-assignment-scope.md) and
+[ADR-019](../adr/ADR-019-correlated-assignment-scope-facts.md); no accepted ADR body
+was changed.
 
 ## Owns
 

@@ -1466,7 +1466,7 @@ serialize structural/lifecycle checks, while expectedRowVersion independently
 prevents stale writes. State and durable audit obligation commit together;
 failed/denied mutation has no successful business or audit effect.
 
-## AssetType taxonomy authorization — ASSET-TYPE-01 local candidate, 2026-10-09
+## AssetType taxonomy authorization — published ASSET-TYPE-01, 2026-10-09
 
 Accepted OD-ASSET-TYPE-08A..08E require ACTIVE INTERNAL subject, owned current
 INTERNAL context and exact permission. Catalog read accepts current `assets.read`
@@ -1493,9 +1493,8 @@ authorization. Taxonomy existence/ancestry is a consumer responsibility.
 CALLER_PERMISSION_INPUT: NONE through transport; LocalUserId and WorkingContextId
 remain trusted current server-composition facts, with Identity revalidation.
 No scope evidence is bound through HTTP. Published geographic and GLOBAL provider
-semantics are unchanged. ASSET-TYPE-01 implements the local Assets backend candidate;
-no Identity schema/seed/grant mutation is required. Independent publication review
-and exact-SHA hosted CI remain separate.
+semantics are unchanged. AssetType is published in baseline
+`4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724`; hosted CI run `38028823398` passed.
 
 All Assets mutations begin READ COMMITTED, acquire global two-int taxonomy lock
 `pg_advisory_xact_lock(1095980121,1)`, clear tracked facts and obtain fresh target,
@@ -1538,5 +1537,44 @@ Root-create direction remains desired business input, resolved through Organizat
 with selectability and parent homogeneity separately enforced by command validation.
 Explicit GLOBAL, geographic denial and whole-assignment intersection are unchanged.
 Independent global permission eligibility preserves missing-target404 handling without
-turning absent targets into ALLOW. Local remediation tests do not supersede the
-original immutable review: SEC-01 closure requires separate ASSET-TYPE-01R2 verification.
+turning absent targets into ALLOW. SEC-01 remediation is part of the published baseline.
+
+## Manufacturer reference authorization — MANUFACTURER-01 local candidate, 2026-10-10
+
+Manufacturer is Assets-owned master data. The implementation is local and unpublished.
+All routes require an ACTIVE INTERNAL local user and a valid owned current INTERNAL
+working context. HTTP permissions, scopes, GLOBAL markers and verified metadata are
+never accepted as caller evidence; the request boundary resolves the current user and
+context, then asks the published Identity providers.
+
+Catalog read accepts current `assets.read` OR `assets.manage_manufacturers` through
+`IEffectiveScopeProvider.GetCurrentAssignmentScopesAsync` and
+`IGlobalGrantProvider`. Explicit GLOBAL or any recognized valid complete concrete or
+composite assignment can establish read eligibility. Eligibility returns the global
+unfiltered catalog; row results are not filtered by Site, Region, FunctionalDirection
+or AssetType. Read never implies management. Missing permissions, wrong context,
+external/contractor or inactive users, expired/future assignments, invalid tuples and
+provider failures deny or fail closed; an ineligible caller gets 403, not an empty 200.
+
+Management requires an explicit effective GLOBAL grant for exact permission
+`assets.manage_manufacturers`. Site/Region/Zone, FunctionalDirection, AssetType and
+composite concrete grants never become GLOBAL; concrete `assets.manage_manufacturers`
+only qualifies for catalog read. `assets.manage_types`, `assets.manage_models` and
+other unrelated GLOBAL permissions grant neither Manufacturer read nor management.
+Identity permission seed existence alone creates no role permission, assignment or
+GLOBAL grant.
+
+Management eligibility is resolved before target-specific lookup. Direct mutation of
+an existing or missing ID returns the same concealed denial to an unauthorized caller.
+The API rejects client-supplied `normalized_name`, status, `verified_by`/`verified_at`,
+permission or scope fields; verification actor/time come from trusted server state.
+Every existing-row write requires expectedRowVersion. PostgreSQL's global exact
+`normalized_name` unique index is authoritative for Unicode/case/whitespace collisions
+and concurrent duplicates. LIKE prefix metacharacters are escaped before the
+parameterized database-side search. Unknown database/provider errors are sanitized.
+
+Each allowed mutation writes exactly one matching Manufacturer Audit obligation in
+the same Assets transaction. Denied, stale, invalid, duplicate and failed-Audit writes
+produce no successful obligation; Audit delivery remains canonical and idempotent.
+Manufacturer has no DELETE endpoint or physical-delete path. AssetType's published
+authorization, taxonomy lock, action set and Audit behavior remain unchanged.

@@ -241,7 +241,8 @@ the Sites module and security docs; it grants no Location or Site operation.
 ## 4.5. Asset Types
 
 Owner: Assets. CONFIGURABLE_REFERENCE in `assets.asset_types`.
-TASK-03.01.01 / ASSET-TYPE-01 implements the backend locally, unpublished.
+TASK-03.01.01 / ASSET-TYPE-01 is published in baseline
+`4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724`; hosted CI run `38028823398` passed.
 No seeds are supplied; registry examples such as UPS/DGU/AC are illustrative only.
 UUIDv7 nodes have nullable parent, explicit immutable FunctionalDirection ID,
 immutable globally unique canonical code, mutable name, independent system/component
@@ -260,6 +261,35 @@ owned INTERNAL context/recognized concrete-composite or explicit GLOBAL grant.
 Management requires only assets.manage_types with frozen direction/subtree/same-tuple
 rules; geographic-containing assignments never manage taxonomy. One Assets migration
 and atomic durable Audit obligations implement configuration. See [Assets](modules/assets.md).
+
+## 4.6. Manufacturers
+
+Owner: Assets. CONFIGURABLE_REFERENCE in `assets.manufacturers`.
+`TASK-03.02.01 / MANUFACTURER-01` is implemented locally and remains unpublished
+pending independent review. No Manufacturer values are seeded.
+
+The reference has a UUIDv7 identity, display `name`, server-derived globally unique
+`normalized_name`, independent `verification_status` (UNVERIFIED/VERIFIED) and
+`lifecycle_status` (ACTIVE/INACTIVE), trusted verification metadata, timestamps and
+row version. Names use a Unicode 17.0.0 pinned normalizer: collapse Unicode
+White_Space runs, trim, NFC, default full case folding and NFC. Display punctuation
+and spelling remain preserved. The key is unique across every lifecycle state; search
+uses escaped normalized prefix matching and orders by normalized_name then id.
+
+Create is ACTIVE + UNVERIFIED. Explicit verify requires ACTIVE; explicit revocation
+requires a reason and is permitted while INACTIVE. A real name change invalidates
+verification. Activation/deactivation preserve verification. A Manufacturer is
+selectable for a future AssetModel only while ACTIVE and VERIFIED; any existing row
+remains resolvable. No Model, proposal workflow, alias/merge, import or external
+registry integration is part of MANUFACTURER-01.
+
+Read requires current `assets.read` or `assets.manage_manufacturers` and returns the
+global catalog after eligibility. Recognized concrete/composite scopes can establish
+read eligibility but do not filter the catalog. Management requires the exact explicit
+GLOBAL `assets.manage_manufacturers` grant and an ACTIVE INTERNAL user with an owned
+current INTERNAL context. This permission adds no role or grant by itself. See
+[Assets module contract](modules/assets.md), [permission registry](permissions-registry.md)
+and [security rules](security.md).
 
 ## 5. Units of Measure
 
