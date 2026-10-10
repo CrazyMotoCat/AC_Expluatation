@@ -1466,7 +1466,7 @@ serialize structural/lifecycle checks, while expectedRowVersion independently
 prevents stale writes. State and durable audit obligation commit together;
 failed/denied mutation has no successful business or audit effect.
 
-## AssetType taxonomy authorization freeze — 2026-10-09
+## AssetType taxonomy authorization — ASSET-TYPE-01 local candidate, 2026-10-09
 
 Accepted OD-ASSET-TYPE-08A..08E require ACTIVE INTERNAL subject, owned current
 INTERNAL context and exact permission. Catalog read accepts current `assets.read`
@@ -1483,8 +1483,8 @@ mutations lock then reread before evaluation. Concrete evaluation precedes termi
 GLOBAL evaluation because GLOBAL false can also represent provider failure.
 
 [Frozen contract and attack matrix](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
-The Identity runtime handoff is locally implemented in AUTH-ASSET-SCOPE-01 under
-[ADR-019](adr/ADR-019-correlated-assignment-scope-facts.md), pending review/publication.
+The Identity runtime handoff is published in AUTH-ASSET-SCOPE-01 under
+[ADR-019](adr/ADR-019-correlated-assignment-scope-facts.md).
 `GetCurrentAssignmentScopesAsync` returns one immutable complete tuple per current
 exact-permission non-global assignment, preserving duplicates and all geographic
 restrictions. All-null or any empty UUID denies that assignment. Invalid requests
@@ -1493,5 +1493,37 @@ authorization. Taxonomy existence/ancestry is a consumer responsibility.
 CALLER_PERMISSION_INPUT: NONE through transport; LocalUserId and WorkingContextId
 remain trusted current server-composition facts, with Identity revalidation.
 No scope evidence is bound through HTTP. Published geographic and GLOBAL provider
-semantics are unchanged; no schema/API/seed is added. AssetType is unimplemented
-and TASK-03.01.01 remains BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED.
+semantics are unchanged. ASSET-TYPE-01 implements the local Assets backend candidate;
+no Identity schema/seed/grant mutation is required. Independent publication review
+and exact-SHA hosted CI remain separate.
+
+All Assets mutations begin READ COMMITTED, acquire global two-int taxonomy lock
+`pg_advisory_xact_lock(1095980121,1)`, clear tracked facts and obtain fresh target,
+destination, recursive ancestry and current correlated assignment facts before
+authorization. That separate keyspace cannot collide with existing bigint module
+locks. The lock covers validation, expected version, business+Audit save and commit.
+An update waiting behind reparent must authorize the target in its new subtree.
+Create-child and lifecycle operations use the same protocol; inactive ancestors cannot
+be bypassed by concurrent deactivation. Source and destination coverage never borrow
+dimensions or grants from different assignments. Missing/stale taxonomy references
+make that assignment unusable; dependency exceptions abort authorization and never
+fall back to GLOBAL. Existing inactive scope references remain resolvable.
+
+Canonical request composition resolves authenticated issuer/subject to ACTIVE INTERNAL
+local profile and validated owned INTERNAL context. Fixed assets.read OR assets.manage_types
+establish global catalog eligibility; geographic read eligibility applies no row filter
+and grants no management. Management requires assets.manage_types and whole matching
+non-geographic tuple or explicit GLOBAL. Transport accepts only business fields and
+expectedRowVersion; unknown JSON members including permission, scope, ancestry,
+timestamps and audit actor are rejected. Eligibility precedes direct target parsing;
+locked coverage precedes target-specific errors. Unauthorized existing/missing targets
+return403; catalog-authorized missing detail and GLOBAL-covered missing mutation may404.
+Raw PostgreSQL/dependency details are replaced by stable409 or sanitized503 responses.
+
+Every success persists a module-owned durable Audit obligation in the business
+transaction. Denials, invalid state/cycles, duplicate code and stale versions produce
+no successful mutation obligation; a failed obligation insert rolls back the business
+change. AssetsDbContext rejects ordinary direct entity writes without the command
+boundary. Database trigger enforces immutable identity/code/direction and forbids
+delete. Reference APIs expose immutable scalar DTOs, no entities/DbContext. There is
+no DELETE API, caller-provided grants, Asset entity or frontend change.

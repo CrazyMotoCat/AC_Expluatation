@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-10-07 (TASK-02.02.02 FunctionalDirection audit extension)
+SOURCE_VERSION: 2026-10-09 (ASSET-TYPE-01 local canonical AssetType extension)
 
 ## Purpose
 
@@ -54,7 +54,25 @@ their frozen field shape.
 
 `IAuditWriter.AppendAsync(AuditEventDraft, CancellationToken)` — единый Audit-owned durable append contract. Draft требует UUIDv7 EventId, local user ID, correlation ID, canonical action/entity и entity ID для текущих entity-bound actions; acting context остаётся optional по существующей semantics. Повторный append с тем же EventId и идентичным immutable content безопасен, а другой content для существующего EventId является integrity conflict. Before/after optional, но для `UserContext`, `TerritorialZone`, `Region` и `OrganizationalUnit` должны быть object JSON только с canonical allowlisted fields, соответствующим snapshot semantics, и не превышать 64 KiB UTF-8.
 
-Sites and Organization obligations materialize through `Exploitation.AuditDelivery`, a technical component outside both module domains. It reads their respective Application delivery ports and calls the same `IAuditWriter`; Audit Infrastructure remains private to Audit registration/persistence. Claims are short-lived and durable (`claim_token`, `lease_until`, `next_attempt_at`); Audit append runs outside each source claim transaction, and a conflicting same-ID event is rejected and never authorizes a source obligation to become processed. Two fixed, independently bounded polling loops give each module a processing opportunity even when the other source fails. Delivery remains at-least-once, with stable EventId idempotency.
+Sites, Organization and Assets obligations materialize through `Exploitation.AuditDelivery`,
+a technical component outside their domains. It reads each Application delivery port
+and calls the same `IAuditWriter`; Audit Infrastructure remains private to Audit
+registration/persistence. Claims are short-lived and durable (`claim_token`, `lease_until`,
+`next_attempt_at`); Audit append runs outside each source claim transaction, and a
+conflicting same-ID event is rejected and never authorizes processed acknowledgement.
+Three independently bounded polling loops give every module a processing opportunity
+when another source fails. Delivery remains at-least-once with stable EventId idempotency.
+
+ASSET-TYPE-01 adds canonical entity AssetType and actions AssetTypeCreated,
+AssetTypeUpdated, AssetTypeReparented, AssetTypeActivated, AssetTypeDeactivated.
+Assets owns durable obligations and commits them atomically with type mutation;
+`IAssetsAuditObligationDeliveryStore` and `AssetsAuditObligationDispatcher` reuse
+the published claim/lease/fencing/backoff pattern. Snapshot JSON has only id,
+parentAssetTypeId, functionalDirectionId, code, name, isSystemType, isComponentType,
+status and rowVersion, validated by Audit-owned allowlist/UUIDv7/shape rules.
+Before/after record authoritative old/new parenting; reason is required for reparent.
+No read/failed mutation success Audit or business-history subsystem is added.
+This canonical contract extension requires no Audit schema/migration change.
 
 `TASK-02.02.01` Phase A freezes the additive Organization extension: the
 canonical entity is `OrganizationalUnit`, with actions

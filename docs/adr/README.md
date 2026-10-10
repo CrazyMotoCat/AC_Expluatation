@@ -34,7 +34,7 @@ Rejected
 | ADR-016 | Enforced authorization composition at Sites boundaries | Accepted; refines ADR-013 and ADR-015; B2 and C1 Geography routes integrated |
 | ADR-017 | Site authorization under enforced Sites composition | Accepted; refines ADR-014 under ADR-015/016; foundation published after SITE-AUTH-01R; HTTP API published after SITE-API-01R |
 | ADR-018 | Explicit GLOBAL access-assignment scope | Accepted; refines ADR-007; preserves concrete composites and ADR-013/015/016/017 |
-| ADR-019 | Trusted correlated assignment scope facts | Accepted; refines ADR-015/016; preserves ADR-018; local foundation pending publication |
+| ADR-019 | Trusted correlated assignment scope facts | Accepted; refines ADR-015/016; preserves ADR-018; Identity foundation published at faa09a7 |
 
 ## Правило для Codex и разработчиков
 

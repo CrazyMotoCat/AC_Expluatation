@@ -8,7 +8,18 @@ The workflow uses the toolchain contracts already committed to the repository:
 - Node.js and npm contract from `src/frontend/package.json`;
 - reproducible frontend dependency installation through `npm ci`.
 
-It restores and builds the backend, runs Identity domain checks, architecture checks, OIDC negative/security checks, PostgreSQL/Testcontainers Identity persistence checks, infrastructure script checks, and the API bootstrap integration smoke test. The backend job also starts an ephemeral PostgreSQL 18.6 service, passes its connection through `ConnectionStrings__Database`, and executes `Exploitation.DatabaseMigrator`. The migrator currently discovers `IdentityDbContext`, applies the module-owned `InitialIdentityUsers` migration, and writes EF history in schema `identity`. It also installs, lints, builds, and unit-tests the frontend. Backend and frontend logs are retained as GitHub Actions artifacts even when a job fails.
+It restores and builds the backend, runs `dotnet test` plus explicit console
+domain, architecture, OIDC, Identity, Audit, Sites/Location, Organization/FunctionalDirection
+and Assets persistence/API harnesses. The Assets harnesses include real PostgreSQL
+hierarchy/authorization/concurrency and Audit atomicity/delivery tests; `dotnet test`
+alone does not execute these console projects. Infrastructure and API bootstrap
+checks run explicitly. The backend job starts ephemeral PostgreSQL18.6, passes
+`ConnectionStrings__Database`, and executes the module migrator twice for clean
+apply and idempotency. It discovers five contexts: Assets, Audit, Identity,
+Organization and Sites, each owning its schema/EF history. ASSET-TYPE-01 adds one
+Assets migration and no Identity/Audit migration. Frontend install/lint/build/tests
+continue unchanged. Both jobs retain logs even on failure; local validation is not
+proof of hosted CI for an unpushed candidate.
 
 ## Required merge check
 

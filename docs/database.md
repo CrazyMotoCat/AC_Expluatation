@@ -1124,17 +1124,52 @@ verified_at
 ## 9.1. assets.asset_types
 
 ```text
-id
-parent_id           nullable
-code
-name
-functional_direction_id
-is_system_type      boolean
-is_component_type   boolean
-is_active
+id                      uuid PK, UUIDv7
+parent_asset_type_id     uuid nullable, restrictive self FK
+functional_direction_id uuid required, immutable cross-module reference (no DB FK)
+code                    varchar(50), canonical uppercase, immutable/global unique
+name                    varchar(200), trimmed/mutable/non-unique
+is_system_type          boolean required
+is_component_type       boolean required
+status                  varchar(20), ACTIVE/INACTIVE
+created_at              timestamptz
+updated_at              timestamptz
+row_version             bigint positive optimistic concurrency
 ```
 
-Позволяет иерархию:
+ASSET-TYPE-01 local candidate; no type seeds. Multiple roots and arbitrary-depth
+adjacency list require same explicit direction on every parent/child. New direction
+references use published Organization Application selectability; inactive existing
+references remain resolvable. Code regex is `^[A-Z0-9][A-Z0-9_-]{0,49}$`.
+Checks enforce UUIDv7 ID/direction, canonical code/name, valid status, positive version
+and non-self parent. Unique code index is authoritative for duplicate races.
+Parent/code/id and direction indexes support lazy reads and reference lookup.
+The migration guard rejects physical deletion, identity/code/direction/creation-time
+change and rowVersion updates other than old+1. All existing-row commands require
+expectedRowVersion; no last-write-wins retry.
+
+Every command runs READ COMMITTED with global two-int taxonomy advisory key
+`pg_advisory_xact_lock(1095980121,1)` (ASCII ASTY/taxonomy1). PostgreSQL separates
+two-int and bigint lock spaces; existing Sites/Organization bigint locks cannot
+collide. Fresh post-lock recursive CTEs validate coverage, cycles and active
+descendants. Parent must be ACTIVE for create/reparent/reactivation; deactivation
+rejects all-depth active descendants. ACTIVE non-leaf types remain selectable.
+Direction and code are immutable; reparent carries the subtree without changing IDs.
+
+`assets.audit_obligations` stores one atomic mutation obligation: UUIDv7 ID and
+unique audit_event_id, entity_type/entity_id, canonical action, actor_user_id,
+acting_context_id, correlation_id, occurred_at, before_json/after_json (allowlisted
+AssetType facts), reparent reason<=500, delivery_status PENDING/PROCESSED,
+attempt_count/last_error, claim_token/lease_until/next_attempt_at/created_at/processed_at.
+Restrictive local entity FK and action/reason/state/lease coherence checks apply.
+The delivery index and SKIP LOCKED claims support fenced retry/idempotent Audit append.
+Business mutation and obligation SaveChanges/commit use one Assets transaction;
+there is no direct write to Audit/Organization/Identity schemas.
+Migration `20261009093315_AddAssetTypes` is the single Assets migration; module
+history is `assets.__ef_migrations_history`. Down refuses any type/obligation history.
+No Identity schema/migration/permission/role/assignment/grant is added in this slice.
+
+Пример иерархии (не seed):
 
 ```text
 Engineering Equipment

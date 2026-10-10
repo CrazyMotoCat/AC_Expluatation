@@ -238,6 +238,29 @@ activate/deactivate, mutation audit and management permission are deferred to
 a separate contract. Catalog read has the fixed permission union described in
 the Sites module and security docs; it grants no Location or Site operation.
 
+## 4.5. Asset Types
+
+Owner: Assets. CONFIGURABLE_REFERENCE in `assets.asset_types`.
+TASK-03.01.01 / ASSET-TYPE-01 implements the backend locally, unpublished.
+No seeds are supplied; registry examples such as UPS/DGU/AC are illustrative only.
+UUIDv7 nodes have nullable parent, explicit immutable FunctionalDirection ID,
+immutable globally unique canonical code, mutable name, independent system/component
+flags and ACTIVE/INACTIVE status. Multiple roots/arbitrary depth and direction-homogeneous
+parenting apply. Deactivation rejects active descendants; no hard delete/cascade.
+Any ACTIVE node including non-leaf is selectable; INACTIVE remains readable/resolvable
+but not selectable. Direction selection uses Organization-owned published reference
+provider; inactive existing direction references stay resolvable without type cascade.
+
+Assets Application `IAssetTypeReferenceProvider` returns immutable scalar facts and
+IsSelectableForNewReference, null if missing; it exposes no EF entities and grants
+no authorization. Global catalog uses `GET /api/v1/asset-types` roots/direct children,
+both statuses, page1/size50/max200, code/id ordering, and authorized direct detail.
+Eligibility is current assets.read OR assets.manage_types plus ACTIVE INTERNAL user/
+owned INTERNAL context/recognized concrete-composite or explicit GLOBAL grant.
+Management requires only assets.manage_types with frozen direction/subtree/same-tuple
+rules; geographic-containing assignments never manage taxonomy. One Assets migration
+and atomic durable Audit obligations implement configuration. See [Assets](modules/assets.md).
+
 ## 5. Units of Measure
 
 Units должны иметь минимум:

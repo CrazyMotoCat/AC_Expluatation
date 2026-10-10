@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 658521128cc812a7e0e2d4a59a6a01603eb48db4 + AUTH-ASSET-SCOPE-01 local foundation (2026-10-09)
+SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 (AUTH-ASSET-SCOPE-01 published foundation)
 
 ## Purpose
 
@@ -111,8 +111,8 @@ composites, FunctionalDirection and AssetType are excluded, although persisted.
 [ASSET-TYPE-SCOPE-00](../../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md)
 records additive `IEffectiveScopeProvider.GetCurrentAssignmentScopesAsync`
 returning immutable complete concrete assignment tuples for a trusted current
-subject/context and canonical permission. It is **locally implemented, pending
-review/publication** under [ADR-019](../adr/ADR-019-correlated-assignment-scope-facts.md). It reuses
+subject/context and canonical permission. It is **published at faa09a7**
+under [ADR-019](../adr/ADR-019-correlated-assignment-scope-facts.md). It reuses
 Identity current eligibility without a target evaluator and preserves all five
 dimensions together. No tables/IQueryable are exported. Existing geographic
 results stay unchanged; explicit GLOBAL stays on `IGlobalGrantProvider`. Assets
@@ -123,8 +123,8 @@ per current qualifying non-global assignment. Duplicate complete tuples are
 preserved; all-null/empty-UUID shapes are rejected. Invalid requests return empty;
 storage errors and cancellation propagate, with no permissive fallback.
 No domain reference existence/ancestry is resolved in Identity. This foundation
-does not expose an HTTP endpoint or alter seeds/roles/assignments. Assets remains
-blocked until publication. Consumers evaluate concrete facts before the
+does not expose an HTTP endpoint or alter seeds/roles/assignments. ASSET-TYPE-01
+consumes it in the local Assets backend candidate. Consumers evaluate concrete facts before the
 terminal GLOBAL decision because GLOBAL false also represents provider failure.
 
 - `ICurrentUser` exposes the validated runtime `AuthenticatedUser` for the current request.

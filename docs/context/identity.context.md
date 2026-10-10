@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 658521128cc812a7e0e2d4a59a6a01603eb48db4 + AUTH-ASSET-SCOPE-01 local foundation (2026-10-09)
+SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 (AUTH-ASSET-SCOPE-01 published foundation)
 MODULE: Identity
 
 ## PURPOSE
@@ -140,10 +140,11 @@ Identity не должен знать все бизнес-правила дру�
 
 ## PUBLIC CONTRACTS
 
-AUTH-ASSET-SCOPE-01 locally implements the additive
+AUTH-ASSET-SCOPE-01 publishes the additive
 `IEffectiveScopeProvider.GetCurrentAssignmentScopesAsync(EffectiveScopeRequest)`
-returning `ImmutableArray<EffectiveAssignmentScopeFacts>` under ADR-019; pending
-review/publication. One immutable tuple per current non-global assignment,
+returning `ImmutableArray<EffectiveAssignmentScopeFacts>` under ADR-019 at faa09a7.
+ASSET-TYPE-01 consumes this in its local Assets backend candidate.
+One immutable tuple per current non-global assignment,
 duplicates preserved, invalid/all-null/empty-UUID shapes denied. All five
 dimensions stay together per assignment. Trusted composition supplies fixed
 canonical permission/current local user/owned context; Identity rechecks current

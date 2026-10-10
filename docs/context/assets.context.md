@@ -1,6 +1,6 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: 658521128cc812a7e0e2d4a59a6a01603eb48db4 + AUTH-ASSET-SCOPE-01 local foundation (2026-10-09)
+SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 + ASSET-TYPE-01 local candidate (2026-10-09)
 MODULE: Assets
 
 ## PURPOSE
@@ -9,11 +9,12 @@ Assets — основной реестр оборудования и инжен�
 
 ## IMPLEMENTATION STATUS
 
-`TASK-00.03.02` реализует только базовый layer pattern модуля, технический `GetAssetsModuleInfoQuery` и регистрацию `AddAssetsModule()`. Business entities, DB schema, API, permissions, lifecycle и events из этой capsule остаются целевой моделью для последующих backlog tasks.
+TASK-03.01.01 / ASSET-TYPE-01 implements AssetType backend locally, unpublished.
+Asset, Manufacturer/Model, attributes, composites, events/history and frontend
+remain planned. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
 
 TASK-03.01.01 owner decisions are accepted; FunctionalDirection reference and
-selectability are published. Runtime remains BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED;
-Identity handoff is locally implemented under ADR-019, pending review/publication.
+selectability and Identity handoff under ADR-019 are published prerequisites.
 [ASSET-TYPE-SCOPE-00](../../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md)
 summarizes the module doc: read via current `assets.read` OR `assets.manage_types`
 is global after INTERNAL eligibility. Management uses exact `assets.manage_types`,
@@ -21,8 +22,33 @@ explicit GLOBAL or non-geographic direction/type scopes. Both intersect within
 one assignment; complete assignments union. Geography composites cannot manage.
 Assets owns direction/ancestry and obtains trusted facts internally. Type-only
 root creation/root escape is denied; reparent covers both ends under one grant;
-every hierarchy-dependent mutation locks then rereads. Next prerequisite:
-AUTH-SCOPE-01 / AUTH-ASSET-SCOPE-01, without AssetType/schema implementation.
+every mutation locks then rereads. READ COMMITTED uses the global two-int advisory
+key (1095980121,1), distinct from existing module bigint locks, retained until
+atomic Assets-owned Audit obligation commit. Recursive PostgreSQL CTE validates
+coverage/cycles/active descendants; expectedRowVersion protects every existing-row write.
+
+AssetType stores explicit immutable direction and code, nullable parent, name,
+independent flags, ACTIVE/INACTIVE, UTC times and positive rowVersion. Code:
+trim/invariant uppercase/regex50/global unique; name trim/max200/non-unique.
+Multiple roots/arbitrary depth/same-direction parenting; no inherited direction.
+Create ACTIVE; create/reparent/activate child require ACTIVE parent; deactivation
+rejects any active descendant. Any ACTIVE type including non-leaf is selectable;
+inactive remains resolvable. IAssetTypeReferenceProvider exposes immutable scalar facts.
+Organization Application validates new directions as selectable; inactive existing
+direction references remain resolvable without cascading type status.
+
+GET /api/v1/asset-types: null parent roots or explicit parent direct children,
+optional status, page1/size50/max200, code/id order, both statuses. GET /{id} exposes
+rowVersion after catalog eligibility. POST base creates, PUT /{id} updates name/flags,
+POST /{id}/reparent requires parent?/reason1..500/version; activate/deactivate require
+version. No DELETE. 401/403 eligibility precedes target disclosure; scoped missing
+mutation target403, independently GLOBAL-covered missing target404. Duplicate/stale409.
+Successful mutations use five registered AssetType Audit actions; reads/failures
+emit no successful mutation Audit. Canonical dispatcher claims with SKIP LOCKED,
+leases/fencing and stable idempotent event IDs. One migration20261009093315 creates
+type/Audit obligation tables and immutable/no-delete guard; Down refuses business
+or Audit history. Both permissions preexist; no Identity mutation/grants. Next gate:
+independent publication review, then separately authorized exact-SHA hosted CI.
 
 ## OWNS
 

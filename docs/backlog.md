@@ -894,14 +894,16 @@ EPIC-02
 
 ### TASK-03.01.01. Asset type hierarchy
 
-Contract checkpoint (2026-10-09): OD-ASSET-TYPE-01..08 and 08A..08E accepted;
-FunctionalDirection reference/selectability prerequisite published. Runtime
-remains `BLOCKED_UNTIL_AUTH_ASSET_SCOPE_PUBLISHED`. Identity correlated handoff
-is locally implemented under ADR-019, pending review/publication. See
+STATUS: LOCAL_IMPLEMENTED_UNPUBLISHED (ASSET-TYPE-01, 2026-10-09).
+OD-ASSET-TYPE-01..08 and 08A..08E are enforced by the backend AssetType slice.
+FunctionalDirection reference/selectability and Identity correlated handoff
+are published prerequisites at baseline `faa09a7`. See
 [AUTH-SCOPE-01 / ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
-Publish correlated Identity handoff in AUTH-SCOPE-01 / AUTH-ASSET-SCOPE-01 before
-separately resuming ASSET-TYPE-01. These are phases, not new backlog tasks;
-no AssetType implementation is completed by this documentation freeze.
+The local candidate includes Assets domain/persistence, one narrow migration,
+hierarchy/lifecycle/read/management APIs, correlated authorization and atomic Audit.
+Independent publication review and exact-SHA hosted CI are separate gates; no push
+is performed by ASSET-TYPE-01. Asset entity, UI, Model/Manufacturer, attributes and
+composites remain unimplemented. Detailed local contract: [Assets](modules/assets.md).
 
 Acceptance Criteria:
 

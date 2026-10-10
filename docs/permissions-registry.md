@@ -92,7 +92,7 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `assets.decommission` | Assets | Вывод из эксплуатации | site/asset_type | INTERNAL | CRITICAL |
 | `assets.replace` | Assets | Замена актива | site/asset_type | INTERNAL/CONTRACT* | CRITICAL |
 | `assets.manage_responsibility` | Assets | Назначение ответственности | site/direction | INTERNAL | CRITICAL |
-| `assets.manage_types` | Assets | Управление типами оборудования | global/direction | INTERNAL | CRITICAL |
+| `assets.manage_types` | Assets | Управление типами оборудования | explicit global/direction/type subtree/same-tuple intersection | INTERNAL | CRITICAL |
 | `assets.manage_models` | Assets | Управление моделями | global/asset_type | INTERNAL | SENSITIVE |
 | `documents.read` | Documents | Просмотр документов | inherited entity scope | INTERNAL/CONTRACT | NORMAL |
 | `documents.upload` | Documents | Загрузка файла/фото | inherited entity scope | INTERNAL/CONTRACT | SENSITIVE |
@@ -253,4 +253,7 @@ eligibility and a recognized assignment; it returns a global unfiltered catalog.
 Read never implies management. These rules do not broaden operational Asset
 permissions or their contractor policy. See
 [ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md),
-which is a frozen future contract, not implemented runtime enforcement.
+whose accepted rules are enforced in the local ASSET-TYPE-01 backend candidate.
+Both permission rows already exist in canonical Identity HasData and initial
+permission migration. This slice creates no permissions, roles, assignments or grants.
+See [Assets backend routes and scope policy](modules/assets.md).

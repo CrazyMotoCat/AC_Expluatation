@@ -66,6 +66,7 @@ jobs:
           dotnet test Exploitation.sln --configuration Release --no-build 2>&1 | tee artifacts/logs/backend-unit-tests.log
           dotnet run --project tests/unit/Exploitation.IdentityDomainChecks/Exploitation.IdentityDomainChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/identity-domain-checks.log
           dotnet run --project tests/unit/Exploitation.SitesDomainChecks/Exploitation.SitesDomainChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/sites-domain-checks.log
+          dotnet run --project tests/unit/Exploitation.AssetsDomainChecks/Exploitation.AssetsDomainChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/assets-domain-checks.log
 
       - name: Run architecture checks
         shell: bash
@@ -115,6 +116,13 @@ jobs:
         run: |
           set -o pipefail
           dotnet run --project tests/integration/Exploitation.OrganizationApiChecks/Exploitation.OrganizationApiChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/organization-api-checks.log
+
+      - name: Run Assets PostgreSQL and API checks
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet run --project tests/integration/Exploitation.AssetsPersistenceChecks/Exploitation.AssetsPersistenceChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/assets-persistence-checks.log
+          dotnet run --project tests/integration/Exploitation.AssetsApiChecks/Exploitation.AssetsApiChecks.csproj --configuration Release --no-build 2>&1 | tee artifacts/logs/assets-api-checks.log
 
       - name: Run infrastructure script checks
         shell: bash

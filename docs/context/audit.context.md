@@ -1,6 +1,15 @@
 # Audit Context Capsule
 
-SOURCE_VERSION: 04da073538be60a54bdd2e548768a21aa4c5ff34 + FUNCTIONAL-DIRECTION-01R publication metadata (2026-10-08)
+ASSET-TYPE-01 local extension (2026-10-09): canonical AssetType entity and five
+Created/Updated/Reparented/Activated/Deactivated actions are registered in Audit.Contracts.
+Allowlisted snapshots contain only id, parentAssetTypeId, functionalDirectionId,
+code, name, two classification flags, status and rowVersion. Assets business mutation
+and its own durable obligation share one transaction. Technical AuditDelivery consumes
+IAssetsAuditObligationDeliveryStore, leases/fences claims and appends via stable eventId
+to the existing idempotent IAuditWriter. Third independent bounded polling loop covers
+Assets. No Audit schema/migration change, failed/read success Audit or business history.
+
+SOURCE_VERSION: faa09a7b77d8d9bfb5f416a1d00ce6070bbd61f6 + ASSET-TYPE-01 local canonical extension (2026-10-09)
 MODULE: Audit
 
 ## PURPOSE
