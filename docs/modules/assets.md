@@ -15,6 +15,22 @@ candidate; independent publication review and exact-SHA hosted CI remain separat
 The later Asset, Manufacturer, Model, attributes, composites, UI and business-history
 sections below remain planned. Module registration is `AddAssetsModule(configuration)`.
 
+ASSET-TYPE-01F1 locally remediates SEC-01 from the immutable candidate review.
+Public `CanManageExistingAsync(context, assetTypeId, operation, destinationParentAssetTypeId?)`
+accepts business IDs only, resolving target/destination and the parent chain from the
+same scoped Assets read store. Missing direction/target/ancestor, cycles, mixed direction
+or ACTIVE-under-INACTIVE ancestry deny, including GLOBAL. Caller-created read DTOs
+cannot supply authorization facts; policy fact objects remain private. Commands invoke
+this composition after the existing taxonomy lock in their own transaction.
+`CanCreateAsync(context, parentAssetTypeId?, requestedFunctionalDirectionId)` resolves
+an existing parent authoritatively; root direction is desired business input resolved
+through Organization. Selectability/ACTIVE parent/direction homogeneity are still
+separate command business validation. `HasGlobalManagementAsync` is exact-permission
+eligibility only for concealed missing-target404 handling, never existing-target ALLOW.
+The original DTO-based CanManageAsync overload is removed. HTTP/schema/permissions,
+lock identity and Audit mechanism are unchanged. Independent ASSET-TYPE-01R2 review
+of both local commits is required; no publication is performed by remediation.
+
 ### AssetType backend contract — 2026-10-09
 
 TASK-03.01.01 accepted OD-ASSET-TYPE-01..08; FunctionalDirection reference and

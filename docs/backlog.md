@@ -905,6 +905,11 @@ Independent publication review and exact-SHA hosted CI are separate gates; no pu
 is performed by ASSET-TYPE-01. Asset entity, UI, Model/Manufacturer, attributes and
 composites remain unimplemented. Detailed local contract: [Assets](modules/assets.md).
 
+ASSET-TYPE-01R found SEC-01 (MEDIUM) in the public authorization contract.
+ASSET-TYPE-01F1 locally replaces caller-created target facts with authoritative
+ID-based composition and adds regression evidence; independent R2 review of the
+implementation plus remediation commits is required before publication.
+
 Acceptance Criteria:
 
 - parent/child;

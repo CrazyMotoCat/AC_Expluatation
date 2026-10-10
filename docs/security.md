@@ -1527,3 +1527,16 @@ change. AssetsDbContext rejects ordinary direct entity writes without the comman
 boundary. Database trigger enforces immutable identity/code/direction and forbids
 delete. Reference APIs expose immutable scalar DTOs, no entities/DbContext. There is
 no DELETE API, caller-provided grants, Asset entity or frontend change.
+
+ASSET-TYPE-01F1 remediates SEC-01 at the public Application boundary: existing-target
+authorization accepts only business target/destination IDs and operation, resolving
+direction/parent/ancestry from Assets persistence internally. Read DTOs and supplied
+ancestry/scope roots cannot act as evidence. The scoped resolver shares the command's
+AssetsDbContext/READ COMMITTED transaction after the same taxonomy advisory lock;
+missing or inconsistent authoritative facts and lookup/provider failures deny.
+Root-create direction remains desired business input, resolved through Organization,
+with selectability and parent homogeneity separately enforced by command validation.
+Explicit GLOBAL, geographic denial and whole-assignment intersection are unchanged.
+Independent global permission eligibility preserves missing-target404 handling without
+turning absent targets into ALLOW. Local remediation tests do not supersede the
+original immutable review: SEC-01 closure requires separate ASSET-TYPE-01R2 verification.

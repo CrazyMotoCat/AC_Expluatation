@@ -13,6 +13,18 @@ TASK-03.01.01 / ASSET-TYPE-01 implements AssetType backend locally, unpublished.
 Asset, Manufacturer/Model, attributes, composites, events/history and frontend
 remain planned. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
 
+ASSET-TYPE-01F1 local SEC-01 remediation removes public caller-created target facts.
+CanManageExistingAsync accepts context/targetID/operation/destinationID only and
+resolves persisted direction/parent/ancestry in the same scoped Assets store, after
+the existing command taxonomy lock. Missing direction/target/ancestor, cycles,
+cross-direction or ACTIVE-under-INACTIVE ancestry deny even with GLOBAL. CanCreateAsync
+resolves the existing parent; requested root direction is business intent, with
+Organization selectability and homogeneity validated by the command. A separate
+HasGlobalManagementAsync eligibility check preserves missing-target404 concealment;
+it never authorizes an existing target. No public fact-bearing overload remains.
+Real Identity/PostgreSQL public-contract negatives and retained lifecycle races guard
+the change. Schema/HTTP/permissions/lock/Audit unchanged; R2 review is still pending.
+
 TASK-03.01.01 owner decisions are accepted; FunctionalDirection reference and
 selectability and Identity handoff under ADR-019 are published prerequisites.
 [ASSET-TYPE-SCOPE-00](../../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md)
