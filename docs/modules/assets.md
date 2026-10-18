@@ -237,8 +237,9 @@ resolvable for history at every status.
 For a new Asset, current selectability additionally requires Model ACTIVE + VERIFIED,
 Manufacturer ACTIVE + VERIFIED, AssetType ACTIVE and exact Asset type equality. A
 parent status change temporarily blocks selection and restoration makes an otherwise
-eligible Model selectable again. The general reference query filters current eligible
-rows; actual Asset persistence must repeat the authoritative check. Asset creation is
+eligible Model selectable again. The general reference query publishes Models by their
+own ACTIVE + VERIFIED statuses regardless of parent status; actual Asset persistence
+must repeat the authoritative selectability check. Asset creation is
 not implemented in this task.
 
 Management requires an ACTIVE INTERNAL user and owned valid INTERNAL context plus exact
@@ -248,7 +249,8 @@ the same assignment; geography/direction-only scopes and cross-assignment synthe
 not authorize. Create authorization uses the server-loaded requested AssetType;
 existing targets use the persisted `AssetModel.asset_type_id`. General read requires
 exact `assets.read`; GLOBAL is unfiltered and scoped read uses the valid AssetType
-subtree. `assets.manage_models` does not imply `assets.read`.
+subtree. Authorized catalog roots are copied into immutable server-created storage;
+transport filters can only restrict this coverage. `assets.manage_models` does not imply `assets.read`.
 
 All AssetModel mutations use PostgreSQL READ COMMITTED and exclusive transaction-scoped
 ASTY advisory lock `(1095980121,1)`. After it, commands acquire Manufacturer `FOR SHARE`
@@ -261,7 +263,7 @@ Manufacturer row lock. No new advisory key is introduced.
 
 | Method | Path | Contract |
 |---|---|---|
-| GET | `/api/v1/asset-models` | General ACTIVE + VERIFIED eligible catalog; exact IDs/code/name or normalized prefixes; `assets.read` |
+| GET | `/api/v1/asset-models` | General own ACTIVE + VERIFIED catalog, independent of parent status; exact IDs/code/name or normalized prefixes; `assets.read` |
 | GET | `/api/v1/asset-models/{id}` | Historical detail at any Model status, subject to `assets.read` scope |
 | GET | `/api/v1/asset-models/management` | All Model statuses with management-only status filters; `assets.manage_models` |
 | GET | `/api/v1/asset-models/management/{id}` | Management detail, subject to management scope |

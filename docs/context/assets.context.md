@@ -1,6 +1,6 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: published baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; AssetType and Manufacturer published; ASSET-MODEL-01 local candidate (2026-10-18)
+SOURCE_VERSION: 2026-10-18; baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; ASSET-MODEL-01F1 local remediation of 5ccd7840b6eb84fccddf2b3caf0471d7a00d1ed3, pending independent R2
 MODULE: Assets
 
 ## PURPOSE
@@ -129,8 +129,10 @@ INTERNAL context. Explicit GLOBAL or persisted AssetType subtree coverage is all
 subtree root is included, optional direction intersects within the same assignment,
 geography and direction-only assignments are ineligible, and assignments never
 synthesize a combined scope. `assets.manage_models` does not imply `assets.read`.
-General catalog uses exact `assets.read`, ACTIVE + VERIFIED Models and current parent
-selectability; management catalog exposes all Model states. Search is PostgreSQL exact/
+General catalog uses exact `assets.read` and Models' own ACTIVE + VERIFIED statuses,
+independent of parent state; parent eligibility still gates new Asset selectability.
+Management catalog exposes all Model states. Authorized catalog roots are defensively
+copied into an immutable server-created snapshot. Search is PostgreSQL exact/
 normalized-prefix only, literal wildcard escaped, ordered by normalized code/id, page
 1/size 50/max 200.
 
