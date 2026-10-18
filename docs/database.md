@@ -1250,23 +1250,59 @@ INTERNAL user with owned current INTERNAL context. See [Assets security contract
 ## 9.3. assets.asset_models
 
 ```text
-id
-asset_type_id
-manufacturer_id
-model_code
-name
-description
-status
-verified_at
-verified_by
-created_at
+id                       uuid PK, UUIDv7
+manufacturer_id          uuid NOT NULL FK assets.manufacturers(id) RESTRICT
+asset_type_id            uuid NOT NULL FK assets.asset_types(id) RESTRICT
+model_code               varchar(100) NOT NULL, display spelling
+normalized_model_code    varchar(300) NOT NULL, Unicode 17.0.0 key
+model_name               varchar(200) NOT NULL, display spelling
+normalized_model_name    varchar(600) NOT NULL, Manufacturer search normalization
+verification_status      varchar(20), UNVERIFIED/VERIFIED
+lifecycle_status         varchar(20), ACTIVE/INACTIVE
+verified_by              uuid nullable, trusted local Identity ID, no cross-schema FK
+verified_at              timestamptz nullable
+created_at               timestamptz NOT NULL
+updated_at               timestamptz NOT NULL
+row_version              bigint positive optimistic concurrency
 ```
 
-Unique candidate:
+`model_code` boundary-trims Unicode 17.0.0 White_Space and is limited to 100 Unicode
+scalar values. The server-derived identity key applies trim, NFC, default full case
+folding and NFC using the published Unicode 17.0.0 tables; internal whitespace and
+punctuation are significant. `model_name` uses the existing Manufacturer display and
+search normalization, with a 200 scalar display limit. Normalized columns use C
+collation and bounded storage checks.
+
+PostgreSQL enforces the accepted duplicate identity across all verification/lifecycle
+statuses:
 
 ```text
-(manufacturer_id, asset_type_id, normalized model_code)
+UNIQUE (manufacturer_id, asset_type_id, normalized_model_code)
 ```
+
+The index `ux_asset_models_manufacturer_type_code` is authoritative for concurrent
+creates and maps to 409 `MODEL_CODE_ALREADY_EXISTS`. Prefix lookup indexes cover
+`normalized_model_code,id` and `normalized_model_name,id`. Restrictive FKs preserve
+historical references. Checks validate UUIDv7 IDs, scalar/storage bounds, statuses,
+verification metadata coherence, timestamps and positive row_version. A PostgreSQL
+trigger forbids DELETE and changes to ID, associations or creation time and requires
+each update to advance row_version exactly once.
+
+New records are ACTIVE + UNVERIFIED. Code/name edits are explicit and reset VERIFIED;
+verification and lifecycle commands are separate. `assets.audit_obligations` gains
+nullable `asset_model_id` and a restrictive FK; exactly one entity FK must match the
+obligation. The canonical actions are ModelCreated, ModelUpdated, ModelVerified,
+ModelVerificationRevoked, ModelActivated and ModelDeactivated. Business mutation and
+durable obligation commit in one transaction. Migration
+`20261018023154_AddAssetModels` is the next Assets migration; Down refuses to remove
+Model or other Assets master-data/Audit history, preventing a partial multi-migration
+rollback.
+
+AssetModel hierarchy-dependent commands use READ COMMITTED and the existing
+transaction-scoped ASTY lock `(1095980121,1)`. Manufacturer eligibility validation takes
+`SELECT FOR SHARE` after ASTY and retains it through commit. Future Asset creation uses
+shared ASTY plus compatible Manufacturer locking and rechecks Model, Manufacturer and
+AssetType selectability. This task does not implement Asset creation.
 
 ---
 

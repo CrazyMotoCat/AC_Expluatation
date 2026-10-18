@@ -953,6 +953,14 @@ Acceptance Criteria:
 
 ### TASK-03.02.02. Asset models
 
+Implementation status: local backend candidate from ASSET-MODEL-01 (2026-10-18),
+pending independent review; not published.
+
+Accepted owner decisions OD-ASSET-MODEL-01..08 freeze identity, normalization,
+verification/lifecycle, parent-state selectability, authorization, API/search, atomic
+Audit and PostgreSQL lock/race policy. See [Assets module contract](modules/assets.md)
+and [AssetModel database contract](database.md#93-assetsasset_models).
+
 Acceptance Criteria:
 
 - manufacturer;

@@ -1,6 +1,6 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: baseline 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; AssetType published; Manufacturer local candidate (2026-10-10)
+SOURCE_VERSION: published baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; AssetType and Manufacturer published; ASSET-MODEL-01 local candidate (2026-10-18)
 MODULE: Assets
 
 ## PURPOSE
@@ -9,11 +9,11 @@ Assets — основной реестр оборудования и инжен�
 
 ## IMPLEMENTATION STATUS
 
-TASK-03.01.01 / ASSET-TYPE-01 is published in baseline
-4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; hosted CI run 38028823398 passed.
-TASK-03.02.01 / MANUFACTURER-01 is a local backend implementation candidate and is
-not published. Asset, AssetModel, attributes, composites, business history and frontend
-remain out of scope. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
+TASK-03.01.01 / ASSET-TYPE-01 and TASK-03.02.01 / MANUFACTURER-01 are published in
+baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e. TASK-03.02.02 / ASSET-MODEL-01 is a
+local backend implementation candidate pending independent review. Asset creation,
+Model proposal workflow, attributes, composites, business history and frontend remain
+out of scope. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
 
 The published ASSET-TYPE-01F1 SEC-01 remediation removes public caller-created target facts.
 CanManageExistingAsync accepts context/targetID/operation/destinationID only and
@@ -64,9 +64,9 @@ leases/fencing and stable idempotent event IDs. Published migration
 20261009093315_AddAssetTypes created type/Audit obligation tables and immutable/no-delete
 guard; Down refuses business or Audit history. Published hosted CI: run 38028823398.
 
-## MANUFACTURER-01 LOCAL IMPLEMENTATION
+## MANUFACTURER-01 PUBLISHED IMPLEMENTATION
 
-Assets owns Manufacturer. This local candidate stores UUIDv7 id, trimmed display name
+Assets owns Manufacturer. The published implementation stores UUIDv7 id, trimmed display name
 (1..200 Unicode scalar values), derived normalized_name, verification_status
 UNVERIFIED/VERIFIED, lifecycle_status ACTIVE/INACTIVE, nullable verified_by/verified_at,
 created_at/updated_at and positive row_version. Unicode 17.0.0 is pinned in the
@@ -82,7 +82,7 @@ UNVERIFIED row and derives actor/time server-side. Revoke requires a trimmed 1..
 reason, works while inactive and clears current verified metadata. Actual name change
 resets verification; no-op name update is a conflict. Activation/deactivation leave
 verification unchanged. Existing rows remain resolvable; only ACTIVE + VERIFIED is
-selectable for a future AssetModel. No AssetModel or proposal workflow is implemented.
+eligible for AssetModel creation.
 
 Read requires ACTIVE INTERNAL local user + owned current INTERNAL context and current
 `assets.read` or `assets.manage_manufacturers` through published Identity providers.
@@ -102,7 +102,48 @@ ManufacturerVerificationRevoked, ManufacturerActivated and ManufacturerDeactivat
 Migration `20261010074714_AddManufacturers` owns the table/index/check/FK/guard and
 narrow Audit extension; Down refuses Manufacturer data/history. Identity migration
 `20261010074801_AddManufacturerManagementPermission` is data-only, creates no grants,
-roles or assignments. Local work is unpublished pending independent review.
+roles or assignments. Manufacturer backend is published in baseline 949b74c1.
+
+## ASSET-MODEL-01 LOCAL IMPLEMENTATION
+
+AssetModel is an Assets-owned UUIDv7 row with exactly one immutable ManufacturerId and
+AssetTypeId, required `model_code` (max 100 Unicode scalar values), required
+`model_name` (max 200 scalars), server-derived normalized keys, independent
+UNVERIFIED/VERIFIED and ACTIVE/INACTIVE statuses, server verification actor/time,
+timestamps and positive rowVersion. Model-code normalization pins Unicode 17.0.0:
+Unicode trim, NFC, full case fold, NFC; internal whitespace and punctuation remain
+significant. Model-name search uses the existing Manufacturer normalization.
+`UNIQUE(manufacturer_id, asset_type_id, normalized_model_code)` covers all statuses;
+concurrent duplicates return `MODEL_CODE_ALREADY_EXISTS`.
+
+Create starts ACTIVE + UNVERIFIED. Explicit verify requires the Model UNVERIFIED,
+Manufacturer ACTIVE + VERIFIED and AssetType ACTIVE. Code/name change invalidates
+verification; explicit revoke requires a trimmed reason 1..500. Lifecycle is independent,
+uses explicit activate/deactivate commands and does not change verification. Parent state
+changes do not cascade; historical references remain readable. New Asset selection also
+requires Model ACTIVE + VERIFIED and exact AssetType equality, with no descendant
+inheritance; Asset persistence is not implemented here.
+
+Management requires exact `assets.manage_models`, ACTIVE INTERNAL user and owned valid
+INTERNAL context. Explicit GLOBAL or persisted AssetType subtree coverage is allowed;
+subtree root is included, optional direction intersects within the same assignment,
+geography and direction-only assignments are ineligible, and assignments never
+synthesize a combined scope. `assets.manage_models` does not imply `assets.read`.
+General catalog uses exact `assets.read`, ACTIVE + VERIFIED Models and current parent
+selectability; management catalog exposes all Model states. Search is PostgreSQL exact/
+normalized-prefix only, literal wildcard escaped, ordered by normalized code/id, page
+1/size 50/max 200.
+
+Every command acquires exclusive transaction-scoped ASTY `(1095980121,1)` under READ
+COMMITTED. Parent validation acquires Manufacturer `FOR SHARE` after ASTY and before
+trusted Identity authorization; the locks and Model+Audit mutation remain through commit.
+Future Asset creation uses shared ASTY plus compatible Manufacturer locking. Canonical
+Audit actions are ModelCreated/ModelUpdated/ModelVerified/ModelVerificationRevoked/
+ModelActivated/ModelDeactivated. Migration `20261018023154_AddAssetModels` extends the
+Assets schema and Audit obligation; Down refuses Assets master-data/Audit history to
+prevent partial multi-migration rollback. No Identity
+permission, seed, frontend, Asset create, proposal workflow or production Model seed is
+added. This implementation is local and pending independent ASSET-MODEL-01R review.
 
 ## OWNS
 

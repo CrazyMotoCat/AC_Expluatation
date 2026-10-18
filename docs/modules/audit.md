@@ -74,15 +74,26 @@ Before/after record authoritative old/new parenting; reason is required for repa
 No read/failed mutation success Audit or business-history subsystem is added.
 This canonical contract extension requires no Audit schema/migration change.
 
-MANUFACTURER-01 adds canonical entity Manufacturer and actions ManufacturerCreated,
+Published MANUFACTURER-01 adds canonical entity Manufacturer and actions ManufacturerCreated,
 ManufacturerUpdated, ManufacturerVerified, ManufacturerVerificationRevoked,
 ManufacturerActivated and ManufacturerDeactivated. Audit.Contracts validates the
 allowlisted snapshot fields id, name, normalizedName, verificationStatus,
 lifecycleStatus, verifiedBy, verifiedAt, createdAt, updatedAt and rowVersion.
 Assets owns each durable obligation and commits it atomically with Manufacturer
 state; the existing Assets delivery port, leases/fencing and canonical Audit writer
-materialize it idempotently. This is a local unpublished contract extension and adds
-no Audit schema/migration, second delivery mechanism or business-history store.
+materialize it idempotently. No Audit schema/migration, second delivery mechanism or
+business-history store is added.
+
+ASSET-MODEL-01 adds canonical entity AssetModel with the OD-07 action IDs ModelCreated,
+ModelUpdated, ModelVerified, ModelVerificationRevoked, ModelActivated and ModelDeactivated.
+Audit.Contracts validates only the allowlisted snapshot fields id, manufacturerId,
+assetTypeId, modelCode, normalizedModelCode, modelName, normalizedModelName,
+verificationStatus, lifecycleStatus, verifiedBy, verifiedAt, createdAt, updatedAt and
+rowVersion. Assets commits each obligation atomically with the Model mutation, preserving
+verification invalidation and revocation reason in before/after facts. The existing
+Assets delivery port, claim/lease/fencing protocol and canonical Audit writer are reused;
+there is no Audit schema migration, second delivery mechanism or Model business-history
+store. The extension is local pending independent ASSET-MODEL-01R review.
 
 `TASK-02.02.01` Phase A freezes the additive Organization extension: the
 canonical entity is `OrganizationalUnit`, with actions

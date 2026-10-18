@@ -9,7 +9,7 @@ IAssetsAuditObligationDeliveryStore, leases/fences claims and appends via stable
 to the existing idempotent IAuditWriter. Third independent bounded polling loop covers
 Assets. No Audit schema/migration change, failed/read success Audit or business history.
 
-MANUFACTURER-01 local unpublished extension (2026-10-10): canonical Manufacturer
+Published MANUFACTURER-01 extension (2026-10-10): canonical Manufacturer
 entity and six create/update/verify/revoke/activate/deactivate actions are registered.
 Audit-owned validation accepts only id, name, normalizedName, verificationStatus,
 lifecycleStatus, verifiedBy, verifiedAt, createdAt, updatedAt and rowVersion.
@@ -17,7 +17,15 @@ Assets commits each matching obligation atomically with the Manufacturer mutatio
 and uses the existing canonical delivery port/writer. No Audit schema/migration or
 second delivery mechanism is added; no Manufacturer business history is implemented.
 
-SOURCE_VERSION: baseline 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724; published AssetType and local Manufacturer Audit extension (2026-10-10)
+ASSET-MODEL-01 local extension (2026-10-18): canonical AssetModel uses exactly
+ModelCreated, ModelUpdated, ModelVerified, ModelVerificationRevoked, ModelActivated and
+ModelDeactivated actions. Audit.Contracts validates the allowlisted identity/code/name,
+status, verification metadata, UTC timestamp and rowVersion snapshot shape. Assets
+commits one durable obligation with each Model mutation and reuses its current delivery
+port and canonical writer. No Audit migration, separate delivery mechanism or Model
+business history is added. Implementation is pending independent ASSET-MODEL-01R review.
+
+SOURCE_VERSION: published baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; local ASSET-MODEL-01 Audit extension (2026-10-18)
 MODULE: Audit
 
 ## PURPOSE
