@@ -1,7 +1,7 @@
 # Module: Identity
 
 STATUS: IN DEVELOPMENT
-SOURCE_VERSION: 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724 (published AssetType scope consumer; TASK-03.02.01 Manufacturer permission contract local/unpublished)
+SOURCE_VERSION: 2026-10-19; published baseline b3599a4acc29fc21a6f48327f88385bbb280799c; MODEL-PROPOSAL-01 permission extension LOCAL_IMPLEMENTED_PENDING_R1
 
 ## Purpose
 
@@ -131,8 +131,20 @@ terminal GLOBAL decision because GLOBAL false also represents provider failure.
 `TASK-03.02.01` adds the canonical `assets.manage_manufacturers` permission
 through a data-only Identity migration. The permission is explicitly GLOBAL and
 INTERNAL, but its row alone grants no user access: this phase adds no role grant,
-assignment, or GLOBAL grant. This migration and consumer contract remain local
-and unpublished pending independent review.
+assignment, or GLOBAL grant. Manufacturer and AssetModel prerequisites are published
+in baseline `b3599a4acc29fc21a6f48327f88385bbb280799c`.
+
+TASK-03.02.03 / MODEL-PROPOSAL-01 adds exactly canonical `assets.propose_models`,
+name `Предложение моделей оборудования`, module Assets, stable ID
+`0199f3b0-0000-7000-8000-000000000050`. Identity-owned permission-only migration
+`20261018134809_AddModelProposalPermission` inserts this definition and updates the
+HasData snapshot/designer. No schema, role, role-permission, assignment or GLOBAL
+grant changes are made; defining it authorizes nobody. Current exact providers retain
+ACTIVE INTERNAL/owned current INTERNAL context, role/assignment/revocation/validity
+semantics. Assets resolves persisted Proposal author/type/revision and interprets
+correlated tuples. It never reads Identity DbContext. The new permission grants only
+author actions, independently from existing assets.manage_models review/management.
+Local Proposal validation passed; independent review remains pending.
 
 - `ICurrentUser` exposes the validated runtime `AuthenticatedUser` for the current request.
 - `AuthenticatedUser` contains an `ExternalIdentityKey` (`issuer + subject`) and optional display name/email.

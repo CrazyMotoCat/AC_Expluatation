@@ -1,6 +1,6 @@
 # Assets Context Capsule
 
-SOURCE_VERSION: 2026-10-18; baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; ASSET-MODEL-01F1 local remediation of 5ccd7840b6eb84fccddf2b3caf0471d7a00d1ed3, pending independent R2
+SOURCE_VERSION: 2026-10-19; published AssetModel baseline b3599a4acc29fc21a6f48327f88385bbb280799c; MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1
 MODULE: Assets
 
 ## PURPOSE
@@ -10,10 +10,12 @@ Assets — основной реестр оборудования и инжен�
 ## IMPLEMENTATION STATUS
 
 TASK-03.01.01 / ASSET-TYPE-01 and TASK-03.02.01 / MANUFACTURER-01 are published in
-baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e. TASK-03.02.02 / ASSET-MODEL-01 is a
-local backend implementation candidate pending independent review. Asset creation,
-Model proposal workflow, attributes, composites, business history and frontend remain
-out of scope. Registration uses AddAssetsModule(configuration) and AssetsDbContext.
+baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e. TASK-03.02.02 / ASSET-MODEL-01 is
+published at b3599a4acc29fc21a6f48327f88385bbb280799c, including reviewed F1/F2 fixes.
+TASK-03.02.03 / MODEL-PROPOSAL-01 is a separately authorized local implementation
+with all mandatory local checks passed; independent review/publication remain pending. Asset creation,
+attributes, composites and frontend remain out of scope. Registration uses
+AddAssetsModule(configuration) and AssetsDbContext.
 
 The published ASSET-TYPE-01F1 SEC-01 remediation removes public caller-created target facts.
 CanManageExistingAsync accepts context/targetID/operation/destinationID only and
@@ -104,7 +106,7 @@ narrow Audit extension; Down refuses Manufacturer data/history. Identity migrati
 `20261010074801_AddManufacturerManagementPermission` is data-only, creates no grants,
 roles or assignments. Manufacturer backend is published in baseline 949b74c1.
 
-## ASSET-MODEL-01 LOCAL IMPLEMENTATION
+## ASSET-MODEL-01 PUBLISHED IMPLEMENTATION
 
 AssetModel is an Assets-owned UUIDv7 row with exactly one immutable ManufacturerId and
 AssetTypeId, required `model_code` (max 100 Unicode scalar values), required
@@ -145,7 +147,48 @@ ModelActivated/ModelDeactivated. Migration `20261018023154_AddAssetModels` exten
 Assets schema and Audit obligation; Down refuses Assets master-data/Audit history to
 prevent partial multi-migration rollback. No Identity
 permission, seed, frontend, Asset create, proposal workflow or production Model seed is
-added. This implementation is local and pending independent ASSET-MODEL-01R review.
+added by the published Model phase. Published SHA is b3599a4acc29fc21a6f48327f88385bbb280799c.
+The Proposal phase extends direct Model Create and normalized-code-changing Update
+with reserved-destination 409 MODEL_CODE_RESERVED_BY_PROPOSAL under existing ASTY.
+
+## MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1
+
+Assets owns ModelProposal/current state, immutable ModelProposalRevision and append-only
+ModelProposalHistory in three assets.model_proposal* tables. Accepted OD-01..14 fix
+SUBMITTED -> NEEDS_INFORMATION/ACCEPTED/REJECTED/WITHDRAWN; NEEDS_INFORMATION ->
+SUBMITTED correction/WITHDRAWN; ACCEPTED -> CANCELLED/PROMOTED. Every transition
+increments version once, appends history and Proposal obligation; only create/correction
+add full revisions. Required request/response/reject/cancel text has 500 Unicode scalars;
+accept/withdraw text optional. Code/name retain pinned Unicode17 Model semantics.
+
+Exact assets.propose_models requires original author for reads/correction/withdraw,
+even GLOBAL. assets.manage_models independently permits management reads and non-author
+review/cancel/Promote; no GLOBAL self-decision exception. ACTIVE INTERNAL/owned current
+INTERNAL context and valid exact permission are mandatory. Concrete scope requires
+persisted type subtree, optional same-tuple direction at every recursive step and no
+geography. Correction authorizes old/new types independently; no dimension synthesis
+or caller-created targets/scopes. Historical reads use owning current Proposal scope.
+
+SUBMITTED/NEEDS_INFORMATION/ACCEPTED reserve Manufacturer+type+normalized code.
+Partial UNIQUE plus exclusive ASTY covers Proposal changes and Model Create/code Update.
+Submit/correction/review need existing parents only; first Promote checks Manufacturer
+ACTIVE+VERIFIED/type ACTIVE under ASTY then Manufacturer FOR SHARE. Dedicated strict
+Proposal save boundary atomically writes transition/history/required revision, optional
+ACTIVE+UNVERIFIED Model and Proposal plus ModelCreated obligations. Existing guards stay.
+Failures preserve old state/reservation. Promote 201; same trusted user/original version,
+currently authorized (possibly new owned context), replays 200 without writes/Audit or
+parent selectability recheck. Other post-success authorized retries are state conflicts.
+
+Author base /api/v1/asset-model-proposals; management base appends /management.
+Both GET list/detail/revisions/revision detail; author POST create/revisions/withdraw;
+management POST request-information/accept/reject/cancel/promote. Full correction uses
+response; decisions use text; Promote only expectedRowVersion. Detail {proposal,history};
+page {items,page,pageSize,totalCount}, defaults 1/50/max 200, updatedAt DESC,id ASC.
+SQL author/scope precedes count/page; exact/prefix filters escape LIKE literally.
+Assets migration 20261018135619_AddModelProposals; permission-only Identity migration
+20261018134809_AddModelProposalPermission; no grants, business seeds, new advisory key
+or delivery mechanism. Local full race/security/migration/HTTP validation passed;
+independent review/publication remain pending. Detailed contract: docs/modules/assets.md.
 
 ## OWNS
 
@@ -153,6 +196,7 @@ added. This implementation is local and pending independent ASSET-MODEL-01R revi
 - AssetType
 - Manufacturer
 - AssetModel
+- ModelProposal, ModelProposalRevision, ModelProposalHistory
 - AttributeDefinition
 - AssetAttributeValue
 - AssetRelation
@@ -169,6 +213,9 @@ added. This implementation is local and pending independent ASSET-MODEL-01R revi
 - `assets.asset_types`
 - `assets.manufacturers`
 - `assets.asset_models`
+- `assets.model_proposals`
+- `assets.model_proposal_revisions`
+- `assets.model_proposal_history`
 - `assets.attribute_definitions`
 - `assets.asset_attribute_values`
 - `assets.assets`

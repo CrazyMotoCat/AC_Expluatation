@@ -902,9 +902,9 @@ baseline. See
 [AUTH-SCOPE-01 / ASSET-TYPE-SCOPE-00](../.agent/tasks/AUTH-SCOPE-01/asset-type-scope-state.md).
 The published implementation includes Assets domain/persistence, one narrow migration,
 hierarchy/lifecycle/read/management APIs, correlated authorization and atomic Audit.
-The SEC-01 remediation is included in that published result. Asset entity, UI,
-Model/Manufacturer, attributes and
-composites remain unimplemented. Detailed local contract: [Assets](modules/assets.md).
+The SEC-01 remediation is included in that published result. Manufacturer and
+AssetModel were subsequently published at the baselines recorded below. Asset entity,
+UI, attributes and composites remain unimplemented. Contract: [Assets](modules/assets.md).
 
 ASSET-TYPE-01R found SEC-01 in the public authorization contract. ASSET-TYPE-01F1
 replaced caller-created target facts with authoritative ID-based composition and
@@ -924,9 +924,10 @@ Acceptance Criteria:
 
 ### TASK-03.02.01. Manufacturers
 
-STATUS: LOCAL_IMPLEMENTED_UNPUBLISHED (MANUFACTURER-01, 2026-10-10).
+STATUS: PUBLISHED (MANUFACTURER-01, included in baseline
+`949b74c1c645e5abfbfbcf2c96e65778b891f14e`).
 OD-MANUFACTURER-01..07 are accepted for this implementation. Assets owns this
-configurable global reference. The local backend adds pinned Unicode 17.0.0 NFC +
+configurable global reference. The published backend adds pinned Unicode 17.0.0 NFC +
 Default Full Case Folding with Unicode White_Space collapse, global exact
 `normalized_name` uniqueness, independent ACTIVE/INACTIVE and VERIFIED/UNVERIFIED
 states, explicit verify/revoke, optimistic concurrency, read/search and management
@@ -937,10 +938,10 @@ user's owned current INTERNAL context. Concrete grants may establish global cata
 read eligibility but never management. `20261010074714_AddManufacturers` is the narrow
 Assets migration; `20261010074801_AddManufacturerManagementPermission` is data-only
 and creates no grants/roles/assignments. No Manufacturer seeds are created.
-Independent review is required before publication. See [Assets module contract](modules/assets.md),
+Independent review/publication of that foundation are complete. See [Assets module contract](modules/assets.md),
 [database model](database.md#92-assetsmanufacturers), and [security rules](security.md).
 
-The implementation does not include AssetModel, its proposal workflow, Asset,
+That Manufacturer phase did not include AssetModel, its proposal workflow, Asset,
 aliases/merge, imports, external registries, frontend, or production seed data.
 
 Acceptance Criteria:
@@ -953,8 +954,9 @@ Acceptance Criteria:
 
 ### TASK-03.02.02. Asset models
 
-Implementation status: local backend candidate from ASSET-MODEL-01 (2026-10-18),
-pending independent review; not published.
+Implementation status: PUBLISHED at
+`b3599a4acc29fc21a6f48327f88385bbb280799c` (2026-10-18), including F1/F2 remediation
+and independent R3 review. Earlier local/pending R1/R2 descriptions are historical.
 
 Accepted owner decisions OD-ASSET-MODEL-01..08 freeze identity, normalization,
 verification/lifecycle, parent-state selectability, authorization, API/search, atomic
@@ -975,11 +977,35 @@ Acceptance Criteria:
 
 Priority: P1
 
+STATUS: IN_PROGRESS — MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1 under
+accepted OD-MODEL-PROPOSAL-01..14 and MODEL-PROPOSAL-00G CONTRACT_READY.
+Mandatory local validation passed. Independent MODEL-PROPOSAL-01R and publication
+remain pending; no push or frontend scope is included.
+
 Acceptance Criteria:
 
-- user can propose missing model;
-- responsible employee verifies;
-- only verified model becomes general reference.
+- separate Assets-owned current Proposal, immutable full revisions and append-only
+  business history; seven exact statuses and versioned command transitions;
+- original-author submit/read/correct/withdraw with exact assets.propose_models;
+  non-author scoped review/cancel/Promote with existing assets.manage_models;
+  current INTERNAL eligibility and correlated AssetType subtree/direction authority;
+- existing parents suffice for submit/correction/review; first Promote rechecks
+  Manufacturer ACTIVE+VERIFIED and AssetType ACTIVE without status cascades;
+- Unicode17 normalized code reservations for SUBMITTED/NEEDS_INFORMATION/ACCEPTED;
+  partial UNIQUE plus ASTY protocol across Proposal and direct Model Create/code Update;
+- acceptance changes only Proposal; separate atomic Promote creates one
+  ACTIVE+UNVERIFIED Model, records exact links/history and both durable obligations;
+  currently authorized same-user/original-version replay returns that Model without writes;
+- independent author/management APIs, SQL ownership/scope/filter/count/page, exact/prefix
+  literal search, immutable revision/request isolation and canonical conflict/concealment;
+- eight Proposal Audit actions, permission-only Identity migration without grants,
+  one narrow Assets migration, full PostgreSQL race matrix with actual blocking evidence,
+  rollback/security/API/migration/old-feature regressions and documentation synchronization;
+- only explicit subsequent Model verification permits general reference publication.
+
+See [Assets workflow contract](modules/assets.md), [schema](database.md#94-modelproposal-workflow--local_implemented_pending_r1),
+[permission boundary](permissions-registry.md#54-model-proposal-author-boundary--task-030203)
+and [lifecycle](lifecycle-registry.md#33-modelproposal-workflow).
 
 ---
 

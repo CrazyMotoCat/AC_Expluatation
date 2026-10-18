@@ -17,15 +17,29 @@ Assets commits each matching obligation atomically with the Manufacturer mutatio
 and uses the existing canonical delivery port/writer. No Audit schema/migration or
 second delivery mechanism is added; no Manufacturer business history is implemented.
 
-ASSET-MODEL-01 local extension (2026-10-18): canonical AssetModel uses exactly
+ASSET-MODEL-01 published extension (2026-10-18): canonical AssetModel uses exactly
 ModelCreated, ModelUpdated, ModelVerified, ModelVerificationRevoked, ModelActivated and
 ModelDeactivated actions. Audit.Contracts validates the allowlisted identity/code/name,
 status, verification metadata, UTC timestamp and rowVersion snapshot shape. Assets
 commits one durable obligation with each Model mutation and reuses its current delivery
 port and canonical writer. No Audit migration, separate delivery mechanism or Model
-business history is added. Implementation is pending independent ASSET-MODEL-01R review.
+business history is added. Published SHA is b3599a4acc29fc21a6f48327f88385bbb280799c.
 
-SOURCE_VERSION: published baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; local ASSET-MODEL-01 Audit extension (2026-10-18)
+MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1 adds ModelProposal entity and eight actions:
+ModelProposalCreated, ModelProposalRevisionSubmitted, ModelProposalInformationRequested,
+ModelProposalAccepted, ModelProposalRejected, ModelProposalWithdrawn,
+ModelProposalCancelled, ModelProposalPromoted. Exact allowlisted snapshots include
+current identity/content/status/version/revision, immutable creator/creation metadata
+and historyId/actor/context/time/text/request/replay links; normalized search keys are
+not included. See docs/modules/audit.md for the exact field contract. Unknown/duplicate
+fields, invalid UUIDv7/Unicode/NUL/status/version/time/action/text links reject.
+Assets writes separate immutable business history and matching Proposal obligation
+atomically; first Promote also writes existing ModelCreated obligation with one new
+ACTIVE+UNVERIFIED Model. Conditional replay has zero writes/Audit. Existing canonical
+claim/lease/fencing/idempotent writer delivery remains unchanged; no Audit migration,
+second transport or independent Audit transaction. Local validation passed; review pending.
+
+SOURCE_VERSION: 2026-10-19; published baseline b3599a4acc29fc21a6f48327f88385bbb280799c; MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1
 MODULE: Audit
 
 ## PURPOSE

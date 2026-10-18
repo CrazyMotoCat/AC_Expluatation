@@ -1,7 +1,7 @@
 # Permissions Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-10-08 (TASK-02.02.02 FunctionalDirection GLOBAL boundary and OD-06)
+SOURCE_VERSION: 2026-10-19 (MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1; OD-MODEL-PROPOSAL-01..14)
 
 ## 1. Назначение
 
@@ -95,6 +95,7 @@ Permission сам по себе не даёт broad access. Backend дополн
 | `assets.manage_types` | Assets | Управление типами оборудования | explicit global/direction/type subtree/same-tuple intersection | INTERNAL | CRITICAL |
 | `assets.manage_models` | Assets | Управление моделями | global/asset_type | INTERNAL | SENSITIVE |
 | `assets.manage_manufacturers` | Assets | Управление производителями оборудования | explicit GLOBAL | INTERNAL | SENSITIVE |
+| `assets.propose_models` | Assets | Предложение моделей оборудования | explicit GLOBAL/asset_type subtree; same-tuple direction restriction | INTERNAL | SENSITIVE |
 | `documents.read` | Documents | Просмотр документов | inherited entity scope | INTERNAL/CONTRACT | NORMAL |
 | `documents.upload` | Documents | Загрузка файла/фото | inherited entity scope | INTERNAL/CONTRACT | SENSITIVE |
 | `documents.create` | Documents | Создание logical document | inherited entity scope | INTERNAL/CONTRACT* | SENSITIVE |
@@ -225,8 +226,27 @@ read eligibility; the returned catalog remains global and unfiltered. Management
 requires exact explicit GLOBAL `assets.manage_manufacturers`; concrete/geographic/
 direction/type assignments and `assets.manage_types`/`assets.manage_models` do not
 manage Manufacturers. All routes require an ACTIVE INTERNAL user and owned current
-INTERNAL context. The MANUFACTURER-01 implementation is local and unpublished.
+INTERNAL context. MANUFACTURER-01 is published in baseline
+`b3599a4acc29fc21a6f48327f88385bbb280799c`.
 See [Assets module contract](modules/assets.md) and [security rules](security.md).
+
+## 5.4. Model proposal author boundary — TASK-03.02.03
+
+Canonical `assets.propose_models` has module Assets, name `Предложение моделей оборудования`
+and stable ID `0199f3b0-0000-7000-8000-000000000050`. Identity data-only migration
+`20261018134809_AddModelProposalPermission` adds that row only; permission definition
+creates no role, role-permission, assignment or GLOBAL grant. MODEL-PROPOSAL-01 is a
+local implementation with mandatory local validation passed; independent review pending.
+
+The permission covers submit and original-author read/correction/withdraw only.
+Require ACTIVE INTERNAL user, owned current INTERNAL context, and either explicit
+exact GLOBAL or an eligible persisted AssetType subtree assignment; optional direction
+intersects within the same tuple. Geographic-containing/direction-only tuples deny.
+GLOBAL still reads only the original author's Proposals. Correction independently
+authorizes both old/new types; complete assignments never synthesize dimensions.
+Review, management read, cancel and Promote use existing exact `assets.manage_models`;
+reviewer/promoter/canceller must differ from immutable original author. Neither
+assets.read nor management implies proposer authority. No GLOBAL self-decision override.
 
 ## 6. Provisional permissions
 

@@ -1539,9 +1539,10 @@ Explicit GLOBAL, geographic denial and whole-assignment intersection are unchang
 Independent global permission eligibility preserves missing-target404 handling without
 turning absent targets into ALLOW. SEC-01 remediation is part of the published baseline.
 
-## Manufacturer reference authorization — MANUFACTURER-01 local candidate, 2026-10-10
+## Manufacturer reference authorization — MANUFACTURER-01 published
 
-Manufacturer is Assets-owned master data. The implementation is local and unpublished.
+Manufacturer is Assets-owned master data published in baseline
+`b3599a4acc29fc21a6f48327f88385bbb280799c`, alongside the reviewed AssetModel foundation.
 All routes require an ACTIVE INTERNAL local user and a valid owned current INTERNAL
 working context. HTTP permissions, scopes, GLOBAL markers and verified metadata are
 never accepted as caller evidence; the request boundary resolves the current user and
@@ -1578,3 +1579,34 @@ the same Assets transaction. Denied, stale, invalid, duplicate and failed-Audit 
 produce no successful obligation; Audit delivery remains canonical and idempotent.
 Manufacturer has no DELETE endpoint or physical-delete path. AssetType's published
 authorization, taxonomy lock, action set and Audit behavior remain unchanged.
+
+## ModelProposal authorization — MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1
+
+Accepted OD-MODEL-PROPOSAL-01..14 add independent author and management boundaries;
+local validation passed; independent review remains pending. Require ACTIVE INTERNAL user,
+owned current INTERNAL context and current exact permission/validity. Author surfaces
+use assets.propose_models and immutable original ownership, including GLOBAL.
+Management surfaces use assets.manage_models; review/cancel/Promote require a different
+trusted user from the original author, with no GLOBAL override. Management read has
+no author restriction. assets.read or management authority never implies author access.
+
+Each concrete assignment needs an existing AssetType subtree root and no geography;
+optional direction is conjunctive within that assignment at every recursive step.
+Direction-only, stale/invalid roots, mutable scope aliases and cross-assignment synthesis
+deny. Correction independently covers persisted current and replacement types using
+complete assignments. Historical revision/request IDs are authorized through the owning
+current Proposal, never supplied historical target facts. SQL ownership/scope filtering
+precedes count/page; inaccessible targets/revisions/history must not disclose existence.
+Provider failures abort authorization without permissive fallback. Actor/context/creator,
+scope, normalized keys, revision numbers and verification facts are server-derived.
+
+Reservation/state/version errors follow current authorization. All key-changing paths,
+including direct Model code Update, participate in the existing ASTY transaction lock;
+first Promote takes Manufacturer FOR SHARE afterwards and rechecks eligible parents.
+Submit/correction/review are not denied merely by inactive/unverified parent lifecycle.
+The narrow Assets aggregate save boundary couples Proposal/revision/history with required
+obligations and optional promoted Model while preserving all existing mutation guards.
+Conditional replay reauthorizes the same trusted promoter and original version in a
+currently valid owned context; revocation/current hierarchy loss denies before Model
+disclosure. Still-authorized replay ignores later parent selectability and writes nothing.
+The permission migration defines assets.propose_models only and grants nobody access.

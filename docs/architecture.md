@@ -574,7 +574,21 @@ AssetAttributeValue
 AssetRelation
 AssetEvent
 AssetResponsibility
+ModelProposal
+ModelProposalRevision
+ModelProposalHistory
 ```
+
+TASK-03.02.03 / MODEL-PROPOSAL-01 adds a bounded Assets-owned proposal aggregate
+locally, under accepted OD-MODEL-PROPOSAL-01..14; mandatory local validation passed,
+and independent review remains pending. Current Proposal state, immutable revisions and append-only business
+history are separate from durable technical Audit obligations. Its dedicated persistence
+boundary commits one coherent transition/history/required revision and, on Promote,
+one new AssetModel plus both ModelProposalPromoted and existing ModelCreated obligations
+in one Assets transaction. Existing single-entity mutation guards remain enforced.
+Acceptance does not create/verify a Model; explicit Promote creates UNVERIFIED and
+existing explicit Verify controls catalog publication. This does not introduce a
+generic approval engine, cross-module transaction or new transport; ADR-008/011 apply.
 
 ---
 

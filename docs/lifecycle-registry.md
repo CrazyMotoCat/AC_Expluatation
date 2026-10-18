@@ -1,7 +1,7 @@
 # Lifecycle Registry — АС «Эксплуатация»
 
 STATUS: WORKING SOURCE OF TRUTH
-SOURCE_VERSION: 2026-10-10 (MANUFACTURER-01 lifecycle contract)
+SOURCE_VERSION: 2026-10-19 (published AssetModel and LOCAL_IMPLEMENTED_PENDING_R1 MODEL-PROPOSAL-01 lifecycle contracts)
 
 ## 1. Назначение
 
@@ -217,6 +217,48 @@ Only `ACTIVE + VERIFIED` is selectable when creating a new AssetModel. Existing
 references remain resolvable for every state. No deactivation cascade, hard delete,
 verification expiry, dual-control rule or general proposal workflow exists in v1.
 Every transition requires expectedRowVersion and one atomic Assets Audit obligation.
+
+---
+
+# 3.2. AssetModel reference
+
+Published at `b3599a4acc29fc21a6f48327f88385bbb280799c`. Model lifecycle
+ACTIVE/INACTIVE and verification UNVERIFIED/VERIFIED are independent. Create is
+ACTIVE+UNVERIFIED. Explicit verify requires UNVERIFIED Model, ACTIVE+VERIFIED
+Manufacturer and ACTIVE AssetType; actual code/name change invalidates verification.
+Explicit revoke clears metadata and requires reason; activate/deactivate preserve
+verification. Associations are immutable and parent changes never cascade. General
+reference contains own ACTIVE+VERIFIED Models; actual new Asset selectability also
+rechecks current parent states and exact type. No delete or descendant type inheritance.
+
+# 3.3. ModelProposal workflow
+
+TASK-03.02.03 / MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1, accepted OD-01..14;
+mandatory local validation passed; independent review/publication remain pending.
+
+```text
+NEW -> SUBMITTED
+SUBMITTED -> NEEDS_INFORMATION | ACCEPTED | REJECTED | WITHDRAWN
+NEEDS_INFORMATION -> SUBMITTED | WITHDRAWN
+ACCEPTED -> CANCELLED | PROMOTED
+```
+
+REJECTED/WITHDRAWN/CANCELLED/PROMOTED are terminal. Correction alone adds a full
+immutable revision and returns NEEDS_INFORMATION to SUBMITTED. Original creator may
+correct/withdraw; authorized non-author manager requests information, accepts, rejects,
+cancels or promotes, even for GLOBAL. Existing commands require expectedRowVersion;
+every committed transition increments once and appends separate business history and
+durable Audit. Information request/correction/reject/cancel text is required (Unicode
+trim, maximum 500 scalars); accept/withdraw text optional. No generic PATCH/delete/reopen.
+
+SUBMITTED/NEEDS_INFORMATION/ACCEPTED reserve the normalized Manufacturer/type/code key.
+Terminal transitions release/consume reservation only on commit. Acceptance creates no
+Model. First Promote requires eligible current parents and creates ACTIVE+UNVERIFIED
+Model with both obligations; existing explicit Model Verify remains separate.
+PROMOTED permits only conditional read-like replay by the same trusted promoter and
+original version after current authorization, with zero lifecycle/history/Audit writes.
+Parent changes do not cascade or automatically reject/cancel Proposals. See
+[Assets module contract](modules/assets.md) for complete authority and replay rules.
 
 ---
 

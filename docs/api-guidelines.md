@@ -1411,8 +1411,33 @@ proposal
 API:
 
 ```text
-POST /master-data/model-proposals
+POST /api/v1/asset-model-proposals
 ```
+
+TASK-03.02.03 / MODEL-PROPOSAL-01 implements the accepted OD-12/14 boundary locally;
+mandatory local validation passed; independent review remains pending. The author base above requires
+`assets.propose_models`; `/api/v1/asset-model-proposals/management` independently
+requires `assets.manage_models`. Each supports GET list/detail/revision list/detail.
+Author commands are create, `/{id}/revisions` (full snapshot, response and
+expectedRowVersion), and `/{id}/withdraw`. Management commands are
+`/{id}/request-information`, `/accept`, `/reject`, `/cancel`, `/promote`.
+Decision bodies use expectedRowVersion and required/optional `text`; Promote uses
+only expectedRowVersion. There is no generic PATCH or DELETE.
+
+Proposal acceptance does not create or verify a Model. Separate first Promote returns
+201 with one ACTIVE+UNVERIFIED Model; existing explicit Model Verify controls general
+reference publication. Same trusted promoter/original-version replay, currently
+authorized in an owned valid context, returns 200 without new writes or Audit; no
+Idempotency-Key is added. Other authorized post-success retries conflict.
+
+Lists use exactly items/page/pageSize/totalCount, defaults 1/50/max 200 and
+updatedAt DESC,id ASC. Detail uses `{ proposal, history }`. Exact IDs/status and
+normalized exact/prefix code/name filters run after SQL ownership/scope restrictions,
+before count/page; percent/underscore/backslash are escaped literally. Canonical 409
+codes are OPTIMISTIC_CONCURRENCY_CONFLICT, MODEL_PROPOSAL_STATE_CONFLICT,
+MODEL_CODE_ALREADY_EXISTS and MODEL_CODE_RESERVED_BY_PROPOSAL. The last also applies
+to direct AssetModel Create and normalized-code-changing Update destination reservations.
+See [Assets module contract](modules/assets.md) for the full workflow/route contract.
 
 ---
 

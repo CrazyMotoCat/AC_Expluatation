@@ -1,7 +1,7 @@
 # Module: Assets
 
 STATUS: STABLE
-SOURCE_VERSION: published baseline 949b74c1c645e5abfbfbcf2c96e65778b891f14e; AssetType and Manufacturer published; AssetModel local candidate (2026-10-18)
+SOURCE_VERSION: 2026-10-19; AssetModel published at b3599a4acc29fc21a6f48327f88385bbb280799c; MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1
 
 ## Purpose
 
@@ -11,9 +11,12 @@ Assets — центральный реестр оборудования, инж�
 
 `TASK-03.01.01 / ASSET-TYPE-01` and `TASK-03.02.01 / MANUFACTURER-01` are published
 in baseline `949b74c1c645e5abfbfbcf2c96e65778b891f14e`.
-`TASK-03.02.02 / ASSET-MODEL-01` is a local backend implementation candidate pending
-independent review. Asset creation, model proposal workflow, attributes, composites,
-frontend and business-history remain outside that implementation.
+`TASK-03.02.02 / ASSET-MODEL-01`, including F1/F2 remediation, is published at
+`b3599a4acc29fc21a6f48327f88385bbb280799c` after independent R3 review.
+`TASK-03.02.03 / MODEL-PROPOSAL-01` is a separately authorized local backend
+implementation under accepted OD-MODEL-PROPOSAL-01..14. Mandatory local validation
+passed; independent MODEL-PROPOSAL-01R and publication remain pending. No push.
+Asset creation, attributes, composites and frontend remain outside this phase.
 Module registration is `AddAssetsModule(configuration)`.
 
 ASSET-TYPE-01F1 remediates SEC-01 from the immutable review and is part of the
@@ -209,7 +212,7 @@ The current implementation references [ADR-001](../adr/ADR-001-modular-monolith.
 [ADR-019](../adr/ADR-019-correlated-assignment-scope-facts.md); no accepted ADR body
 was changed.
 
-## AssetModel backend contract — ASSET-MODEL-01 local candidate, 2026-10-18
+## AssetModel backend contract — published, 2026-10-18
 
 AssetModel is an Assets-owned UUIDv7 reference with one required immutable
 `manufacturer_id` and `asset_type_id`. Associations are restrictive local foreign keys;
@@ -283,8 +286,115 @@ facts, server actor/context, and revocation reason. Migration
 `20261018023154_AddAssetModels` adds the table and narrow Assets Audit extension; its
 Down refuses to discard any Assets master-data or Audit history, preventing a partial
 multi-migration rollback. No new Identity permission, seed,
-production frontend, proposal workflow or AssetModel production seed is added.
-Implementation remains local pending independent ASSET-MODEL-01R review.
+production frontend, proposal workflow or AssetModel production seed was added by that phase.
+The published SHA is `b3599a4acc29fc21a6f48327f88385bbb280799c`.
+MODEL-PROPOSAL-01 adds a reservation check to direct Model Create and to Update
+when the normalized destination code changes. A reserving Proposal at that key
+returns `409 MODEL_CODE_RESERVED_BY_PROPOSAL`; valid unreserved Model operations,
+uniqueness, verification invalidation and existing Model Audit contracts are preserved.
+
+## ModelProposal backend contract — MODEL-PROPOSAL-01 LOCAL_IMPLEMENTED_PENDING_R1
+
+The Assets-owned `ModelProposals` vertical slice stores current `ModelProposal`,
+immutable full `ModelProposalRevision` snapshots and append-only
+`ModelProposalHistory`. This is a bounded workflow under accepted OD-01..14.
+Acceptance changes only the Proposal. Separate Promote creates an ACTIVE +
+UNVERIFIED AssetModel; the existing explicit Model Verify still controls general
+catalog publication. No automatic verification, notification or generic engine is added.
+
+Lifecycle: create SUBMITTED; SUBMITTED may become NEEDS_INFORMATION, ACCEPTED,
+REJECTED or WITHDRAWN; NEEDS_INFORMATION may become SUBMITTED through a full new
+revision or WITHDRAWN; ACCEPTED may become CANCELLED or PROMOTED. REJECTED,
+WITHDRAWN, CANCELLED and PROMOTED are terminal. Every existing-record command
+requires positive expectedRowVersion; each successful transition increments it once
+and appends one business-history event plus one durable Proposal Audit obligation.
+Initial revision/version is 1; only correction adds the next revision. Current
+content must equal the current immutable revision. No physical delete or reopen exists.
+
+Author operations use exact `assets.propose_models`; review, cancel, Promote and
+management reads use exact `assets.manage_models`. Both require ACTIVE INTERNAL
+user, owned current INTERNAL context and current exact permission through trusted
+Identity providers. Author reads/correction/withdraw additionally require the immutable
+original creator, even for GLOBAL. Reviewer, canceller and promoter must differ from
+that creator, with no GLOBAL override; reviewer may promote. Management read has no
+author restriction. `assets.read` and management do not imply proposal-author permission.
+
+Concrete authority requires a persisted AssetType subtree root; optional direction
+intersects within the same complete assignment. Geographic-containing and direction-only
+assignments are ineligible. Direction restrictions remain at every recursive step;
+complete assignments union without dimension synthesis. Existing Proposal/revision/history
+reads authorize through the persisted current Proposal and current type. Correction
+independently authorizes current and replacement type; different complete assignments
+may cover each. Missing/stale roots and provider errors fail closed. No caller-created
+actor, creator, scope, ancestry or revision facts authorize a command.
+
+Submit/correction require existing Manufacturer and AssetType but accept inactive or
+unverified parents. Review/cancel do not require parent eligibility. First Promote alone
+requires Manufacturer ACTIVE + VERIFIED and AssetType ACTIVE. Parent changes never
+cascade into Proposal status. Code/name reuse published AssetModel scalar bounds and
+Unicode 17.0.0 normalization: code preserves internal whitespace/punctuation; name uses
+Manufacturer search normalization. Decision text trims Unicode whitespace, rejects
+invalid Unicode/NUL and allows at most 500 scalars. Request-information, correction
+response, rejection and cancellation require text; acceptance/withdrawal text is optional.
+Correction links the exact preceding request to its resulting immutable revision.
+
+Reservation key is `(manufacturer_id, asset_type_id, normalized_model_code)`.
+SUBMITTED, NEEDS_INFORMATION and ACCEPTED reserve it with partial UNIQUE
+`ux_model_proposals_reservation`; terminal states release/consume it. Any existing
+Model status blocks the key. Submit, correction, release, Promote, direct Model Create
+and normalized-code-changing Model Update coordinate in READ COMMITTED under exclusive
+ASTY `(1095980121,1)`. Required order: transaction -> ASTY -> Manufacturer FOR SHARE
+when parent eligibility is checked -> fresh Assets reads -> current Identity authorization
+-> state/version/reservation checks -> mutation/revision/history/Audit -> commit.
+Failed correction retains old revision/key; failed Promote retains ACCEPTED/reservation.
+
+The dedicated Proposal persistence boundary permits exactly one coherent Proposal
+operation, its history/required revision, optional promoted Model and one Proposal
+obligation, plus existing ModelCreated on Promote. It validates exact links, actors,
+contexts, before/after and versions; existing single-entity mutation guards remain.
+All writes commit in one Assets transaction. Public Model Create, which owns its own
+transaction, is not used by Promote. Each insert failure must roll back the aggregate.
+
+First Promote returns `201 Created`, stores ModelId and original pre-promotion version
+with trusted promoter in immutable history, and creates exactly one Model. PROMOTED
+replay returns `200 OK` only for the same trusted promoter and original expected version
+after current authorization/non-author checks. A currently valid different owned context
+is permitted. Replay returns the linked persisted Model without new mutation, history,
+revision or Audit and does not repeat parent selectability. Other authorized post-success
+actor/version retries return MODEL_PROPOSAL_STATE_CONFLICT; stale ACCEPTED version
+returns OPTIMISTIC_CONCURRENCY_CONFLICT. Revoked access cannot retrieve the Model by replay.
+
+| Surface | Routes and body |
+|---|---|
+| Author base | `/api/v1/asset-model-proposals` |
+| Management base | `/api/v1/asset-model-proposals/management` |
+| Both read modes | GET base, `/{id}`, `/{id}/revisions`, `/{id}/revisions/{revisionId}` |
+| Author create | POST base: manufacturerId, assetTypeId, modelCode, modelName |
+| Author correction | POST `/{id}/revisions`: full content, response, expectedRowVersion |
+| Author withdrawal | POST `/{id}/withdraw`: expectedRowVersion, optional text |
+| Management decisions | POST `/{id}/request-information`, `/accept`, `/reject`, `/cancel`: expectedRowVersion, required/optional text above |
+| Management Promote | POST `/{id}/promote`: expectedRowVersion only |
+
+List response is `{ items, page, pageSize, totalCount }`; detail is
+`{ proposal, history }`. Revisions are full immutable content DTOs, not authorization
+evidence. Filters manufacturerId/assetTypeId/status/modelCode/modelCodePrefix/modelName/
+modelNamePrefix are conjunctive, exact or normalized literal-prefix. PostgreSQL applies
+author/scope coverage before count/page. Sort updatedAt DESC,id ASC; page 1/size 50/max 200.
+LIKE percent/underscore/backslash are literal escaped. No fuzzy/substring search exists.
+UUIDv7 validation, canonical errors and Assets non-disclosure apply to every surface.
+The four 409 codes are OPTIMISTIC_CONCURRENCY_CONFLICT, MODEL_PROPOSAL_STATE_CONFLICT,
+MODEL_CODE_ALREADY_EXISTS and MODEL_CODE_RESERVED_BY_PROPOSAL; no raw DB detail is exposed.
+
+Assets migration `20261018135619_AddModelProposals` adds the three workflow tables,
+immutable/history/integrity guards, restrictive same-Proposal links and the existing
+Audit obligation's Proposal branch. Down refuses any Assets master-data, workflow,
+history or Audit data before changing schema, preserving the published rollback guard.
+Identity migration `20261018134809_AddModelProposalPermission` inserts only canonical
+`assets.propose_models`; no role, role permission, assignment, GLOBAL grant or Proposal
+seed is created. Eight canonical Proposal actions and their exact payload schema are
+documented in [Audit](audit.md). Complete PostgreSQL race/security/rollback/migration,
+HTTP and existing-regression validation passed locally. Independent review, push and
+exact-SHA hosted CI remain separate future gates; no publication is claimed.
 
 ## Owns
 
@@ -292,6 +402,7 @@ Implementation remains local pending independent ASSET-MODEL-01R review.
 - AssetType
 - Manufacturer
 - AssetModel
+- ModelProposal, ModelProposalRevision, ModelProposalHistory
 - attributes
 - AssetRelation
 - AssetResponsibility
@@ -313,6 +424,9 @@ Core tables:
 asset_types
 manufacturers
 asset_models
+model_proposals
+model_proposal_revisions
+model_proposal_history
 attribute_definitions
 asset_attribute_values
 assets

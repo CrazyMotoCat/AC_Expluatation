@@ -1,7 +1,7 @@
 # Module: Audit
 
 STATUS: FOUNDATION EXTENDED
-SOURCE_VERSION: 2026-10-10 (published AssetType + local Manufacturer canonical extension)
+SOURCE_VERSION: 2026-10-19; published baseline b3599a4acc29fc21a6f48327f88385bbb280799c; MODEL-PROPOSAL-01 canonical extension LOCAL_IMPLEMENTED_PENDING_R1
 
 ## Purpose
 
@@ -93,7 +93,42 @@ rowVersion. Assets commits each obligation atomically with the Model mutation, p
 verification invalidation and revocation reason in before/after facts. The existing
 Assets delivery port, claim/lease/fencing protocol and canonical Audit writer are reused;
 there is no Audit schema migration, second delivery mechanism or Model business-history
-store. The extension is local pending independent ASSET-MODEL-01R review.
+store. This Model extension is published at
+`b3599a4acc29fc21a6f48327f88385bbb280799c` after independent review/remediation.
+
+MODEL-PROPOSAL-01 locally extends canonical Audit.Contracts with entity ModelProposal
+and exactly eight actions: ModelProposalCreated, ModelProposalRevisionSubmitted,
+ModelProposalInformationRequested, ModelProposalAccepted, ModelProposalRejected,
+ModelProposalWithdrawn, ModelProposalCancelled and ModelProposalPromoted. Local
+validation passed; independent review remains pending. Accepted action/entity pairing and
+strict snapshots preserve all published AssetType/Manufacturer/AssetModel branches.
+
+Proposal before/after payloads have exactly these allowlisted keys:
+
+```text
+id, createdByUserId, createdInContextId, createdAt, updatedAt, status,
+currentRevisionId, currentRevisionNumber, manufacturerId, assetTypeId,
+modelCode, modelName, rowVersion, modelId, historyId, actorUserId,
+workingContextId, occurredAt, text, informationRequestId, prePromotionRowVersion
+```
+
+Unknown/duplicate fields, malformed UUIDv7, invalid status/version/UTC timestamps or
+Unicode/NUL text are rejected. ModelCode/name retain 100/200 scalar limits; applicable
+text has 500. Only creation has null before; all actions require after. Action/status
+and required/optional text are checked; correction requires exact information-request
+correlation. Promote after retains original pre-promotion version and Model link.
+Trusted actor/context/time and historyId correlate the obligation to immutable business
+history. Normalized database search keys are not part of this Proposal payload schema.
+
+Assets owns separate append-only Proposal history and durable Audit obligations.
+Every transition commits its history and matching Proposal obligation in one Assets
+transaction. First Promote also commits exactly one new ACTIVE+UNVERIFIED Model and
+the existing ModelCreated obligation; neither existing Model payload nor delivery
+contract changes. Conditional replay writes no obligations or history. Either
+obligation/history/revision insert failure must roll back the entire operation.
+Assets' existing claim/lease/fencing/backoff path materializes both obligations through
+stable EventIds and canonical IAuditWriter; no new Audit schema migration, transport,
+independent Audit transaction or second mechanism is introduced.
 
 `TASK-02.02.01` Phase A freezes the additive Organization extension: the
 canonical entity is `OrganizationalUnit`, with actions

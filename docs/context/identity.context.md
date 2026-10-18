@@ -1,6 +1,6 @@
 # Identity Context Capsule
 
-SOURCE_VERSION: 4dd9aea7c8ba940d3d8715a5d54fb7a5e3c16724 (published AssetType scope consumer; TASK-03.02.01 Manufacturer permission contract local/unpublished)
+SOURCE_VERSION: 2026-10-19; published baseline b3599a4acc29fc21a6f48327f88385bbb280799c; MODEL-PROPOSAL-01 permission definition LOCAL_IMPLEMENTED_PENDING_R1
 MODULE: Identity
 
 ## PURPOSE
@@ -137,6 +137,16 @@ Working context:
 - `incidents.manage`
 
 Identity не должен знать все бизнес-правила других модулей; он предоставляет механизм проверки permissions/scope.
+
+MODEL-PROPOSAL-01 adds exactly assets.propose_models, module Assets, name
+Предложение моделей оборудования, stable ID 0199f3b0-0000-7000-8000-000000000050,
+via permission-only migration 20261018134809_AddModelProposalPermission. It creates
+no role/role-permission/assignment/GLOBAL grant or Identity schema change and authorizes
+nobody by definition alone. Existing exact GLOBAL/correlated providers retain current
+INTERNAL/context/validity rules. Assets owns author/type/SoD interpretation; author
+permission does not imply assets.manage_models and the reverse is also false. Local
+Proposal local validation passed; independent review remains pending. Manufacturer/AssetModel
+prerequisites are published in the baseline above.
 
 ## PUBLIC CONTRACTS
 

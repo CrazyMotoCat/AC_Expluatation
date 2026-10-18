@@ -1075,6 +1075,26 @@ role | context | site | action | expected
 - inactive lookup;
 - normalized search.
 
+MODEL-PROPOSAL-01 extends the required real PostgreSQL concurrency and rollback
+evidence for the Assets workflow. The complete accepted matrix is recorded in
+`.agent/tasks/TASK-03.02.03/model-proposal-00g-report.md` section 9. Exercise both
+meaningful orderings, every release/source-state and correction/decision variant,
+GLOBAL/scoped parent races and direct Model normalized-code Update reservations.
+Use independent DbContexts/connections/transactions, controlled post-save/pre-commit
+or post-ASTY/pre-validation barriers and actual pg_blocking_pids plus
+wait_event_type=Lock evidence. Task.WhenAll/delays alone do not prove overlap.
+Assert exact Proposal/Model state, version, reservation, revision, history and both
+Promote obligation payloads/actor/context; failed commands and replay add no success
+records. Independently inject history/revision and each Promote obligation failure,
+including rollback-winner races. Run the complete stabilized matrix three consecutive
+times; report actual scenario/ordering/skip counts. Local MODEL-PROPOSAL-01 validation
+on 2026-10-19 executed 38 scenario labels and 72 orderings per repeat, three consecutive
+repeats (216 passes, zero skips), with Lock/blocker evidence on every execution. Eleven
+independent insert-failure cases and actual canonical delivery of all eight actions
+passed. HTTP exercised three controlled overlaps, including Promote 201/200 replay.
+Existing AssetModel's separate 12-ordering regression also passed. Independent review
+and exact-SHA hosted CI are separate future gates.
+
 ---
 
 # 91. QR tests

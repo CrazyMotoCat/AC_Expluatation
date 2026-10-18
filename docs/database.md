@@ -1306,7 +1306,109 @@ AssetType selectability. This task does not implement Asset creation.
 
 ---
 
-## 9.4. assets.model_attribute_values
+## 9.4. ModelProposal workflow — LOCAL_IMPLEMENTED_PENDING_R1
+
+TASK-03.02.03 / OD-MODEL-PROPOSAL-01..14 adds one Assets-owned migration
+`20261018135619_AddModelProposals`, following the published AssetModel baseline
+`b3599a4acc29fc21a6f48327f88385bbb280799c`. Mandatory local validation passed;
+independent review remains pending. The three tables belong to `AssetsDbContext`; actor/context UUIDv7
+values are trusted scalar identities without cross-schema Identity foreign keys.
+
+### assets.model_proposals
+
+```text
+id                      uuid UUIDv7 PK, immutable
+created_by_user_id      uuid required, immutable original author
+created_in_context_id   uuid required, immutable creation context
+created_at              timestamptz UTC, immutable
+updated_at              timestamptz UTC required
+row_version             bigint positive optimistic concurrency
+status                  varchar(20), seven approved workflow states
+current_revision_id     uuid required
+current_revision_number integer positive, <= row_version
+manufacturer_id         uuid required RESTRICT FK assets.manufacturers
+asset_type_id           uuid required RESTRICT FK assets.asset_types
+model_code              varchar(100) required, Unicode scalar bound
+normalized_model_code   varchar(300) required, C collation, <=1200 UTF-8 bytes
+model_name              varchar(200) required, Unicode scalar bound
+normalized_model_name   varchar(600) required, C collation, <=2400 UTF-8 bytes
+model_id                uuid nullable RESTRICT FK assets.asset_models
+```
+
+Current content must equal its own immutable current revision. The composite FK
+`(id,current_revision_id,current_revision_number)` references the revision's
+`(proposal_id,id,revision_number)` and is deferred to commit for initial insertion.
+Only a NEEDS_INFORMATION -> SUBMITTED correction may change current content, creating
+revision number+1. Immutable creator/creation metadata and no-delete/transition guards
+preserve history; every existing-row transition advances row_version by exactly one.
+`status='PROMOTED'` iff model_id is non-null; unique non-null model_id prevents duplicate
+Proposal-to-Model links. Revision/history consistency and matching durable obligations
+are checked at the aggregate persistence boundary and by deferred integrity guards.
+
+`ux_model_proposals_reservation` is partial UNIQUE
+`(manufacturer_id,asset_type_id,normalized_model_code)` for exactly SUBMITTED,
+NEEDS_INFORMATION and ACCEPTED. REJECTED/WITHDRAWN/CANCELLED/PROMOTED do not reserve.
+Any Model status blocks the same key. The partial index only protects Proposal rows;
+exclusive transaction ASTY `(1095980121,1)` and fresh checks coordinate all cross-table
+writers, including direct Model Create and normalized-code-changing Update. A reserved
+destination returns 409 MODEL_CODE_RESERVED_BY_PROPOSAL. Failed correction preserves
+the old key/revision; failed Promote preserves ACCEPTED and its reservation.
+
+Indexes cover updated_at DESC,id ASC; author/type/status/manufacturer leading columns
+with that ordering; normalized code/name plus id for literal prefix lookup; current
+revision linkage; and unique non-null promoted Model. Names follow
+`ix_model_proposals_{updated,author_updated,type_updated,status_updated,manufacturer_updated}_id`,
+`ix_model_proposals_normalized_{code,name}_id`, `ix_model_proposals_current_revision`
+and `ux_model_proposals_model_id`.
+
+### assets.model_proposal_revisions
+
+UUIDv7 id; required proposal_id, positive revision_number; full Manufacturer/AssetType,
+display code/name and normalized code/name snapshot with the same bounds/collations as
+the current Proposal; trusted created_by_user_id and created_at UTC. Restrictive local
+FKs preserve Proposal and parent references. UNIQUE(proposal_id,revision_number) and
+alternate key (proposal_id,id,revision_number) support exact same-Proposal references.
+Initial revision is 1. Previous revisions cannot be updated or deleted.
+
+### assets.model_proposal_history
+
+UUIDv7 id; required proposal_id, positive proposal_row_version and revision_number;
+canonical action, nullable from_status and required to_status; exact revision_id;
+trusted actor_user_id, working_context_id, occurred_at UTC and correlation_id;
+nullable text (maximum 500 Unicode scalars), information_request_id, model_id and
+pre_promotion_row_version. UNIQUE(proposal_id,proposal_row_version) identifies every
+committed transition. A partial unique Proposal index permits only one successful
+ModelProposalPromoted event; `(proposal_id,occurred_at,id)` supports history order.
+Restrictive composite FKs prevent another Proposal's revision/request being linked.
+Correction references the immediately preceding information-request event and its
+new revision. Promote persists original expected version = resulting version-1,
+trusted promoter and Model link for conditional replay. Immutable history/revision
+guards reject UPDATE/DELETE; no cascade deletion exists.
+
+Required text applies to information request, correction response, rejection and
+cancellation; acceptance/withdrawal text is optional and blank becomes null. Creation
+and Promote have no decision text. Guards preserve action/status/revision/version
+chains, non-author management decisions and exact request correlation. History is
+business evidence separate from technical Audit.
+
+The existing `assets.audit_obligations` gains nullable `model_proposal_id` with a
+restrictive FK and its own index. Exactly one entity binding must match entity_id.
+Eight ModelProposal actions extend existing entity/action/before/reason checks without
+weakening AssetType/Manufacturer/AssetModel branches. Each operation atomically writes
+its Proposal/revision/history and one matching obligation; Promote additionally creates
+one ACTIVE+UNVERIFIED Model and existing ModelCreated obligation. Dedicated aggregate
+save validation excludes unrelated writes; existing single-entity guards are retained.
+Down refuses any Assets master-data, Proposal, revision, history or Audit obligation before removing
+objects. It does not partially dismantle populated workflow data.
+
+The separate permission-only Identity migration
+`20261018134809_AddModelProposalPermission` inserts `assets.propose_models`, stable ID
+`0199f3b0-0000-7000-8000-000000000050`, name `Предложение моделей оборудования`, module
+Assets. It changes no Identity schema and creates no roles, mappings, assignments,
+GLOBAL grants or production business seeds. Existing restrictive permission FKs guard
+rollback once the permission is assigned.
+
+## 9.5. assets.model_attribute_values
 
 Заводские характеристики модели.
 
@@ -4348,6 +4450,9 @@ contractors.user_contract_assignments
 assets.asset_types
 assets.manufacturers
 assets.asset_models
+assets.model_proposals
+assets.model_proposal_revisions
+assets.model_proposal_history
 assets.attribute_definitions
 assets.assets
 assets.asset_attribute_values
