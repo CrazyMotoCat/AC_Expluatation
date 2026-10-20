@@ -1345,6 +1345,23 @@ preserve history; every existing-row transition advances row_version by exactly 
 Proposal-to-Model links. Revision/history consistency and matching durable obligations
 are checked at the aggregate persistence boundary and by deferred integrity guards.
 
+`MODEL-PROPOSAL-01F1` adds the Assets-only corrective migration
+`20261020103814_EnforceModelProposalHistoryAudit` after the unchanged original
+workflow migration. Fresh installations and databases with the original four Assets
+migrations both install the corrected deferred function. Each inserted History event
+requires its own obligation: Proposal/History identity, action, event version,
+actor/context, correlation, reason, time and exact canonical before/after snapshots
+must match that event and its immutable revision/predecessor. Timestamp values are
+compared as UTC instants. A final-version obligation cannot satisfy an intermediate
+event in the same transaction. Final Proposal/revision/history and Promote ModelCreated
+checks remain separate. The migration checks existing History/Audit correspondence
+and rejects inconsistent historical data for explicit owner disposition; it does not
+fabricate or rewrite Audit. Up/Down hold the existing transaction-scoped ASTY lock
+through commit. Its guarded Down restores the previous function only on
+an empty Assets database. Public API and the one-operation application save boundary
+are unchanged. F1 remains local pending independent R2; the unfinished R1 coverage
+and publication gates remain separate.
+
 `ux_model_proposals_reservation` is partial UNIQUE
 `(manufacturer_id,asset_type_id,normalized_model_code)` for exactly SUBMITTED,
 NEEDS_INFORMATION and ACCEPTED. REJECTED/WITHDRAWN/CANCELLED/PROMOTED do not reserve.
